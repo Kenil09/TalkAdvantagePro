@@ -1,0 +1,29 @@
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
+
+const FlashWidgets = () => {
+  return (
+    <div className="bg-white rounded-3xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-900">Flash Widgets</h3>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-4 text-gray-500 hover:text-gray-400 cursor-pointer"
+        >
+          <Settings />
+        </Button>
+      </div>
+      <div className="space-y-2">
+        <Button className="w-full p-2 bg-gray-50 text-gray-700 rounded-full hover:bg-gray-200 transition-colors text-sm cursor-pointer">
+          GitHub Research
+        </Button>
+        <Button className="w-full p-2 bg-gray-50 text-gray-700 rounded-full hover:bg-gray-200 transition-colors text-sm cursor-pointer">
+          Ticket Analysis
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default FlashWidgets;
