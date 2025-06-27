@@ -12,7 +12,6 @@ import type {
   User,
   SignInWithPasswordCredentials,
   SignUpWithPasswordCredentials,
-  AuthError as SupabaseAuthError,
 } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { getError } from "@/utils/error.hrlper";

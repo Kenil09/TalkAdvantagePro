@@ -89,3 +89,32 @@ export async function transcribeAudioFromUrl(
     };
   }
 }
+
+export async function generateRealtimeToken(apiKey: string): Promise<string> {
+  try {
+    const response = await fetch(
+      "https://api.assemblyai.com/v2/realtime/token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          expires_in: 3600, // Token valid for 1 hour
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to generate token");
+    }
+
+    const data = await response.json();
+    return data.token;
+  } catch (error) {
+    console.error("Error generating token:", error);
+    throw error;
+  }
+}

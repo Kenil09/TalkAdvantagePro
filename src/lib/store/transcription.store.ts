@@ -1,7 +1,7 @@
 import { create } from "zustand";
+import { TranscriptionStore } from "@/types/transcription.types";
 
-//TODO: add types
-export const useTranscriptionStore = create((set) => ({
+export const useTranscriptionStore = create<TranscriptionStore>((set) => ({
   isConnecting: false,
   setIsConnecting: (connecting: boolean) => set({ isConnecting: connecting }),
   isTranscribing: false,

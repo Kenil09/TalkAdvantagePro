@@ -10,6 +10,7 @@ export const useAudioRecordingStore = create<AudioRecordingStore>((set) => ({
     set({ recordingState: state }),
   isMuted: false,
   setIsMuted: (muted: boolean) => set({ isMuted: muted }),
+  toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
   mediaRecorder: null,
   setMediaRecorder: (recorder: MediaRecorder | null) =>
     set({ mediaRecorder: recorder }),

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AssemblyAI } from "assemblyai";
+import {
+  AssemblyAI,
+  RealtimeTranscript,
+  SessionBeginsEventData,
+} from "assemblyai";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -52,14 +56,118 @@ const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
     setAudioChunks,
   } = useAudioRecordingStore();
 
-  const {
-    isConnecting,
-    setIsConnecting,
-    isTranscribing,
-    setIsTranscribing,
-    liveText,
-    setLiveText,
-  } = useTranscriptionStore();
+  const { isConnecting, setIsConnecting, setIsTranscribing, setLiveText } =
+    useTranscriptionStore();
+
+  // Initialize AssemblyAI transcription
+  const initializeTranscription = useCallback(async () => {
+    try {
+      setIsConnecting(true);
+
+      // Get token from your API endpoint
+      const response = await fetch("/api/assemblyai/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error || "Failed to get token");
+      }
+
+      const { token } = await response.json();
+
+      if (!token) {
+        throw new Error("Temporary token missing from response");
+      }
+
+      // Create the AssemblyAI client using the SDK
+      const client = new AssemblyAI({ apiKey: token });
+
+      console.log("AssemblyAI client created");
+
+      // Create a real-time transcriber with the correct sample rate
+      const transcriber = client.realtime.transcriber({
+        sampleRate: 16000,
+        token,
+      });
+
+      // Set up transcriber event handlers
+      transcriber.on("open", (data: SessionBeginsEventData) => {
+        const { sessionId } = data;
+        console.log(`AssemblyAI session opened with ID: ${sessionId}`);
+        setIsTranscribing(true);
+        setIsConnecting(false);
+      });
+
+      transcriber.on("transcript", (transcript: RealtimeTranscript) => {
+        if (!transcript.text || transcript.message_type !== "FinalTranscript") {
+          return;
+        }
+        console.log(`AssemblyAI FinalTranscript:`, transcript.text);
+        // Append final transcript segment to live text and update word count
+        setLiveText((prev) => {
+          const newText = `${prev}${prev ? " " : ""}${transcript.text}`;
+
+          // Update word count if needed
+          // if (isIntervalEnabled && analysisInterval.startsWith("words-")) {
+          //   const wordLimit = Number.parseInt(analysisInterval.split("-")[1]);
+          //   const currentWordCount = newText.trim().split(/\s+/).length;
+
+          //   if (currentWordCount >= wordLimit) {
+          //     // Schedule the analysis and text trimming for the next tick
+          //     setTimeout(() => {
+          //       if (processContentRef.current) {
+          //         processContentRef.current();
+          //         // Reset word count by trimming the text to keep only the remainder
+          //         const words = newText.trim().split(/\s+/);
+          //         const remainingWords = words.slice(wordLimit).join(" ");
+          //         setLiveText(remainingWords);
+          //       }
+          //     }, 0);
+          //   }
+          // }
+          return newText;
+        });
+
+        // Store segment in session
+        // sessionStore.addTranscriptSegment(transcript.text);
+      });
+
+      transcriber.on("error", (error: Error) => {
+        console.error("AssemblyAI transcriber error:", error);
+        // handleError(
+        //   ErrorType.TRANSCRIPTION,
+        //   error.message || "Transcription error",
+        //   {
+        //     details: "Error from transcription service",
+        //   }
+        // );
+      });
+
+      transcriber.on("close", (code: number, reason: string) => {
+        console.log(`AssemblyAI session closed: ${code} ${reason}`);
+        setIsTranscribing(false);
+      });
+
+      // Connect to the service
+      console.log("Connecting to AssemblyAI real-time service...");
+      await transcriber.connect();
+
+      // Save references
+      transcriberRef.current = transcriber;
+    } catch (error) {
+      console.error("Error initializing transcription:", error);
+      setIsConnecting(false);
+      // handleError(
+      //   ErrorType.TRANSCRIPTION,
+      //   error instanceof Error ? error.message : "Unknown error",
+      //   {
+      //     details: "Could not initialize transcription",
+      //   }
+      // );
+    }
+  }, [setIsConnecting, setIsTranscribing, setLiveText]);
 
   const startRecording = useCallback(async () => {
     console.log("startRecording function called"); // Log start of function
@@ -204,7 +312,14 @@ const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
       // Ensure state is reset on error
       setRecordingState("idle");
     }
-  }, [isMuted]);
+  }, [
+    audioChunks,
+    initializeTranscription,
+    isMuted,
+    setAudioChunks,
+    setMediaRecorder,
+    setRecordingState,
+  ]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorder && mediaRecorder.state === "recording") {
@@ -217,7 +332,7 @@ const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
     //   title: "Recording Paused",
     //   description: "Your recording has been paused. Press play to continue.",
     // })
-  }, [mediaRecorder]);
+  }, [mediaRecorder, setRecordingState]);
 
   const resumeRecording = useCallback(() => {
     if (mediaRecorder && mediaRecorder.state === "paused") {
@@ -230,7 +345,7 @@ const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
     //   title: "Recording Resumed",
     //   description: "Your recording has been resumed.",
     // })
-  }, [mediaRecorder]);
+  }, [mediaRecorder, setRecordingState]);
 
   const stopRecording = useCallback(() => {
     if (recordingState === AUDIO_RECORDING_STATE.idle) return;
@@ -279,117 +394,7 @@ const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
     }
 
     setRecordingState(AUDIO_RECORDING_STATE.idle as AudioRecordingState);
-  }, [recordingState, mediaRecorder, audioChunks, recordingTime]);
-
-  // Initialize AssemblyAI transcription
-  const initializeTranscription = useCallback(async () => {
-    try {
-      setIsConnecting(true);
-
-      // Get token from your API endpoint
-      const response = await fetch("/api/assemblyai/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!response.ok) {
-        const { error } = await response.json();
-        throw new Error(error || "Failed to get token");
-      }
-
-      const { token } = await response.json();
-
-      if (!token) {
-        throw new Error("Temporary token missing from response");
-      }
-
-      // Create the AssemblyAI client using the SDK
-      const client = new AssemblyAI({ apiKey: token });
-
-      console.log("AssemblyAI client created");
-
-      // Create a real-time transcriber with the correct sample rate
-      const transcriber = client.realtime.transcriber({
-        sampleRate: 16000,
-        token,
-      });
-
-      // Set up transcriber event handlers
-      transcriber.on("open", (data: any) => {
-        const { sessionId } = data;
-        console.log(`AssemblyAI session opened with ID: ${sessionId}`);
-        setIsTranscribing(true);
-        setIsConnecting(false);
-      });
-
-      transcriber.on("transcript", (transcript: any) => {
-        if (!transcript.text || transcript.message_type !== "FinalTranscript") {
-          return;
-        }
-        console.log(`AssemblyAI FinalTranscript:`, transcript.text);
-        // Append final transcript segment to live text and update word count
-        setLiveText((prev) => {
-          const newText = `${prev}${prev ? " " : ""}${transcript.text}`;
-
-          // Update word count if needed
-          // if (isIntervalEnabled && analysisInterval.startsWith("words-")) {
-          //   const wordLimit = Number.parseInt(analysisInterval.split("-")[1]);
-          //   const currentWordCount = newText.trim().split(/\s+/).length;
-
-          //   if (currentWordCount >= wordLimit) {
-          //     // Schedule the analysis and text trimming for the next tick
-          //     setTimeout(() => {
-          //       if (processContentRef.current) {
-          //         processContentRef.current();
-          //         // Reset word count by trimming the text to keep only the remainder
-          //         const words = newText.trim().split(/\s+/);
-          //         const remainingWords = words.slice(wordLimit).join(" ");
-          //         setLiveText(remainingWords);
-          //       }
-          //     }, 0);
-          //   }
-          // }
-          return newText;
-        });
-
-        // Store segment in session
-        // sessionStore.addTranscriptSegment(transcript.text);
-      });
-
-      transcriber.on("error", (error: any) => {
-        console.error("AssemblyAI transcriber error:", error);
-        // handleError(
-        //   ErrorType.TRANSCRIPTION,
-        //   error.message || "Transcription error",
-        //   {
-        //     details: "Error from transcription service",
-        //   }
-        // );
-      });
-
-      transcriber.on("close", (code: number, reason: string) => {
-        console.log(`AssemblyAI session closed: ${code} ${reason}`);
-        setIsTranscribing(false);
-      });
-
-      // Connect to the service
-      console.log("Connecting to AssemblyAI real-time service...");
-      await transcriber.connect();
-
-      // Save references
-      transcriberRef.current = transcriber;
-    } catch (error) {
-      console.error("Error initializing transcription:", error);
-      setIsConnecting(false);
-      // handleError(
-      //   ErrorType.TRANSCRIPTION,
-      //   error instanceof Error ? error.message : "Unknown error",
-      //   {
-      //     details: "Could not initialize transcription",
-      //   }
-      // );
-    }
-  }, [setIsConnecting, setIsTranscribing, setLiveText]);
+  }, [recordingState, mediaRecorder, setRecordingState, setMediaRecorder]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

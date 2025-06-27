@@ -7,6 +7,7 @@ export interface AudioRecordingStore {
   setRecordingState: (state: AudioRecordingState) => void;
   isMuted: boolean;
   setIsMuted: (muted: boolean) => void;
+  toggleMute: () => void;
   mediaRecorder: MediaRecorder | null;
   setMediaRecorder: (recorder: MediaRecorder | null) => void;
   audioChunks: Blob[];
