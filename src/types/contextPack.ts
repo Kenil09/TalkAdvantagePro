@@ -1,0 +1,86 @@
+import { Dispatch, SetStateAction } from "react";
+
+export interface Participant {
+  id: string;
+  name: string;
+  role: string;
+  relationship: string;
+}
+
+export interface StrategicObjectives {
+  mainGoal: string;
+  subGoals: string[];
+}
+
+export interface Document {
+  id: string;
+  name: string;
+  type: string;
+  tags: string[];
+}
+
+export interface PreInteractionNotes {
+  description: string;
+  keyTopics: KeyTopic[];
+  additionalNotes: string;
+}
+
+export interface TimelineContext {
+  timelineItems: TimelineItem[];
+  alliancesRivalries: string;
+  contextFactors: string;
+}
+
+interface KeyTopic {
+  id: string;
+  topic: string;
+}
+
+interface TimelineItem {
+  id: string;
+  item: string;
+}
+
+export interface FormValues {
+  name: string;
+  description: string;
+  userInfo: {
+    name: string;
+    role: string;
+    nonUser: string;
+    prospect: string;
+  };
+  participants: Participant[];
+  strategicObjectives: StrategicObjectives;
+  documents: Document[];
+  timeline: string;
+  context: string;
+  preInteractionNotes: PreInteractionNotes;
+  timelineContext: TimelineContext;
+}
+
+export interface ContextPackProps {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  existingPack?: Partial<FormValues>;
+  onSave?: (data: FormValues) => void;
+}
+
+export interface ContextPack {
+  id: string;
+  name: string;
+  participants: { name: string; role: string }[];
+  documents: unknown[];
+  mainGoal: string;
+  timeline: string;
+  lastUsed: string;
+}
+
+export interface ContextPackSelectorProps {
+  isOpen: boolean;
+  onClose: () => void;
+  contextPacks: ContextPack[];
+  selectedContextPack: ContextPack | null;
+  onSelectContextPack: Dispatch<SetStateAction<ContextPack | null>>;
+  onCreateNew: () => void;
+}

@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { cn } from "@/utils/tailwind";
 
 type FormInputProps = {
   type: string;
@@ -21,6 +22,7 @@ type FormInputProps = {
   placeholder?: string;
   description?: string;
   resetPassword?: boolean;
+  className?: string;
 };
 
 const FormInput = ({
@@ -30,6 +32,7 @@ const FormInput = ({
   placeholder,
   description,
   resetPassword,
+  className,
 }: FormInputProps) => {
   const { control } = useFormContext();
 
@@ -45,7 +48,11 @@ const FormInput = ({
             <FormItem>
               <FormLabel>{label}</FormLabel>
               <FormControl>
-                <Input placeholder={placeholder} {...field} />
+                <Input
+                  placeholder={placeholder}
+                  {...field}
+                  className={cn("w-full", className)}
+                />
               </FormControl>
               {description && <FormDescription>{description}</FormDescription>}
               <FormMessage />
@@ -78,6 +85,7 @@ const FormInput = ({
                     placeholder={placeholder}
                     type={showPassword ? "text" : "password"}
                     {...field}
+                    className={cn("w-full", className)}
                   />
                   <Button
                     variant="outline"

@@ -24,6 +24,7 @@ import {
   Pause,
   Play,
   Squircle,
+  Zap,
 } from "lucide-react";
 import { floatTo16BitPCM } from "@/utils/audio.helper";
 import { AUDIO_RECORDING_STATE } from "@/constants/audio-recording.constants";
@@ -31,7 +32,13 @@ import { AudioRecordingState } from "@/types/audio-recording.types";
 import { convertSecondsToTime } from "@/utils/dateFormats";
 import { useTranscriptionStore } from "@/lib/store/transcription.store";
 
-const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
+const RecordingSpeech = ({
+  editMode,
+  setHotLinkModal,
+}: {
+  editMode: boolean;
+  setHotLinkModal: (modal: boolean) => void;
+}) => {
   const transcriberRef = useRef<ReturnType<
     AssemblyAI["realtime"]["transcriber"]
   > | null>(null);
@@ -473,6 +480,16 @@ const RecordingSpeech = ({ editMode }: { editMode: boolean }) => {
         )}
 
         <div className="flex items-center space-x-4">
+          <Button
+            className="px-4 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-500 transition-colors cursor-pointer"
+            onClick={() => setHotLinkModal(true)}
+          >
+            <Zap className="w-3 h-3 " />
+            HotLink
+          </Button>
+          <div className="text-sm text-gray-800 space-x-4">
+            <p>|</p>
+          </div>
           <div className="flex items-center space-x-2">
             <p className="text-sm text-gray-800">Interval:</p>
             {editMode ? (

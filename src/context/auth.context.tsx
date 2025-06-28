@@ -16,7 +16,7 @@ import type {
 import { createClient } from "@/lib/supabase/client";
 import { getError } from "@/utils/error.hrlper";
 
-type AuthError = {
+type CustomAuthError = {
   message: string;
   status?: number;
 };
@@ -31,7 +31,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   forgotPassword: (credentials: { email: string }) => Promise<void>;
   resetPassword: (credentials: { password: string }) => Promise<void>;
-  error: AuthError | null;
+  error: CustomAuthError | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<AuthError | null>(null);
+  const [error, setError] = useState<CustomAuthError | null>(null);
   const supabase = useMemo(() => createClient(), []);
 
   const fetchUser = useCallback(async () => {

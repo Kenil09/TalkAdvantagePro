@@ -27,7 +27,7 @@ const defaultValues: LoginSchema = {
 export default function LogInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const redirectTo = searchParams.get("redirectTo") || "/recording";
 
   const { isLoading, error, signIn } = useAuth();
 

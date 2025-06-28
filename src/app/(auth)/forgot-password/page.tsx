@@ -19,7 +19,7 @@ import {
   ForgotPasswordSchema,
   forgotPasswordSchema,
 } from "@/utils/schema/forgotpassword.schema";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const defaultValues: ForgotPasswordSchema = {
   email: "",
@@ -27,8 +27,6 @@ const defaultValues: ForgotPasswordSchema = {
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   const { isLoading, error, forgotPassword } = useAuth();
 
@@ -40,7 +38,7 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordSchema) => {
     try {
       await forgotPassword({ email: data.email });
-      router.push(redirectTo);
+      router.push("/recording");
     } catch (e: unknown) {
       console.log("Sign up error:", e);
     }

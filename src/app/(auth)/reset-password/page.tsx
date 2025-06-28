@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   ResetPasswordSchema,
   resetPasswordSchema,
@@ -28,8 +28,6 @@ const defaultValues: ResetPasswordSchema = {
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   const { isLoading, error, resetPassword } = useAuth();
 
@@ -41,7 +39,7 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordSchema) => {
     try {
       await resetPassword({ password: data.password });
-      router.push(redirectTo);
+      router.push("/recording");
     } catch (e: unknown) {
       console.log("Sign up error:", e);
     }

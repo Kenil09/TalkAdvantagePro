@@ -40,7 +40,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // If the user is not signed in and the route is protected, redirect to login
-  const isProtectedRoute = request.nextUrl.pathname.startsWith("/dashboard");
+  const isProtectedRoute = request.nextUrl.pathname.startsWith("/recording");
 
   if (!user && isProtectedRoute) {
     // no user, potentially respond by redirecting the user to the login page
@@ -51,11 +51,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   // If the user is signed in and trying to access login/signup, redirect to dashboard
-  const isAuthRoute = ["/login", "/signup"].includes(request.nextUrl.pathname);
+  const isAuthRoute = ["/login", "/signup", "/forgot-password"].includes(
+    request.nextUrl.pathname
+  );
 
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/recording";
     return NextResponse.redirect(url);
   }
 

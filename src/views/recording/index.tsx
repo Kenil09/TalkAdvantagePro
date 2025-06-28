@@ -11,10 +11,14 @@ import ConversationCards from "./ConversationCards";
 import FlashWidgets from "./FlashWidgets";
 import MeetingNotes from "./MeetingNotes";
 import RecordingSpeech from "./RecordingSpeech";
+import ContextPack from "./ContextPackModal/ContextPack";
+import ContextPackSelect from "./ContextPackSelect";
+import { HotLinkSettingsModal } from "./HotLinkSettingModal";
 
 const Recording = () => {
   const [editMode, setEditMode] = useState(false);
-
+  const [isOpen, setIsOpen] = useState(false);
+  const [hotLinkModal, setHotLinkModal] = useState<boolean>(false);
   return (
     <div className="min-h-screen flex flex-col">
       <div className="p-8 flex-1 overflow-y-auto bg-white-50">
@@ -28,14 +32,15 @@ const Recording = () => {
               }`}
               onClick={() => setEditMode(!editMode)}
             >
-              <Pencil className="mr-2" />
+              <Pencil />
               Edit Mode
             </Button>
             <Button
               variant="destructive"
               className="rounded-4xl bg-gray-100 text-gray-900 hover:bg-gray-200 cursor-pointer"
+              onClick={() => setIsOpen(true)}
             >
-              <Folder className="mr-2" />
+              <Folder />
               Context Pack
             </Button>
           </div>
@@ -57,8 +62,17 @@ const Recording = () => {
       </div>
 
       <div className="sticky bottom-0 w-full bg-white shadow-md z-10">
-        <RecordingSpeech editMode={editMode} />
+        <ContextPackSelect setIsOpen={setIsOpen} />
+        <RecordingSpeech
+          editMode={editMode}
+          setHotLinkModal={setHotLinkModal}
+        />
       </div>
+      <ContextPack isOpen={isOpen} setIsOpen={setIsOpen} />
+      <HotLinkSettingsModal
+        isOpen={hotLinkModal}
+        onClose={() => setHotLinkModal(false)}
+      />
     </div>
   );
 };
