@@ -51,9 +51,12 @@ export async function updateSession(request: NextRequest) {
   }
 
   // If the user is signed in and trying to access login/signup, redirect to dashboard
-  const isAuthRoute = ["/login", "/signup", "/forgot-password"].includes(
-    request.nextUrl.pathname
-  );
+  const isAuthRoute = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+  ].includes(request.nextUrl.pathname);
 
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();

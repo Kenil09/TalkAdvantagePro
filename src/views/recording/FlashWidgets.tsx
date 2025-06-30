@@ -3,7 +3,7 @@ import { Settings } from "lucide-react";
 
 const FlashWidgets = () => {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-3xl p-4 ">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-gray-900">Flash Widgets</h3>
         <Button

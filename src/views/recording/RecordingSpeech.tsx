@@ -493,7 +493,7 @@ const RecordingSpeech = ({
           <div className="flex items-center space-x-2">
             <p className="text-sm text-gray-800">Interval:</p>
             {editMode ? (
-              <Select defaultValue="5">
+              <Select>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Interval" />
                 </SelectTrigger>
@@ -519,7 +519,7 @@ const RecordingSpeech = ({
               <p className="text-sm text-gray-800">On</p>
             )}
           </div>
-          <Button className="px-4 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors cursor-pointer">
+          <Button className="px-4 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-500 transition-colors cursor-pointer">
             Process Now
           </Button>
         </div>

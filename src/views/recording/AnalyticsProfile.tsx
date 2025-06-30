@@ -11,7 +11,7 @@ import { Settings } from "lucide-react";
 
 const AnalyticsProfile = () => {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 p-4 hover:shadow-md transition-shadow ">
+    <div className="bg-white rounded-3xl p-4 ">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-gray-900">Analytics Profile</h3>
         <Button
@@ -33,7 +33,7 @@ const AnalyticsProfile = () => {
             <SelectItem value="meeting">Meeting Summary</SelectItem>
           </SelectContent>
         </Select>
-        <Button className="w-full px-3 py-2 font-normal bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors text-sm cursor-pointer ">
+        <Button className="w-full px-3 py-2 font-normal bg-primary-600 text-white rounded-full hover:bg-primary-500 transition-colors text-sm cursor-pointer ">
           Process
         </Button>
       </div>

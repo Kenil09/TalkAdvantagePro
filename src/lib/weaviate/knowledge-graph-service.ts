@@ -600,7 +600,7 @@ export const knowledgeGraphService = {
   ): Promise<ContextPack> {
     try {
       // Delete all previous context packs for this user
-      await this.deleteAllUserContextPacks(contextPack.userId);
+      // await this.deleteAllUserContextPacks(contextPack.userId);
 
       // Format the documents array to match Weaviate's expected structure
       const formattedDocuments = contextPack.documents.map((doc) =>

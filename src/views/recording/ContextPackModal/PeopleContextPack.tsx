@@ -33,7 +33,7 @@ const PeopleContextPack: React.FC<PeopleContextPackProps> = ({
           </p>
         </div>
         <Button
-          className="bg-blue-600 hover:bg-blue-700 h-11 px-6 cursor-pointer"
+          className="bg-primary-600 hover:bg-primary-500 px-6 cursor-pointer"
           onClick={() => onAddParticipant()}
           type="button"
         >

@@ -86,6 +86,12 @@ const GoalsContextPack = ({
                       )}
                       placeholder={`Sub-objective ${index + 1}`}
                       className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addSubGoal();
+                        }
+                      }}
                     />
                     <Button
                       variant="ghost"

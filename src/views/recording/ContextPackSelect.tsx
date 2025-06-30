@@ -130,7 +130,7 @@ const ContextPackSelect = ({
           <Button
             size="sm"
             onClick={handleCreateNew}
-            className="bg-blue-600 hover:bg-blue-700 text-white h-7 px-3 text-xs cursor-pointer"
+            className="bg-primary-600 hover:bg-primary-500 text-white h-7 px-3 text-xs cursor-pointer"
           >
             <Plus className="w-3 h-3" />
             New Pack

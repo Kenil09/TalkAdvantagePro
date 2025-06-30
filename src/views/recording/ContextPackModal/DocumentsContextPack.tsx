@@ -1,16 +1,10 @@
 import FormInput from "@/components/formInput";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useAuth } from "@/context/auth.context";
+import { documentProcessorService } from "@/lib/weaviate/document-service";
 import { FormValues } from "@/types/contextPack";
-import { documentTypes } from "@/utils/contextData";
-import { FileText, Plus, Trash2 } from "lucide-react";
+import { CheckCircle, FileText, Plus, Trash2, Upload } from "lucide-react";
+import { useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 const DocumentsContextPack = ({
@@ -20,12 +14,61 @@ const DocumentsContextPack = ({
   addDocument: () => void;
   removeDocument: (id: string) => void;
 }) => {
-  const { control, register, setValue } = useFormContext<FormValues>();
+  const { user } = useAuth();
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  const { control, register, setValue, watch } = useFormContext<FormValues>();
   const { fields } = useFieldArray({
     control,
     name: "documents",
     keyName: "fieldId",
   });
+
+  const documents = watch("documents");
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    if (!user) {
+      alert("You must be logged in to upload files.");
+      return;
+    }
+
+    const document = documents[index];
+
+    if (!document.name) {
+      alert("Please enter a document name before uploading.");
+      return;
+    }
+    setUploading(true);
+    setUploadSuccess(false);
+    try {
+      // Process and store document chunks
+      const chunks = await documentProcessorService.processDocument(file, {
+        name: document.name,
+        tags: document.tags?.split(",").map((tag) => tag.trim()),
+      });
+
+      // Store chunks in Weaviate
+      await documentProcessorService.storeDocumentChunks(user.id, chunks);
+
+      // Store document reference in context pack
+      setValue(`documents.${index}.file`, file.name);
+      setUploadSuccess(true);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div>
@@ -41,7 +84,7 @@ const DocumentsContextPack = ({
         <Button
           onClick={addDocument}
           type="button"
-          className="bg-blue-600 hover:bg-blue-700 h-11 px-6 cursor-pointer"
+          className="bg-primary-600 hover:bg-primary-500 px-6 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Add Document
@@ -77,7 +120,7 @@ const DocumentsContextPack = ({
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end-safe">
                 <div>
                   <FormInput
                     label="Document Name"
@@ -87,28 +130,45 @@ const DocumentsContextPack = ({
                     className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Document Type
-                  </Label>
-                  <Select
-                    value={field.type}
-                    onValueChange={(value) => {
-                      setValue(`documents.${index}.type`, value);
-                    }}
-                  >
-                    <SelectTrigger className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                      <SelectValue placeholder="Select document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {documentTypes.map((docType) => (
-                        <SelectItem key={docType.value} value={docType.value}>
-                          {docType.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormInput
+                    label="Tags (comma separated)"
+                    {...register(`documents.${index}.tags`)}
+                    type="text"
+                    placeholder="Tag1, Tag2, Tag3"
+                    className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
                 </div>
+
+                {!field.file && !uploadSuccess ? (
+                  <div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-11 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                      disabled={uploading}
+                      onClick={() =>
+                        document
+                          .getElementById(`document-upload-${index}`)
+                          ?.click()
+                      }
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {uploading ? "Uploading..." : "Upload"}
+                      <input
+                        id={`document-upload-${index}`}
+                        type="file"
+                        disabled={uploading}
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.txt"
+                        onChange={(e) => handleFileUpload(e, index)}
+                      />
+                    </Button>
+                  </div>
+                ) : (
+                  <CheckCircle className="h-5 w-5 mb-2.5 text-green-500" />
+                )}
               </div>
             </div>
           );

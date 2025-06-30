@@ -135,3 +135,15 @@ export interface WeaviateGenericObject {
 export interface WeaviateResponse {
   objects?: WeaviateGenericObject[];
 }
+
+export interface ProcessedDocument {
+  id: string;
+  content: string;
+  metadata: {
+    name: string;
+    file: string;
+    tags?: string[];
+    chunkIndex: number;
+    totalChunks: number;
+  };
+}

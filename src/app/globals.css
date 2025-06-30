@@ -143,7 +143,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+.react-grid-item>.react-resizable-handle.react-resizable-handle-se {
+  cursor: se-resize;
+  bottom: 8px !important;
+  right: 12px !important;
+}
+
+/* In your globals.css */
+.react-grid-item {
+  overflow: auto !important;
+}
+
+/* Make sure the content area fills the grid item */
+.react-grid-item>div {
+  height: 100%;
+  overflow: auto;
 }

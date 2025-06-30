@@ -15,8 +15,9 @@ export interface StrategicObjectives {
 export interface Document {
   id: string;
   name: string;
+  file: string;
   type: string;
-  tags: string[];
+  tags: string;
 }
 
 export interface PreInteractionNotes {
