@@ -7,7 +7,6 @@ import LiveTranscription from "./LiveTranscription";
 import AnalyticsProfile from "./AnalyticsProfile";
 import VoiceMarkers from "./VoiceMarkers";
 import ConversationCards from "./ConversationCards";
-import FlashWidgets from "./FlashWidgets";
 import MeetingNotes from "./MeetingNotes";
 import RecordingSpeech from "./RecordingSpeech";
 import ContextPackSelect from "./ContextPackSelect";
@@ -50,8 +49,7 @@ const Recording = () => {
       ),
       c: <VoiceMarkers key="c" />,
       d: <ConversationCards key="d" />,
-      e: <FlashWidgets key="e" />,
-      f: <MeetingNotes key="f" />,
+      e: <MeetingNotes key="e" />,
     }),
     []
   );
@@ -175,9 +173,6 @@ const Recording = () => {
               draggableCancel="button, input, textarea, select, option, [role='button']"
             >
               {Object.entries(components).map(([key, component]) => {
-                const itemHeight = 3;
-                console.log(itemHeight, key);
-
                 return (
                   <div
                     key={key}

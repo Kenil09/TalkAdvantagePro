@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AnalyticsProfileFormData } from "@/types/contextPack";
+import { Model } from "@/types/widget.types";
 import { X, Settings, Zap, BarChart3, Brain } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,16 +33,15 @@ const AddAnalyticsModal = ({
   defaultValues: AnalyticsProfileFormData | null;
 }) => {
   const [activeTab, setActiveTab] = useState("basic");
-  const [models, setModels] = useState<
-    { id: string; name: string; slug: string }[]
-  >([]);
+  const [models, setModels] = useState<Model[]>([]);
 
   const { handleSubmit, reset, setValue, watch } =
     useForm<AnalyticsProfileFormData>({
       defaultValues: {
         profileName: defaultValues?.profileName || "",
         description: defaultValues?.description || "",
-        aiModel: defaultValues?.aiModel || "Mistral 7B Instruct (Free)",
+        aiModel:
+          defaultValues?.aiModel || "mistralai/mistral-small-3.2-24b-instruct",
         conversationMode:
           defaultValues?.conversationMode || "Tracking (Passive)",
         userPrompt: defaultValues?.userPrompt || "",
@@ -64,7 +64,13 @@ const AddAnalyticsModal = ({
       const response = await fetch("/api/models");
       if (!response.ok) throw new Error("Failed to fetch models");
       const data = await response.json();
-      setModels(data.data);
+      const modelsSet = new Map(
+        data.data.map((model: { slug: string }) => [model.slug, model])
+      );
+
+      const uniqueModels = Array.from(modelsSet.values());
+
+      setModels(uniqueModels as Model[]);
     } catch (err) {
       console.error(err);
     }
@@ -192,19 +198,15 @@ const AddAnalyticsModal = ({
                       <SelectValue placeholder="Select an AI model" />
                     </SelectTrigger>
                     <SelectContent>
-                      {models?.map(
-                        (model: { id: string; name: string; slug: string }) => {
-                          // Create a unique key using the model's ID and a timestamp
-                          const uniqueKey = `model-${
-                            model.id
-                          }-${Date.now()}-${Math.random().toString(36)}`;
-                          return (
-                            <SelectItem key={uniqueKey} value={model.slug}>
-                              {model.name}
-                            </SelectItem>
-                          );
-                        }
-                      )}
+                      {models?.map((model) => {
+                        const uniqueKey = `${model.slug}-${model.name}-${model.context_length}`;
+
+                        return (
+                          <SelectItem key={uniqueKey} value={model.slug}>
+                            {model.name}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                   <p className="text-sm text-gray-500 mt-2">

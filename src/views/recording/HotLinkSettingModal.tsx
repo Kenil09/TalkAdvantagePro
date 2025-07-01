@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Plus, Trash2, Settings, Zap, Upload, Edit3 } from "lucide-react";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { HOTLINK_WIDGETS } from "@/constants/hotlink-widget.constants";
+import { Model } from "@/types/widget.types";
 
 interface HotLinkSettingsModalProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export function HotLinkSettingsModal({
   onClose,
 }: HotLinkSettingsModalProps) {
   const [widgets, setWidgets] = useState<FlashWidget[]>(HOTLINK_WIDGETS);
-  const [models, setModels] = useState([]);
+  const [models, setModels] = useState<Model[]>([]);
   const [newWidget, setNewWidget] = useState({
     name: "",
     triggerWords: "",
@@ -128,7 +129,14 @@ export function HotLinkSettingsModal({
       }
 
       const data = await response.json();
-      setModels(data.data);
+
+      const modelsSet = new Map(
+        data.data.map((model: { slug: string }) => [model.slug, model])
+      );
+
+      const uniqueModels = Array.from(modelsSet.values());
+
+      setModels(uniqueModels as Model[]);
 
       return data;
     } catch (error) {
@@ -250,22 +258,14 @@ export function HotLinkSettingsModal({
                           <SelectValue placeholder="Select a model..." />
                         </SelectTrigger>
                         <SelectContent className="cursor-pointer w-full">
-                          {models?.map(
-                            (model: {
-                              id: string;
-                              name: string;
-                              slug: string;
-                            }) => (
-                              <SelectItem
-                                key={`${model.id || ""}-${model.slug}-${
-                                  model.name
-                                }`}
-                                value={model.slug}
-                              >
-                                {model.name}
-                              </SelectItem>
-                            )
-                          )}
+                          {models?.map((model) => (
+                            <SelectItem
+                              key={`${model.slug}-${model.name}-${model.context_length}`}
+                              value={model.slug}
+                            >
+                              {model.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -394,15 +394,24 @@ export function HotLinkSettingsModal({
                           updateWidget(widget.id, "model", value)
                         }
                       >
-                        <SelectTrigger className="bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500">
-                          <SelectValue />
+                        <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500">
+                          <SelectValue placeholder="Select Model" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-gray-200">
-                          <SelectItem value="Mistral 7B Instruct (Free)">
-                            Mistral 7B Instruct (Free)
-                          </SelectItem>
-                          <SelectItem value="GPT-4">GPT-4</SelectItem>
-                          <SelectItem value="Claude-3">Claude-3</SelectItem>
+                        <SelectContent className="cursor-pointer w-full">
+                          {models?.map(
+                            (model: {
+                              name: string;
+                              slug: string;
+                              context_length: number;
+                            }) => (
+                              <SelectItem
+                                key={`${model.slug}-${model.name}-${model.context_length}`}
+                                value={model.slug}
+                              >
+                                {model.name}
+                              </SelectItem>
+                            )
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
