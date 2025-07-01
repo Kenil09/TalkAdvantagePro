@@ -17,7 +17,9 @@ export async function GET() {
 
     // console.log(file);
 
-    const per = await knowledgeGraphService.getAllPeople(10);
+    const per = await knowledgeGraphService.getUserContextPacks(
+      "af294a11-f98a-4613-8566-ce1b89d53ddc"
+    );
 
     console.log(per);
 

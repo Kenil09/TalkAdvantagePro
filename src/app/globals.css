@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -149,20 +150,8 @@
   }
 }
 
-
-.react-grid-item>.react-resizable-handle.react-resizable-handle-se {
+.react-grid-item > .react-resizable-handle.react-resizable-handle-se {
   cursor: se-resize;
   bottom: 8px !important;
   right: 12px !important;
-}
-
-/* In your globals.css */
-.react-grid-item {
-  overflow: auto !important;
-}
-
-/* Make sure the content area fills the grid item */
-.react-grid-item>div {
-  height: 100%;
-  overflow: auto;
 }

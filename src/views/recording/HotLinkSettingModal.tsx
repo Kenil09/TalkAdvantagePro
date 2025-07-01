@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, Trash2, Settings, Zap, Upload, Edit3 } from "lucide-react";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { HOTLINK_WIDGETS } from "@/constants/hotlink-widget.constants";
 
 interface HotLinkSettingsModalProps {
   isOpen: boolean;
@@ -41,35 +42,7 @@ export function HotLinkSettingsModal({
   isOpen,
   onClose,
 }: HotLinkSettingsModalProps) {
-  const [widgets, setWidgets] = useState<FlashWidget[]>([
-    {
-      id: "research",
-      name: "Research Widget",
-      triggerWords: ["research", "study", "analyze"],
-      model: "Mistral 7B Instruct (Free)",
-      prompt:
-        "Based on the conversation provided below, your job is to act as an expert research assistant with internet access. Carefully analyze the transcript to identify...",
-      enabled: true,
-    },
-    {
-      id: "github",
-      name: "GitHub Widget",
-      triggerWords: ["github", "code", "repository"],
-      model: "Mistral 7B Instruct (Free)",
-      prompt:
-        "Based on the conversation provided below, your job is to carefully analyze the recent discussion to identify any problems, challenges, issues, or gaps mentioned. Then automatically search for relevant GitHub repositories that could help address these problems, prioritizing repositories with high star counts, recent activity, and good documentation...",
-      enabled: true,
-    },
-    {
-      id: "ticket",
-      name: "Ticket Widget",
-      triggerWords: ["ticket", "issue", "bug"],
-      model: "Mistral 7B Instruct (Free)",
-      prompt:
-        "Based on the conversation provided below, your job is to analyze all discussed points carefully. Clearly identify issues, actionable tasks, areas for improvement, or we need a ticket for tracking...",
-      enabled: true,
-    },
-  ]);
+  const [widgets, setWidgets] = useState<FlashWidget[]>(HOTLINK_WIDGETS);
   const [models, setModels] = useState([]);
   const [newWidget, setNewWidget] = useState({
     name: "",
@@ -188,6 +161,7 @@ export function HotLinkSettingsModal({
             <Button
               variant="ghost"
               size="sm"
+              type="button"
               onClick={onClose}
               className="absolute top-4 right-4 text-white hover:bg-white/20 cursor-pointer"
             >
@@ -214,6 +188,7 @@ export function HotLinkSettingsModal({
                 </Button>
                 <Button
                   onClick={() => setShowAddWidget(true)}
+                  type="button"
                   className="bg-primary-600 hover:bg-primary-500  cursor-pointer"
                 >
                   <Plus className="w-4 h-4 " />
@@ -313,6 +288,7 @@ export function HotLinkSettingsModal({
                     <div className="flex items-center space-x-3">
                       <Button
                         onClick={addNewWidget}
+                        type="button"
                         className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
@@ -320,6 +296,7 @@ export function HotLinkSettingsModal({
                       </Button>
                       <Button
                         variant="outline"
+                        type="button"
                         onClick={() => setShowAddWidget(false)}
                         className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
                       >
@@ -352,6 +329,7 @@ export function HotLinkSettingsModal({
                           variant="ghost"
                           size="sm"
                           onClick={() => deleteWidget(widget.id)}
+                          type="button"
                           className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -359,6 +337,7 @@ export function HotLinkSettingsModal({
                         <Button
                           variant="ghost"
                           size="sm"
+                          type="button"
                           className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
@@ -383,6 +362,7 @@ export function HotLinkSettingsModal({
                             <Button
                               variant="ghost"
                               size="sm"
+                              type="button"
                               onClick={() => removeTriggerWord(widget.id, word)}
                               className="h-4 w-4 p-0 ml-1 text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
@@ -461,6 +441,7 @@ export function HotLinkSettingsModal({
               <Button
                 variant="outline"
                 onClick={onClose}
+                type="button"
                 className="h-11 text-base px-8 w-24 cursor-pointer"
               >
                 Cancel

@@ -86,6 +86,18 @@ export interface DocumentChunk {
   updatedAt: Date;
 }
 
+export interface Participant {
+  name: string;
+  role: string;
+  relationship_to_user: string;
+  apex_profile?: {
+    risk_tolerance?: string;
+    decision_speed?: string;
+    key_motivators?: string[];
+    recent_behavior?: string;
+  };
+}
+
 export interface WeaviateGetContextPackResponse {
   id: string;
   properties: {
@@ -96,17 +108,7 @@ export interface WeaviateGetContextPackResponse {
     subGoals: string[];
     person: string;
     personRelationship: string;
-    participants: Array<{
-      name: string;
-      role: string;
-      relationship_to_user: string;
-      apex_profile?: {
-        risk_tolerance?: string;
-        decision_speed?: string;
-        key_motivators?: string[];
-        recent_behavior?: string;
-      };
-    }>;
+    participants: Array<Participant>;
     documents: Array<{
       name: string;
       file: string;

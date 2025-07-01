@@ -283,7 +283,11 @@ export default function ContextPackSelectorModal({
               )}
             </div>
             <div className="flex items-center space-x-3">
-              <Button variant="outline" onClick={onClose}>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="h-11 text-base px-8 w-24 cursor-pointer"
+              >
                 Cancel
               </Button>
               <Button
@@ -293,7 +297,7 @@ export default function ContextPackSelectorModal({
                   handleSelectContextPack(selectedContextPack)
                 }
                 disabled={!selectedContextPack}
-                className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 cursor-pointer"
               >
                 Use Selected Pack
               </Button>

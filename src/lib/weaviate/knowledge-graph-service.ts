@@ -718,7 +718,7 @@ export const knowledgeGraphService = {
         .get()
         .withClassName("ContextPack")
         .withFields(
-          "id userId name userRole goal subGoals person personRelationship participants documents contextDescription keyTopics notes timeline conflictMap environmentalFactors createdAt updatedAt"
+          "_additional { id } userId name userRole goal subGoals person personRelationship participants { name role relationship_to_user } documents contextDescription keyTopics notes timeline conflictMap environmentalFactors createdAt updatedAt"
         )
         .withWhere({
           operator: "Equal",
@@ -913,12 +913,14 @@ export const knowledgeGraphService = {
     query: string,
     userId: string,
     limit: number = 5
-  ): Promise<DocumentChunk[]> {
+  ): Promise<Array<DocumentChunk & { id: string; similarity: number }>> {
     try {
       const result = await weaviateClient.graphql
         .get()
         .withClassName("DocumentChunk")
-        .withFields("content, userId, createdAt, additional { id }")
+        .withFields(
+          "content, userId, createdAt, _additional { id, certainty  }, metadata { name file tags chunkIndex totalChunks }"
+        )
         .withNearText({ concepts: [query] })
         .withWhere({
           operator: "Equal",
@@ -928,12 +930,20 @@ export const knowledgeGraphService = {
         .withLimit(limit)
         .do();
 
-      return result.data.Get.DocumentChunk.map((chunk: DocumentChunk) => ({
-        content: chunk.content,
-        userId: chunk.userId,
-        // similarity: chunk.similarity, //TODO:
-        createdAt: new Date(chunk.createdAt),
-      }));
+      return result.data.Get.DocumentChunk.map(
+        (
+          chunk: DocumentChunk & {
+            _additional: { id: string; certainty: number };
+          }
+        ) => ({
+          id: chunk._additional?.id,
+          content: chunk.content,
+          userId: chunk.userId,
+          similarity: chunk._additional?.certainty,
+          createdAt: new Date(chunk.createdAt),
+          metadata: chunk.metadata,
+        })
+      );
     } catch (error: unknown) {
       console.error("Error searching document chunks:", error);
       throw error;

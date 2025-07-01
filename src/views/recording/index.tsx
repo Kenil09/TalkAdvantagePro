@@ -16,6 +16,9 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
 import dynamic from "next/dynamic";
+import HotLinkWidgetDisplay from "./HotLinkWidget";
+import AddAnalyticsModal from "./AnalyticsModal/AddAnalyticsModal";
+import { AnalyticsProfileFormData } from "@/types/contextPack";
 
 const ContextPack = dynamic(() => import("./ContextPackModal/ContextPack"), {
   ssr: false,
@@ -26,11 +29,25 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 const STORAGE_KEY = "recording-layout";
 
 const Recording = () => {
+  const [editMode, setEditMode] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [hotLinkModal, setHotLinkModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [addAnalyticsModal, setAddAnalyticsModal] = useState(false);
+  const [editProfile, setEditProfile] =
+    useState<AnalyticsProfileFormData | null>(null);
+
   // Components mapped to layout keys
   const components = useMemo(
     () => ({
       a: <LiveTranscription key="a" />,
-      b: <AnalyticsProfile key="b" />,
+      b: (
+        <AnalyticsProfile
+          key="b"
+          setAddAnalyticsModal={setAddAnalyticsModal}
+          setEditProfile={setEditProfile}
+        />
+      ),
       c: <VoiceMarkers key="c" />,
       d: <ConversationCards key="d" />,
       e: <FlashWidgets key="e" />,
@@ -65,11 +82,7 @@ const Recording = () => {
     });
   }, [components]);
 
-  const [editMode, setEditMode] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [hotLinkModal, setHotLinkModal] = useState(false);
   const [layouts, setLayouts] = useState<Layouts>({ lg: defaultLayout });
-  const [isLoading, setIsLoading] = useState(true);
 
   // Load layout from localStorage
   useEffect(() => {
@@ -151,23 +164,29 @@ const Recording = () => {
               className="layout"
               layouts={layouts}
               cols={{ lg: 3, md: 2, sm: 1, xs: 1, xxs: 1 }}
-              rowHeight={95}
+              rowHeight={55}
               isResizable={true}
               isDraggable={true}
               compactType="vertical"
               onLayoutChange={onLayoutChange}
               margin={[24, 24]}
               useCSSTransforms={false}
+              autoSize={true}
+              draggableCancel="button, input, textarea, select, option, [role='button']"
             >
-              {Object.entries(components).map(([key, component]) => (
-                <div
-                  key={key}
-                  className="bg-white shadow rounded-3xl hover:shadow-md cursor-pointer border border-gray-200 transition-shadow "
-                  data-grid={layouts?.lg?.find((item) => item.i === key)}
-                >
-                  {component}
-                </div>
-              ))}
+              {Object.entries(components).map(([key, component]) => {
+                const itemHeight = 3;
+                console.log(itemHeight, key);
+
+                return (
+                  <div
+                    key={key}
+                    className="bg-white shadow rounded-3xl hover:shadow-md cursor-pointer border border-gray-200 transition-shadow  "
+                  >
+                    {component}
+                  </div>
+                );
+              })}
             </ResponsiveGridLayout>
           )}
         </div>
@@ -181,12 +200,18 @@ const Recording = () => {
           setHotLinkModal={setHotLinkModal}
         />
       </div>
+      <HotLinkWidgetDisplay />
 
       {/* Modals */}
       <ContextPack isOpen={isOpen} setIsOpen={setIsOpen} />
       <HotLinkSettingsModal
         isOpen={hotLinkModal}
         onClose={() => setHotLinkModal(false)}
+      />
+      <AddAnalyticsModal
+        isOpen={addAnalyticsModal}
+        onClose={() => setAddAnalyticsModal(false)}
+        defaultValues={editProfile}
       />
     </div>
   );
