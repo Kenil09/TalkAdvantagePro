@@ -1,3 +1,7 @@
+/*
+@deprecated
+Please use weaviate-v3/client.ts
+*/
 import weaviate from "weaviate-ts-client";
 
 const client = weaviate.client({
