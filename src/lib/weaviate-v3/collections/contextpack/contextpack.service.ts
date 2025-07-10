@@ -3,6 +3,12 @@ import { WeaviateField } from 'weaviate-client'
 import { getContextPackCollection } from './contextpack.schema'
 import { ContextPack, ContextPackQueryResult } from './contextpack.types'
 
+/*
+* Get context packs by key and value
+* @param key - The key to filter by
+* @param value - The value to filter by
+* @returns The context packs
+*/
 export const get = async (
     key: string,
     value: string,
@@ -34,6 +40,11 @@ export const get = async (
     }
 }
 
+/*
+* Get a context pack by id
+* @param id - The id of the context pack
+* @returns The context pack
+*/
 export const getById = async (
     id: string,
 ): Promise<ContextPackQueryResult | null> => {
@@ -59,6 +70,35 @@ export const getById = async (
     }
 }
 
+/*
+* Create a new context pack
+* @param properties - The properties of the context pack
+* @returns The id of the created context pack
+*/
+export const create = async (
+    properties: Partial<ContextPack>,
+): Promise<string | null> => {
+    try {
+        const collection = await getContextPackCollection()
+        if (!collection) {
+            throw new Error('ContextPack collection not found')
+        }
+        const result = await collection.data.insert({
+            properties: properties as unknown as Record<string, WeaviateField>,
+        })
+        return result
+    } catch (error) {
+        console.error('Error creating context pack:', error)
+        return null
+    }
+}
+
+/*
+* Update an existing context pack
+* @param id - The id of the context pack to update
+* @param properties - The properties to update
+* @returns void
+*/
 export const update = async (
     id: string,
     properties: Partial<ContextPack>,
