@@ -1,6 +1,6 @@
 "use client";
 
-import { Key, useState } from "react";
+import { Dispatch, Key, SetStateAction, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,56 +16,62 @@ import {
   Clock,
   Target,
   Plus,
-  Calendar,
+  Trash2,
   Briefcase,
   ChevronRight,
   X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ContextPack, ContextPackSelectorProps } from "@/types/contextPack";
+import { ContextPackQueryResult } from "@/lib/weaviate-v3/collections/contextpack";
+import * as contextPackService from "@/lib/weaviate-v3/collections/contextpack/contextpack.service";
+import { useAuth } from "@/context/auth.context";
+
+interface Props {
+    isOpen: boolean;
+    onClose: () => void;
+    selectedContextPack: ContextPackQueryResult | null;
+    setSelectedContextPack: Dispatch<SetStateAction<ContextPackQueryResult | null>>;
+    onCreateNew: () => void;
+}
 
 export default function ContextPackSelectorModal({
   isOpen,
   onClose,
-  contextPacks,
   selectedContextPack,
-  onSelectContextPack,
+  setSelectedContextPack,
   onCreateNew,
-}: ContextPackSelectorProps) {
+}: Props) {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"recent" | "name">("recent");
+  const [allContextPacks, setAllContextPacks] = useState<ContextPackQueryResult[]>([]);
 
-  const filteredPacks = contextPacks.filter(
-    (pack) =>
-      pack.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pack.participants?.some((p) =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-  );
-
-  const sortedPacks = [...filteredPacks].sort((a, b) => {
-    if (sortBy === "name") {
-      return a.name.localeCompare(b.name);
-    }
-    return new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime();
-  });
-
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays <= 1) return "Today";
-    if (diffDays === 2) return "Yesterday";
-    if (diffDays <= 7) return `${diffDays - 1} days ago`;
-    return date.toLocaleDateString();
+  const fetchContextPacks = async (id: string) => {
+    const packs = await contextPackService.get("userId", id);
+    setAllContextPacks(packs);
   };
 
-  const handleSelectContextPack = (pack: ContextPack) => {
-    onSelectContextPack(pack);
+  useEffect(() => {
+    if (user && user.id) {
+      fetchContextPacks(user.id);
+    }
+  }, [user]);
+
+  const handleSelectContextPack = (pack: ContextPackQueryResult) => {
+    setSelectedContextPack(pack);
     onClose();
   };
+
+  const handleDeleteContextPack = async (id: string) => {
+    try {
+      await contextPackService.deleteById(id);
+      if (user && user.id) {
+        fetchContextPacks(user.id);
+      }
+    } catch (error) {
+      console.error("Error deleting context pack:", error);
+    }
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -141,7 +147,7 @@ export default function ContextPackSelectorModal({
 
           {/* Context Pack List */}
           <div className="p-6">
-            {sortedPacks.length === 0 ? (
+            {allContextPacks.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Briefcase className="w-8 h-8 text-gray-400" />
@@ -167,16 +173,16 @@ export default function ContextPackSelectorModal({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sortedPacks.map((pack) => (
+                {allContextPacks.map((pack) => (
                   <div
-                    key={pack.id}
+                    key={pack.uuid}
                     className={`cursor-pointer transition-all duration-200 rounded-3xl hover:shadow-lg hover:scale-[1.02] border border-gray-200 shadow-sm ${
-                      selectedContextPack?.id === pack.id
+                      selectedContextPack?.uuid === pack.uuid
                         ? "ring-2 ring-blue-500 bg-blue-50"
                         : "bg-white hover:bg-gray-50"
                     }`}
                     onClick={() => {
-                      onSelectContextPack(pack);
+                      setSelectedContextPack(pack);
                     }}
                   >
                     <div className="p-4">
@@ -184,14 +190,16 @@ export default function ContextPackSelectorModal({
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                            {pack.name}
+                            {pack.properties.name}
                           </h3>
-                          <div className="flex items-center space-x-1 text-xs text-gray-500">
-                            <Calendar className="w-3 h-3" />
-                            <span>Last used {formatDate(pack.lastUsed)}</span>
-                          </div>
                         </div>
-                        {selectedContextPack?.id === pack.id && (
+                        <Button variant="ghost" size="icon" className="cursor-pointer" onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteContextPack(pack.uuid);
+                        }}>
+                          <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600" />
+                        </Button>
+                        {selectedContextPack?.uuid === pack.uuid && (
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <ChevronRight className="w-3 h-3 text-white" />
                           </div>
@@ -206,7 +214,7 @@ export default function ContextPackSelectorModal({
                           </div>
                           <div>
                             <div className="text-xs font-medium text-gray-900">
-                              {pack.participants?.length ?? 0}
+                              {pack.properties.participants?.length ?? 0}
                             </div>
                             <div className="text-xs text-gray-500">People</div>
                           </div>
@@ -217,7 +225,7 @@ export default function ContextPackSelectorModal({
                           </div>
                           <div>
                             <div className="text-xs font-medium text-gray-900">
-                              {pack.documents?.length ?? 0}
+                              {pack.properties.documents?.length ?? 0}
                             </div>
                             <div className="text-xs text-gray-500">Docs</div>
                           </div>
@@ -228,7 +236,7 @@ export default function ContextPackSelectorModal({
                       <div className="flex items-start space-x-2 mb-3">
                         <Target className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
                         <p className="text-xs text-gray-700 line-clamp-2">
-                          {pack.mainGoal || "No goal specified"}
+                          {pack.properties.goal || "No goal specified"}
                         </p>
                       </div>
 
@@ -236,11 +244,11 @@ export default function ContextPackSelectorModal({
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 text-orange-600" />
                         <span className="text-xs text-gray-600">
-                          {pack.timeline}
+                          {pack.properties.timeline}
                         </span>
                         <div className="flex-1" />
                         <div className="flex -space-x-1">
-                          {pack.participants
+                          {pack.properties.participants
                             ?.slice(0, 3)
                             .map((participant, idx) => (
                               <div
@@ -248,12 +256,12 @@ export default function ContextPackSelectorModal({
                                 className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-medium border border-white"
                                 title={participant.name}
                               >
-                                {participant.name?.charAt(0) || "?"}
+                                {participant.name.charAt(0) || "?"}
                               </div>
                             ))}
-                          {pack.participants.length > 3 && (
+                          {pack.properties.participants.length > 3 && (
                             <div className="w-5 h-5 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium border border-white">
-                              +{pack.participants.length - 3}
+                              +{pack.properties.participants.length - 3}
                             </div>
                           )}
                         </div>
@@ -270,13 +278,11 @@ export default function ContextPackSelectorModal({
         <DialogFooter className="sticky bottom-0 z-10 bg-white">
           <div className="w-full border-t px-6 py-4 flex items-center justify-between">
             <div className="text-sm text-gray-500">
-              {sortedPacks.length} context pack
-              {sortedPacks.length !== 1 ? "s" : ""} available
               {selectedContextPack && (
                 <span className="ml-2">
                   •{" "}
                   <span className="font-medium">
-                    {selectedContextPack.name}
+                    {selectedContextPack.properties.name}
                   </span>{" "}
                   selected
                 </span>

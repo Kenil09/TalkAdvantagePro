@@ -4,139 +4,120 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, FileText, Goal, Loader2, User, Users, X } from "lucide-react";
-import BasicContextPack from "./BasicContextPack";
-import { FormProvider, useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import PeopleContextPack from "./PeopleContextPack";
-import GoalsContextPack from "./GoalsContextPack";
-import {
-  ContextPackProps,
-  Document as DocumentType,
-  FormValues,
-  Participant,
-} from "@/types/contextPack";
-import DocumentsContextPack from "./DocumentsContextPack";
-import { createContextPack } from "@/lib/weaviate/actions";
-import TimelineContextPack from "./TimelineContextPack";
-import { useAuth } from "@/context/auth.context";
-import useFormSubmit from "@/hooks/useFormSubmit";
+} from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Clock, FileText, Goal, Loader2, User, Users, X } from 'lucide-react'
+import BasicContextPack from './BasicContextPack'
+import { FormProvider, useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import PeopleContextPack from './PeopleContextPack'
+import GoalsContextPack from './GoalsContextPack'
+import DocumentsContextPack from './DocumentsContextPack'
+import TimelineContextPack from './TimelineContextPack'
+import { useAuth } from '@/context/auth.context'
+import useFormSubmit from '@/hooks/useFormSubmit'
+import { useEffect } from 'react'
+import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
+import * as contextPackService from '@/lib/weaviate-v3/collections/contextpack/contextpack.service'
 
-const ContextPack = ({
+const formDefaultValues = {
+  contextPackDetails: {
+    name: '',
+    duration: '',
+    description: '',
+  },
+  name: '',
+  userRole: '',
+  nonUserName: '',
+  clientName: '',
+  preInteraction: {
+    description: '',
+    keyTopics: [],
+    notes: '',
+  },
+  participants: [],
+  goal: '',
+  subGoals: [],
+  documents: [],
+  timeline: [],
+  preInteractionNotes: '',
+  contextFactors: '',
+}
+
+interface Props {
+  isOpen: boolean
+  setIsOpen: (value: boolean) => void
+  isEditContextPack: { status: boolean; uuid: string }
+  setIsEditContextPack: (value: { status: boolean; uuid: string }) => void
+}
+
+const ContextPackModal = ({
   isOpen,
   setIsOpen,
-  existingPack = {},
-}: ContextPackProps) => {
-  const { user } = useAuth();
+  isEditContextPack,
+  setIsEditContextPack,
+}: Props) => {
+  const { user } = useAuth()
 
-  const methods = useForm<FormValues>({
-    mode: "onChange",
-    defaultValues: {
-      name: existingPack?.name || "",
-      description: existingPack?.description || "",
-      userInfo: {
-        name: existingPack?.userInfo?.name || "",
-        role: existingPack?.userInfo?.role || "",
-        nonUser: existingPack?.userInfo?.nonUser || "",
-        prospect: existingPack?.userInfo?.prospect || "",
-      },
-      participants: existingPack?.participants || [],
-      strategicObjectives: {
-        mainGoal: existingPack?.strategicObjectives?.mainGoal || "",
-        subGoals: existingPack?.strategicObjectives?.subGoals?.length
-          ? existingPack.strategicObjectives.subGoals
-          : [""],
-      },
-      documents: existingPack?.documents || [],
-      timeline: existingPack?.timeline || "",
-      context: existingPack?.context || "",
-      preInteractionNotes: {
-        description: existingPack?.preInteractionNotes?.description || "",
-        keyTopics: existingPack?.preInteractionNotes?.keyTopics || [],
-        additionalNotes:
-          existingPack?.preInteractionNotes?.additionalNotes || "",
-      },
-      timelineContext: {
-        timelineItems: existingPack?.timelineContext?.timelineItems || [],
-        alliancesRivalries:
-          existingPack?.timelineContext?.alliancesRivalries || "",
-        contextFactors: existingPack?.timelineContext?.contextFactors || "",
-      },
-    },
-  });
-  const addParticipant = () => {
-    const newParticipant: Participant = {
-      id: Date.now().toString(),
-      name: "",
-      role: "",
-      relationship: "",
-    };
-    const currentParticipants = methods.getValues("participants") || [];
-    methods.setValue("participants", [...currentParticipants, newParticipant]);
-  };
+  const methods = useForm<ContextPackForm>({
+    mode: 'onChange',
+    defaultValues: formDefaultValues,
+  })
 
-  const removeParticipant = (id: string) => {
-    const currentParticipants = methods.getValues("participants") || [];
-    methods.setValue(
-      "participants",
-      currentParticipants.filter(
-        (participant: Participant) => participant.id !== id
-      )
-    );
-  };
+  const { setValue } = methods;
 
-  const addSubGoal = () => {
-    const currentSubGoals = methods.getValues("strategicObjectives.subGoals");
-    methods.setValue("strategicObjectives.subGoals", [...currentSubGoals, ""]);
-  };
 
-  const removeSubGoal = (index: number) => {
-    const currentSubGoals = methods.getValues("strategicObjectives.subGoals");
-    methods.setValue(
-      "strategicObjectives.subGoals",
-      currentSubGoals.filter((_, i) => i !== index)
-    );
-  };
+  useEffect(() => {
+    const getData = async () => {
+      const data = await contextPackService.getById(isEditContextPack.uuid)
+      if (data) {
+        Object.keys(formDefaultValues).forEach((key) => {
+          setValue(
+            key as keyof ContextPackForm,
+            data.properties[key as keyof ContextPackForm],
+          )
+        })
+      }
+    }
+    if (isEditContextPack.uuid) {
+      getData()
+    }
+  }, [isEditContextPack.uuid, setValue])
 
-  const addDocument = () => {
-    const newDoc: DocumentType = {
-      id: Date.now().toString(),
-      name: "",
-      file: "",
-      type: "pdf",
-      tags: "",
-    };
-    const currentDocuments = methods.getValues("documents") as DocumentType[];
-    if (!currentDocuments) return;
-    methods.setValue("documents", [...(currentDocuments || []), newDoc]);
-    return newDoc;
-  };
 
-  const removeDocument = (id: string) => {
-    const currentDocuments = methods.getValues("documents") as DocumentType[];
-    if (!currentDocuments) return;
+  const createContextPack = async (data: ContextPackForm, userId: string) => {
+    try {
+        await contextPackService.create({ ...data, userId })
+    } catch (error) {
+        alert(error)
+    }
+  }
 
-    methods.setValue(
-      "documents",
-      currentDocuments.filter((doc) => {
-        // Ensure we're comparing strings and handle potential undefined values
-        const docId = doc?.id?.toString();
-        const fieldId = id?.toString();
-        return docId !== fieldId;
-      })
-    );
-  };
+  const updateContextPack = async (data: ContextPackForm, uuid: string) => {
+    try {
+        await contextPackService.update(uuid, data)
+    } catch (error) {
+        alert(error)
+    }
+  }
 
-  const onSubmit = async (data: FormValues) => {
-    await createContextPack(data, user?.id || "");
-  };
+  const onSubmit = async (data: ContextPackForm) => {
+    if (!user || !user.id) {
+      alert('You must be logged in to create a context pack.')
+      return
+    }
+    if (isEditContextPack.status) {
+      await updateContextPack(data, isEditContextPack.uuid)
+      setIsEditContextPack({ status: false, uuid: '' })
+    } else {
+      await createContextPack(data, user.id)
+    }
+  }
 
-  const { handleSubmit, loading, error } = useFormSubmit<FormValues>({
+  const { handleSubmit, loading, error } = useFormSubmit<ContextPackForm>({
     onSubmit: (data) => onSubmit(data),
     onSuccess: () => setIsOpen(false),
-  });
+  })
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -212,22 +193,13 @@ const ContextPack = ({
                   <BasicContextPack />
                 </TabsContent>
                 <TabsContent value="people">
-                  <PeopleContextPack
-                    onAddParticipant={addParticipant}
-                    onRemoveParticipant={removeParticipant}
-                  />
+                  <PeopleContextPack />
                 </TabsContent>
                 <TabsContent value="goals">
-                  <GoalsContextPack
-                    addSubGoal={addSubGoal}
-                    removeSubGoal={removeSubGoal}
-                  />
+                  <GoalsContextPack />
                 </TabsContent>
                 <TabsContent value="documents">
-                  <DocumentsContextPack
-                    addDocument={addDocument}
-                    removeDocument={removeDocument}
-                  />
+                  <DocumentsContextPack />
                 </TabsContent>
                 <TabsContent value="timeline">
                   <TimelineContextPack />
@@ -237,20 +209,22 @@ const ContextPack = ({
             <DialogFooter className="sticky bottom-0 z-10">
               <div className="w-full border-t bg-white px-8 py-6 flex items-center justify-between">
                 <div className="text-sm text-gray-500">
-                  {methods.watch("participants").length} participants •{" "}
-                  {methods.watch("documents").length} documents •{" "}
-                  {
-                    methods
-                      .watch("strategicObjectives.subGoals")
-                      .filter(Boolean).length
-                  }{" "}
-                  objectives
+                  {methods.watch('participants').length} participants •{' '}
+                  {methods.watch('documents').length} documents •{' '}
+                  {methods.watch('subGoals').filter(Boolean).length} objectives
                 </div>
                 <div className="flex items-center space-x-3">
                   <Button
                     variant="outline"
+                    type="button"
                     className="h-11 text-base px-8 w-24 cursor-pointer"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      setIsOpen(false)
+                      setIsEditContextPack({
+                        status: false,
+                        uuid: '',
+                      })
+                    }}
                     disabled={loading}
                   >
                     Cancel
@@ -276,7 +250,7 @@ const ContextPack = ({
         </FormProvider>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default ContextPack;
+export default ContextPackModal

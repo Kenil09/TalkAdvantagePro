@@ -19,7 +19,8 @@ import HotLinkWidgetDisplay from "./HotLinkWidget";
 import AddAnalyticsModal from "./AnalyticsModal/AddAnalyticsModal";
 import { AnalyticsProfileFormData } from "@/types/contextPack";
 
-const ContextPack = dynamic(() => import("./ContextPackModal/ContextPack"), {
+// Dynamic import for pdf-dist to prevent server-side rendering
+const ContextPackModal = dynamic(() => import("./ContextPackModal"), {
   ssr: false,
 });
 
@@ -29,6 +30,7 @@ const STORAGE_KEY = "recording-layout";
 
 const Recording = () => {
   const [editMode, setEditMode] = useState(false);
+  const [isEditContextPack, setIsEditContextPack] = useState({status: false, uuid: ""});
   const [isOpen, setIsOpen] = useState(false);
   const [hotLinkModal, setHotLinkModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -189,7 +191,7 @@ const Recording = () => {
 
       {/* Sticky Footer */}
       <div className="sticky bottom-0 w-full bg-white shadow-md z-10">
-        <ContextPackSelect setIsOpen={setIsOpen} />
+        <ContextPackSelect setIsOpen={setIsOpen} setIsEditContextPack={setIsEditContextPack}/>
         <RecordingSpeech
           editMode={editMode}
           setHotLinkModal={setHotLinkModal}
@@ -198,7 +200,7 @@ const Recording = () => {
       <HotLinkWidgetDisplay />
 
       {/* Modals */}
-      <ContextPack isOpen={isOpen} setIsOpen={setIsOpen} />
+      <ContextPackModal isOpen={isOpen} setIsOpen={setIsOpen} isEditContextPack={isEditContextPack} setIsEditContextPack={setIsEditContextPack}/>
       <HotLinkSettingsModal
         isOpen={hotLinkModal}
         onClose={() => setHotLinkModal(false)}

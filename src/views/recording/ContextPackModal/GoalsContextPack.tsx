@@ -1,25 +1,28 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormValues } from "@/types/contextPack";
-import { Label } from "@radix-ui/react-label";
-import { Plus, Trash2 } from "lucide-react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
+import { Label } from '@radix-ui/react-label'
+import { Plus, Trash2 } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 
-const GoalsContextPack = ({
-  addSubGoal,
-  removeSubGoal,
-}: {
-  addSubGoal: () => void;
-  removeSubGoal: (index: number) => void;
-}) => {
-  const { register, control, setValue } = useFormContext<FormValues>();
+const GoalsContextPack = () => {
+  const { register, setValue, getValues, watch } =
+    useFormContext<ContextPackForm>()
 
-  // Watch the subGoals array
-  const subGoals = useWatch({
-    control,
-    name: "strategicObjectives.subGoals",
-    defaultValue: [],
-  }) as string[];
+  const addSubGoal = () => {
+    const currentSubGoals = watch('subGoals')
+    setValue('subGoals', [...currentSubGoals, ''])
+  }
+
+  const removeSubGoal = (index: number) => {
+    const currentSubGoals = getValues('subGoals')
+    setValue(
+      'subGoals',
+      currentSubGoals.filter((_, i) => i !== index),
+    )
+  }
+
+  const subGoals = watch('subGoals')
 
   return (
     <div>
@@ -40,7 +43,7 @@ const GoalsContextPack = ({
                 Primary Objective
               </Label>
               <Input
-                {...register("strategicObjectives.mainGoal")}
+                {...register('goal')}
                 placeholder="Define Q4 product roadmap"
                 className="h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
@@ -71,25 +74,19 @@ const GoalsContextPack = ({
                       {index + 1}
                     </div>
                     <Input
-                      {...register(
-                        `strategicObjectives.subGoals.${index}` as const,
-                        {
-                          onChange: (e) => {
-                            const newSubGoals = [...subGoals];
-                            newSubGoals[index] = e.target.value;
-                            setValue(
-                              "strategicObjectives.subGoals",
-                              newSubGoals
-                            );
-                          },
-                        }
-                      )}
+                      {...register(`subGoals.${index}`, {
+                        onChange: (e) => {
+                          const newSubGoals = [...subGoals]
+                          newSubGoals[index] = e.target.value
+                          setValue('subGoals', newSubGoals)
+                        },
+                      })}
                       placeholder={`Sub-objective ${index + 1}`}
                       className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                       onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addSubGoal();
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          addSubGoal()
                         }
                       }}
                     />
@@ -110,7 +107,7 @@ const GoalsContextPack = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default GoalsContextPack;
+export default GoalsContextPack

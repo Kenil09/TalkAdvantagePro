@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-
 export interface Participant {
   id: string;
   name: string;
@@ -65,6 +63,8 @@ export interface ContextPackProps {
   setIsOpen: (value: boolean) => void;
   existingPack?: Partial<FormValues>;
   onSave?: (data: FormValues) => void;
+  isEditContextPack: {status: boolean, uuid: string}
+  setIsEditContextPack: (value: {status: boolean, uuid: string}) => void
 }
 
 export interface ContextPack {
@@ -75,15 +75,6 @@ export interface ContextPack {
   mainGoal: string;
   timeline: string;
   lastUsed: string;
-}
-
-export interface ContextPackSelectorProps {
-  isOpen: boolean;
-  onClose: () => void;
-  contextPacks: ContextPack[];
-  selectedContextPack: ContextPack | null;
-  onSelectContextPack: Dispatch<SetStateAction<ContextPack | null>>;
-  onCreateNew: () => void;
 }
 
 export interface AnalyticsProfileFormData {

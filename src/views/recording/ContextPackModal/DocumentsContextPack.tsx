@@ -1,74 +1,96 @@
-import FormInput from "@/components/formInput";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/auth.context";
-import { documentProcessorService } from "@/lib/weaviate/document-service";
-import { FormValues } from "@/types/contextPack";
-import { CheckCircle, FileText, Plus, Trash2, Upload } from "lucide-react";
-import { useState } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import FormInput from '@/components/formInput'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/context/auth.context'
+import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
+import { documentProcessorService } from '@/lib/weaviate/document-service'
+import { CheckCircle, FileText, Plus, Trash2, Upload } from 'lucide-react'
+import { useState } from 'react'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 
-const DocumentsContextPack = ({
-  addDocument,
-  removeDocument,
-}: {
-  addDocument: () => void;
-  removeDocument: (id: string) => void;
-}) => {
-  const { user } = useAuth();
+const DocumentsContextPack = () => {
+  const { user } = useAuth()
 
-  const [uploading, setUploading] = useState(false);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploading, setUploading] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
-  const { control, register, setValue, watch } = useFormContext<FormValues>();
+  const { control, register, setValue, watch, getValues } =
+    useFormContext<ContextPackForm>()
   const { fields } = useFieldArray({
     control,
-    name: "documents",
-    keyName: "fieldId",
-  });
+    name: 'documents',
+    keyName: 'name',
+  })
 
-  const documents = watch("documents");
+  const addDocument = () => {
+    const newDoc = {
+      name: '',
+      file: '',
+      type: 'pdf',
+      tags: [],
+    }
+    const currentDocuments = getValues('documents')
+    if (!currentDocuments) return
+    setValue('documents', [...currentDocuments, newDoc])
+    return newDoc
+  }
+
+  const removeDocument = (id: string) => {
+    const currentDocuments = getValues('documents')
+    if (!currentDocuments) return
+
+    setValue(
+      'documents',
+      currentDocuments.filter((doc) => {
+        const docId = doc.name.toString()
+        const fieldId = id.toString()
+        return docId !== fieldId
+      }),
+    )
+  }
+
+  const documents = watch('documents')
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (!file) {
-      return;
+      return
     }
     if (!user) {
-      alert("You must be logged in to upload files.");
-      return;
+      alert('You must be logged in to upload files.')
+      return
     }
 
-    const document = documents[index];
+    const document = documents[index]
 
     if (!document.name) {
-      alert("Please enter a document name before uploading.");
-      return;
+      alert('Please enter a document name before uploading.')
+      return
     }
-    setUploading(true);
-    setUploadSuccess(false);
+    setUploading(true)
+    setUploadSuccess(false)
     try {
       // Process and store document chunks
       const chunks = await documentProcessorService.processDocument(file, {
         name: document.name,
-        tags: document.tags?.split(",").map((tag) => tag.trim()),
-      });
+        tags: document.tags.map((tag) => tag.trim()),
+      })
 
       // Store chunks in Weaviate
-      await documentProcessorService.storeDocumentChunks(user.id, chunks);
+      await documentProcessorService.storeDocumentChunks(user.id, chunks)
 
       // Store document reference in context pack
-      setValue(`documents.${index}.file`, file.name);
-      setUploadSuccess(true);
+      setValue(`documents.${index}.file`, file.name)
+      setUploadSuccess(true)
     } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Upload failed");
+      console.error('Upload failed:', err)
+      alert('Upload failed')
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   return (
     <div>
@@ -94,7 +116,7 @@ const DocumentsContextPack = ({
         {fields.map((field, index) => {
           return (
             <div
-              key={field.id}
+              key={field.name}
               className="p-6 shadow-sm bg-white/70 backdrop-blur-sm border border-gray-200 rounded-2xl hover:shadow-md transition-shadow mb-4"
             >
               <div className="flex items-start justify-between mb-4">
@@ -112,7 +134,7 @@ const DocumentsContextPack = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => removeDocument(field.id)}
+                  onClick={() => removeDocument(field.name)}
                   className="text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                   type="button"
                 >
@@ -155,7 +177,7 @@ const DocumentsContextPack = ({
                       }
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      {uploading ? "Uploading..." : "Upload"}
+                      {uploading ? 'Uploading...' : 'Upload'}
                       <input
                         id={`document-upload-${index}`}
                         type="file"
@@ -171,7 +193,7 @@ const DocumentsContextPack = ({
                 )}
               </div>
             </div>
-          );
+          )
         })}
 
         {fields.length === 0 && (
@@ -200,7 +222,7 @@ const DocumentsContextPack = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DocumentsContextPack;
+export default DocumentsContextPack

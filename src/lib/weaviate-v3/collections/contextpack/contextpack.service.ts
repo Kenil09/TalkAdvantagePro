@@ -26,6 +26,7 @@ export const get = async (
                 operator: 'Equal',
                 value: value,
             },
+            limit: 20
         })
         const contextPacks = result.objects.map((obj) => ({
             metadata: obj.metadata,
@@ -114,5 +115,25 @@ export const update = async (
         })
     } catch (error) {
         console.error('Error updating context pack:', error)
+    }
+}
+
+/*
+* Delete a context pack by id
+* @param id - The id of the context pack to delete
+* @returns void
+*/
+export const deleteById = async (id: string): Promise<void> => {
+    try {
+        const collection = await getContextPackCollection()
+        if (!collection) {
+            throw new Error('ContextPack collection not found')
+        }
+        const result = await collection.data.deleteById(id)
+        if (!result) {
+            throw new Error('Error deleting context pack')
+        }
+    } catch (error) {
+        console.error('Error deleting context pack:', error)
     }
 }

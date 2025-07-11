@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FormValues } from "@/types/contextPack";
+import { ContextPackForm } from "@/lib/weaviate-v3/collections/contextpack";
 import { Clock, MessageSquare, Plus, User, X } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -12,24 +12,24 @@ import { useFormContext } from "react-hook-form";
 const BasicContextPack = () => {
   const [topicInput, setTopicInput] = useState("");
 
-  const { register, watch, setValue } = useFormContext<FormValues>();
+  const { register, watch, setValue } = useFormContext<ContextPackForm>();
 
   const formData = watch();
 
   const addKeyTopic = () => {
     if (!topicInput.trim()) return;
 
-    const newKeyTopics = [...formData.preInteractionNotes.keyTopics];
-    newKeyTopics.push({ id: Date.now().toString(), topic: topicInput.trim() });
-    setValue("preInteractionNotes.keyTopics", newKeyTopics);
+    const newKeyTopics = [...formData.preInteraction.keyTopics];
+    newKeyTopics.push(topicInput.trim());
+    setValue("preInteraction.keyTopics", newKeyTopics);
     setTopicInput("");
   };
 
   const removeKeyTopic = (id: string) => {
-    const newKeyTopics = formData.preInteractionNotes.keyTopics.filter(
-      (topic) => topic.id !== id
+    const newKeyTopics = formData.preInteraction.keyTopics.filter(
+      (topic) => topic !== id
     );
-    setValue("preInteractionNotes.keyTopics", newKeyTopics);
+    setValue("preInteraction.keyTopics", newKeyTopics);
     setTopicInput("");
   };
 
@@ -50,7 +50,7 @@ const BasicContextPack = () => {
               <div>
                 <FormInput
                   label="Context Pack Name"
-                  {...register("name")}
+                  {...register("contextPackDetails.name")}
                   placeholder="Q4 Strategy Meeting"
                   type="text"
                 />
@@ -61,7 +61,7 @@ const BasicContextPack = () => {
                   <Clock className="absolute left-3 top-[70%] transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <FormInput
                     label="Expected Duration"
-                    {...register("timeline")}
+                    {...register("contextPackDetails.duration")}
                     placeholder="60 minutes"
                     type="text"
                     className="pl-10 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
@@ -78,7 +78,7 @@ const BasicContextPack = () => {
                 </Label>
                 <Textarea
                   id="description"
-                  {...register("description")}
+                  {...register("contextPackDetails.description")}
                   placeholder="Brief description of the context pack purpose..."
                   rows={6}
                   className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
@@ -98,28 +98,28 @@ const BasicContextPack = () => {
             <div className="space-y-4">
               <FormInput
                 label="Your Name"
-                {...register("userInfo.name")}
+                {...register("name")}
                 type="text"
                 placeholder="John Doe"
               />
 
               <FormInput
                 label="Your Role"
-                {...register("userInfo.role")}
+                {...register("userRole")}
                 type="text"
                 placeholder="Your Manager"
               />
 
               <FormInput
                 label="Non-User Name"
-                {...register("userInfo.nonUser")}
+                {...register("nonUserName")}
                 type="text"
                 placeholder="John Doe"
               />
 
               <FormInput
                 label="Prospect/Client"
-                {...register("userInfo.prospect")}
+                {...register("clientName")}
                 type="text"
                 placeholder="John Doe"
               />
@@ -145,7 +145,7 @@ const BasicContextPack = () => {
               </Label>
               <Textarea
                 id="context"
-                {...register("preInteractionNotes.description")}
+                {...register("preInteraction.description")}
                 placeholder="Provide background context for this interaction..."
                 rows={4}
                 className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
@@ -162,7 +162,7 @@ const BasicContextPack = () => {
                   onChange={(e) => setTopicInput(e.target.value)}
                   placeholder="Add key topic"
                   className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       addKeyTopic();
@@ -178,18 +178,18 @@ const BasicContextPack = () => {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {formData.preInteractionNotes.keyTopics.map((topic) => (
+                {formData.preInteraction.keyTopics.map((topic) => (
                   <Badge
-                    key={topic.id}
+                    key={topic}
                     variant="secondary"
                     className="bg-purple-100 text-purple-800 hover:bg-purple-200"
                   >
-                    {topic.topic}
+                    {topic}
                     <Button
                       variant="ghost"
                       size="sm"
                       type="button"
-                      onClick={() => removeKeyTopic(topic.id)}
+                      onClick={() => removeKeyTopic(topic)}
                       className="h-4 w-4 p-0 ml-1 text-purple-600 hover:text-purple-800"
                     >
                       <X className="w-2 h-2" />
@@ -208,7 +208,7 @@ const BasicContextPack = () => {
               </Label>
               <Textarea
                 id="preNotes"
-                {...register("preInteractionNotes.additionalNotes")}
+                {...register("preInteraction.notes")}
                 placeholder="Any notes or preparation points before the interaction..."
                 rows={3}
                 className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"

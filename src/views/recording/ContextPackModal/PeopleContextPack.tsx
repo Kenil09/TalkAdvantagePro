@@ -1,25 +1,42 @@
-import FormInput from "@/components/formInput";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Users } from "lucide-react";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import { FormValues } from "@/types/contextPack";
+import FormInput from '@/components/formInput'
+import { Button } from '@/components/ui/button'
+import { Plus, Trash2, Users } from 'lucide-react'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import {
+  ContextPackForm,
+  Participant,
+} from '@/lib/weaviate-v3/collections/contextpack'
 
-interface PeopleContextPackProps {
-  onAddParticipant: () => void;
-  onRemoveParticipant: (id: string) => void;
-}
+const PeopleContextPack = () => {
+  const methods = useFormContext<ContextPackForm>()
 
-const PeopleContextPack: React.FC<PeopleContextPackProps> = ({
-  onAddParticipant,
-  onRemoveParticipant,
-}) => {
-  const { register, control } = useFormContext<FormValues>();
+  const { register, control, setValue, getValues } = methods
 
   const { fields } = useFieldArray({
     control,
-    name: "participants",
-    keyName: "fieldId",
-  });
+    name: 'participants',
+    keyName: 'fieldId',
+  })
+
+  const onAddParticipant = () => {
+    const newParticipant = {
+      name: '',
+      role: '',
+      relationship_to_user: '',
+    }
+    const currentParticipants = getValues('participants')
+    setValue('participants', [...currentParticipants, newParticipant])
+  }
+
+  const onRemoveParticipant = (name: string) => {
+    const currentParticipants = getValues('participants')
+    setValue(
+      'participants',
+      currentParticipants.filter(
+        (participant: Participant) => participant.name !== name,
+      ),
+    )
+  }
 
   return (
     <div>
@@ -45,7 +62,7 @@ const PeopleContextPack: React.FC<PeopleContextPackProps> = ({
         {fields.length > 0 ? (
           fields.map((field, index) => (
             <div
-              key={field.id}
+              key={field.name}
               className="p-6 border border-gray-200 shadow-sm bg-white/70 backdrop-blur-sm rounded-2xl hover:shadow-md transition-shadow mb-4"
             >
               <div className="flex items-start justify-between mb-4">
@@ -64,7 +81,7 @@ const PeopleContextPack: React.FC<PeopleContextPackProps> = ({
                   variant="ghost"
                   size="sm"
                   className="text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
-                  onClick={() => onRemoveParticipant(field.id)}
+                  onClick={() => onRemoveParticipant(field.name)}
                   type="button"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -91,7 +108,7 @@ const PeopleContextPack: React.FC<PeopleContextPackProps> = ({
                 <div>
                   <FormInput
                     label="Relationship"
-                    {...register(`participants.${index}.relationship`)}
+                    {...register(`participants.${index}.relationship_to_user`)}
                     placeholder="Colleague, Manager, etc."
                     type="text"
                   />
@@ -121,7 +138,7 @@ const PeopleContextPack: React.FC<PeopleContextPackProps> = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PeopleContextPack;
+export default PeopleContextPack

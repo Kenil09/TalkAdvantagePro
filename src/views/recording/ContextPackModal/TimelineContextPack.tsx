@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FormValues } from "@/types/contextPack";
+import { ContextPackForm } from "@/lib/weaviate-v3/collections/contextpack";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -11,26 +11,23 @@ import { useFormContext } from "react-hook-form";
 const TimelineContextPack = () => {
   const [timelineInput, setTimeLineInput] = useState("");
 
-  const { register, watch, setValue } = useFormContext<FormValues>();
+  const { register, watch, setValue } = useFormContext<ContextPackForm>();
 
   const formData = watch();
 
   const addTimelineItem = () => {
     if (!timelineInput.trim()) return;
-    const newTimelineItems = [...formData.timelineContext.timelineItems];
-    newTimelineItems.push({
-      id: Date.now().toString(),
-      item: timelineInput.trim(),
-    });
-    setValue("timelineContext.timelineItems", newTimelineItems);
+    const newTimelineItems = [...formData.timeline];
+    newTimelineItems.push(timelineInput.trim());
+    setValue("timeline", newTimelineItems);
     setTimeLineInput("");
   };
 
   const removeTimelineItem = (id: string) => {
-    const newTimelineItems = formData.timelineContext.timelineItems.filter(
-      (item) => item.id !== id
+    const newTimelineItems = formData.timeline.filter(
+      (item) => item !== id
     );
-    setValue("timelineContext.timelineItems", newTimelineItems);
+    setValue("timeline", newTimelineItems);
     setTimeLineInput("");
   };
 
@@ -74,18 +71,18 @@ const TimelineContextPack = () => {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {formData.timelineContext.timelineItems.map((item) => (
+                {formData.timeline.map((item) => (
                   <Badge
-                    key={item.id}
+                    key={item}
                     variant="secondary"
                     className="bg-purple-100 text-purple-800 hover:bg-purple-200"
                   >
-                    <span className="text-gray-900">{item.item}</span>
+                    <span className="text-gray-900">{item}</span>
                     <Button
                       variant="ghost"
                       size="sm"
                       type="button"
-                      onClick={() => removeTimelineItem(item.id)}
+                      onClick={() => removeTimelineItem(item)}
                       className="h-4 w-4 p-0 ml-1 text-purple-600 hover:text-purple-800"
                     >
                       <X className="w-2 h-2" />
@@ -104,7 +101,7 @@ const TimelineContextPack = () => {
               </Label>
               <Textarea
                 id="alliancesRivalries"
-                {...register("timelineContext.alliancesRivalries")}
+                {...register("preInteractionNotes")}
                 placeholder="Any notes or preparation points before the interaction..."
                 rows={3}
                 className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
@@ -120,7 +117,7 @@ const TimelineContextPack = () => {
               </Label>
               <Textarea
                 id="contextFactors"
-                {...register("timelineContext.contextFactors")}
+                {...register("contextFactors")}
                 placeholder="Any notes or preparation points before the interaction..."
                 rows={3}
                 className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"

@@ -2,29 +2,39 @@ import { Metadata, Vectors } from "weaviate-client";
 
 export interface ContextPack {
     userId: string;
+    contextPackDetails: ContextPackDetails;
     name: string;
     userRole: string;
+    nonUserName: string;
+    clientName: string;
+    preInteraction: PreInteraction;
+    participants: Participant[];
     goal: string;
     subGoals: string[];
-    person: string;
-    personRelationship: string;
-    participants: Participant[];
     documents: Document[];
-    contextDescription: string;
+    timeline: string[];
+    preInteractionNotes: string;
+    contextFactors: string;
+}
+
+export type ContextPackForm = Omit<ContextPack, 'id'>
+export interface ContextPackDetails {
+    name: string;
+    duration: string;
+    description: string;
+}
+
+export interface PreInteraction {
+    description: string;
     keyTopics: string[];
     notes: string;
-    timeline: string;
-    conflictMap: string;
-    environmentalFactors: string;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface Participant {
   name: string;
   role: string;
   relationship_to_user: string;
-  apex_profile: ApexProfile;
+  apex_profile?: ApexProfile;
 }
 
 export interface ApexProfile {
@@ -38,7 +48,7 @@ export interface Document {
   name: string;
   file: string;
   type: string;
-  tags: string;
+  tags: string[];
 }
 
 export interface ContextPackQueryResult {
