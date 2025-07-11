@@ -150,8 +150,119 @@
   }
 }
 
-.react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+.react-grid-item>.react-resizable-handle.react-resizable-handle-se {
   cursor: se-resize;
   bottom: 8px !important;
   right: 12px !important;
+}
+
+.editor-content p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+ol,
+ul,
+blockquote,
+code,
+pre,
+hr,
+table,
+th,
+td {
+  font-size: 0.85rem;
+}
+
+.editor-content {
+  height: 100%;
+  width: 100%;
+  outline: none;
+  position: relative;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: break-spaces;
+  -webkit-font-variant-ligatures: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0;
+  padding: 1rem;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Fix list selection issues */
+.editor-content ul,
+.editor-content ol,
+.editor-content li {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure list bullets and numbers are visible and properly aligned */
+.editor-content ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+}
+
+.editor-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+}
+
+/* Fix nested lists */
+.editor-content ul ul,
+.editor-content ol ol,
+.editor-content ul ol,
+.editor-content ol ul {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+/* Style tables */
+.editor-content table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  overflow: hidden;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.editor-content table td,
+.editor-content table th {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  position: relative;
+  vertical-align: top;
+}
+
+.editor-content table th {
+  background-color: #f8fafc;
+  font-weight: bold;
+}
+
+/* Style blockquotes */
+.editor-content blockquote {
+  border-left: 4px solid #e2e8f0;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Style horizontal rule */
+.editor-content hr {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 1.5rem 0;
+}
+
+/* Prevent drag interference with text selection */
+.no-drag-handle {
+  pointer-events: auto !important;
+  cursor: text !important;
 }

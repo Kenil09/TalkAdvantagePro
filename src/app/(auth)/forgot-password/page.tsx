@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordSchema) => {
     try {
       await forgotPassword({ email: data.email });
-      router.push("/recording");
+      router.push("/");
     } catch (e: unknown) {
       console.log("Sign up error:", e);
     }

@@ -27,7 +27,7 @@ import { createClient } from "./lib/supabase/client";
 import { redirect } from "next/navigation";
 
 const projects = [
-  { name: "Recording", url: "/recording", icon: <Mic /> },
+  { name: "Recording", url: "/", icon: <Mic /> },
   { name: "Library", url: "/library", icon: <SquareLibrary /> },
   { name: "Import", url: "/import", icon: <Upload /> },
   { name: "Analysis", url: "/analysis", icon: <ChartBar /> },
@@ -100,12 +100,6 @@ const SidebarPage = () => {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="w-full min-w-42">
-                <DropdownMenuItem className="cursor-pointer">
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  Billing
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={handleLogout}

@@ -172,7 +172,7 @@ const Recording = () => {
               margin={[24, 24]}
               useCSSTransforms={false}
               autoSize={true}
-              draggableCancel="button, input, textarea, select, option, [role='button']"
+              draggableCancel="button, input, textarea, select, option, [role='button'], .editor-content, .no-drag-handle, ul, ol, li, .ProseMirror ul, .ProseMirror ol, .ProseMirror li"
             >
               {Object.entries(components).map(([key, component]) => {
                 return (

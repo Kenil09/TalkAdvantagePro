@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordSchema) => {
     try {
       await resetPassword({ password: data.password });
-      router.push("/recording");
+      router.push("/");
     } catch (e: unknown) {
       console.log("Sign up error:", e);
     }

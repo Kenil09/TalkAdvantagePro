@@ -38,7 +38,7 @@ export default function SignUpPage() {
   const onSubmit = async (data: SignupSchema) => {
     try {
       await signUp(data);
-      router.push("/recording");
+      router.push("/");
     } catch (e: unknown) {
       console.log("Sign up error:", e);
     }

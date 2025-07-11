@@ -63,7 +63,7 @@ const RecordingSpeech = ({
     setAudioChunks,
   } = useAudioRecordingStore();
 
-  const { isConnecting, setIsConnecting, setIsTranscribing, setLiveText } =
+  const { isConnecting, setIsConnecting, setIsTranscribing, setLiveText, addTranscriptEntry } =
     useTranscriptionStore();
 
   // Initialize AssemblyAI transcription
@@ -115,6 +115,8 @@ const RecordingSpeech = ({
         // Append final transcript segment to live text and update word count
         setLiveText((prev) => {
           const newText = `${prev}${prev ? " " : ""}${transcript.text}`;
+
+        addTranscriptEntry({ text: transcript.text, timestamp: Date.now() });
 
           // Update word count if needed
           // if (isIntervalEnabled && analysisInterval.startsWith("words-")) {
@@ -174,7 +176,7 @@ const RecordingSpeech = ({
       //   }
       // );
     }
-  }, [setIsConnecting, setIsTranscribing, setLiveText]);
+  }, [addTranscriptEntry, setIsConnecting, setIsTranscribing, setLiveText]);
 
   const startRecording = useCallback(async () => {
     console.log("startRecording function called"); // Log start of function

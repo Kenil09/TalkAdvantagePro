@@ -1,0 +1,1 @@
+export const TRANSCRIPTION_TIME_WINDOW = 300000;

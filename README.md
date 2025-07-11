@@ -5,7 +5,7 @@
 Spin up the required services using Docker Compose:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 2. Initialize Weaviate Schema
