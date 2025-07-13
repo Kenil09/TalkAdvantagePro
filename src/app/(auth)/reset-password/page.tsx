@@ -3,7 +3,7 @@
 import { FormProvider, useForm } from "react-hook-form";
 import Link from "next/link";
 import { Mic } from "lucide-react";
-import { useAuth } from "@/context/auth.context";
+import { useAuthStore } from "@/lib/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "@/components/formInput";
 import {
@@ -29,7 +29,9 @@ const defaultValues: ResetPasswordSchema = {
 export default function ResetPasswordPage() {
   const router = useRouter();
 
-  const { isLoading, error, resetPassword } = useAuth();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const resetPassword = useAuthStore((state) => state.resetPassword);
 
   const form = useForm<ResetPasswordSchema>({
     resolver: zodResolver(resetPasswordSchema),

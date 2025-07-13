@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mic } from "lucide-react";
-import { useAuth } from "@/context/auth.context";
+import { useAuthStore } from "@/lib/store/auth.store";
 
 import { loginSchema, LoginSchema } from "@/utils/schema/login.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +29,9 @@ export default function LogInPage() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
 
-  const { isLoading, error, signIn } = useAuth();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const signIn = useAuthStore((state) => state.signIn);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),

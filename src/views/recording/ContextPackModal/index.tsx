@@ -14,11 +14,12 @@ import PeopleContextPack from './PeopleContextPack'
 import GoalsContextPack from './GoalsContextPack'
 import DocumentsContextPack from './DocumentsContextPack'
 import TimelineContextPack from './TimelineContextPack'
-import { useAuth } from '@/context/auth.context'
+import { useAuthStore } from '@/lib/store/auth.store'
 import useFormSubmit from '@/hooks/useFormSubmit'
 import { useEffect } from 'react'
 import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
 import * as contextPackService from '@/lib/weaviate-v3/collections/contextpack/contextpack.service'
+import { useContextPackStore } from '@/lib/store/context-pack.store'
 
 const formDefaultValues = {
   contextPackDetails: {
@@ -57,8 +58,8 @@ const ContextPackModal = ({
   isEditContextPack,
   setIsEditContextPack,
 }: Props) => {
-  const { user } = useAuth()
-
+  const user = useAuthStore((state) => state.user)
+  const { fetchContextPacks } = useContextPackStore()
   const methods = useForm<ContextPackForm>({
     mode: 'onChange',
     defaultValues: formDefaultValues,
@@ -88,6 +89,8 @@ const ContextPackModal = ({
   const createContextPack = async (data: ContextPackForm, userId: string) => {
     try {
         await contextPackService.create({ ...data, userId })
+        // Fetch context packs again to update the list
+        fetchContextPacks(userId)
     } catch (error) {
         alert(error)
     }

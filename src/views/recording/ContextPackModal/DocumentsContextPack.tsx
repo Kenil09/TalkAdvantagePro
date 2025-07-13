@@ -1,6 +1,6 @@
 import FormInput from '@/components/formInput'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/context/auth.context'
+import { useAuthStore } from '@/lib/store/auth.store'
 import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
 import { documentProcessorService } from '@/lib/weaviate/document-service'
 import { CheckCircle, FileText, Plus, Trash2, Upload } from 'lucide-react'
@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
 const DocumentsContextPack = () => {
-  const { user } = useAuth()
+  const user = useAuthStore((state) => state.user)
 
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)

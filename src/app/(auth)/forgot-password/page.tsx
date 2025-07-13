@@ -3,7 +3,7 @@
 import { FormProvider, useForm } from "react-hook-form";
 import Link from "next/link";
 import { Mic } from "lucide-react";
-import { useAuth } from "@/context/auth.context";
+import { useAuthStore } from "@/lib/store/auth.store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "@/components/formInput";
 import {
@@ -28,7 +28,9 @@ const defaultValues: ForgotPasswordSchema = {
 export default function ForgotPasswordPage() {
   const router = useRouter();
 
-  const { isLoading, error, forgotPassword } = useAuth();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const forgotPassword = useAuthStore((state) => state.forgotPassword);
 
   const form = useForm<ForgotPasswordSchema>({
     resolver: zodResolver(forgotPasswordSchema),

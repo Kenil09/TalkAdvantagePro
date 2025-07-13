@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import {
     Briefcase,
@@ -10,7 +10,8 @@ import {
     Users,
 } from 'lucide-react'
 import ContextPackSelectorModal from './ContextPackSelectorModal'
-import { ContextPackQueryResult } from '@/lib/weaviate-v3/collections/contextpack'
+import { useContextPackStore } from '@/lib/store/context-pack.store'
+import { useAuthStore } from '@/lib/store/auth.store'
 
 const ContextPackSelect = ({
     setIsOpen,
@@ -20,8 +21,15 @@ const ContextPackSelect = ({
     setIsEditContextPack: (open: { status: boolean; uuid: string }) => void
 }) => {
     const [isSelectorOpen, setIsSelectorOpen] = useState(false)
-    const [selectedContextPack, setSelectedContextPack] =
-        useState<ContextPackQueryResult | null>(null)
+    const { currentContextPack, fetchContextPacks } = useContextPackStore()
+    const user = useAuthStore((state) => state.user)
+    
+    // Fetch context packs when component mounts
+    useEffect(() => {
+        if (user && user.id) {
+            fetchContextPacks(user.id)
+        }
+    }, [user, fetchContextPacks])
 
     const handleCreateNew = () => {
         setIsOpen(true)
@@ -32,11 +40,11 @@ const ContextPackSelect = ({
     }
 
     const handleEditCurrent = () => {
-        if (selectedContextPack) {
+        if (currentContextPack) {
             setIsOpen(true)
             setIsEditContextPack({
                 status: true,
-                uuid: selectedContextPack.uuid,
+                uuid: currentContextPack.uuid,
             })
         }
     }
@@ -53,9 +61,9 @@ const ContextPackSelect = ({
                             <span className="text-sm font-semibold text-gray-900">
                                 Context Pack
                             </span>
-                            {selectedContextPack ? (
+                            {currentContextPack ? (
                                 <p className="bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs font-medium py-1  px-2 rounded-full">
-                                    {selectedContextPack?.properties?.name}
+                                    {currentContextPack?.properties?.contextPackDetails?.name}
                                 </p>
                             ) : (
                                 <p className="text-gray-500 text-xs border border-gray-200 rounded-full px-2 py-1">
@@ -63,12 +71,12 @@ const ContextPackSelect = ({
                                 </p>
                             )}
                         </div>
-                        {selectedContextPack && (
+                        {currentContextPack && (
                             <div className="flex items-center space-x-3 text-xs text-gray-600 mt-1">
                                 <div className="flex items-center space-x-1">
                                     <Users className="w-2.5 h-2.5" />
                                     <span>
-                                        {selectedContextPack?.properties
+                                        {currentContextPack?.properties
                                             .participants?.length + 1}
                                     </span>
                                 </div>
@@ -76,7 +84,7 @@ const ContextPackSelect = ({
                                     <FileText className="w-2.5 h-2.5" />
                                     <span>
                                         {
-                                            selectedContextPack?.properties
+                                            currentContextPack?.properties
                                                 .documents?.length
                                         }
                                     </span>
@@ -85,7 +93,7 @@ const ContextPackSelect = ({
                                     <Clock className="w-2.5 h-2.5" />
                                     <span>
                                         {
-                                            selectedContextPack?.properties
+                                            currentContextPack?.properties
                                                 .timeline
                                         }
                                     </span>
@@ -93,21 +101,21 @@ const ContextPackSelect = ({
                             </div>
                         )}
                     </div>
-                    {selectedContextPack && (
+                    {currentContextPack && (
                         <div className="flex items-center space-x-2 ml-4">
                             <div className="px-2 py-1 bg-white/70 backdrop-blur-sm border-0 shadow-sm rounded-md">
                                 <div className="flex items-center space-x-1">
                                     <Users className="w-3 h-3 text-blue-600" />
                                     <div className="text-xs text-gray-600">
-                                        {selectedContextPack?.properties.participants
+                                        {currentContextPack?.properties.participants
                                             ?.slice(0, 2)
                                             .map((p) => p.name.split(' ')[0])
                                             .join(', ')}
-                                        {selectedContextPack?.properties
+                                        {currentContextPack?.properties
                                             .participants?.length > 2 &&
                                             ` +${
-                                                selectedContextPack.properties
-                                                    .participants.length - 2
+                                                (currentContextPack.properties
+                                                    .participants?.length || 0) - 2
                                             }`}
                                     </div>
                                 </div>
@@ -118,7 +126,7 @@ const ContextPackSelect = ({
                                     <FileText className="w-3 h-3 text-green-600" />
                                     <div className="text-xs text-gray-600">
                                         {
-                                            selectedContextPack?.properties
+                                            currentContextPack?.properties
                                                 .documents?.length
                                         }{' '}
                                         docs
@@ -140,7 +148,7 @@ const ContextPackSelect = ({
                         <ChevronDown className="w-3 h-3" />
                     </Button>
 
-                    {selectedContextPack && (
+                    {currentContextPack && (
                         <Button
                             size="sm"
                             onClick={handleEditCurrent}
@@ -165,8 +173,6 @@ const ContextPackSelect = ({
             <ContextPackSelectorModal
                 isOpen={isSelectorOpen}
                 onClose={() => setIsSelectorOpen(false)}
-                selectedContextPack={selectedContextPack}
-                setSelectedContextPack={setSelectedContextPack}
                 onCreateNew={() => {
                     setIsOpen(true)
                 }}

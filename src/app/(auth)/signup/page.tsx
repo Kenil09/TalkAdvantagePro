@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/context/auth.context";
+import { useAuthStore } from "@/lib/store/auth.store";
 import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -28,7 +28,9 @@ const defaultValues: SignupSchema = {
 export default function SignUpPage() {
   const router = useRouter();
 
-  const { isLoading, error, signUp } = useAuth();
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const signUp = useAuthStore((state) => state.signUp);
 
   const form = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),

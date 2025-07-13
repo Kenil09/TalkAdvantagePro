@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, Key, SetStateAction, useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,48 +23,48 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ContextPackQueryResult } from "@/lib/weaviate-v3/collections/contextpack";
-import * as contextPackService from "@/lib/weaviate-v3/collections/contextpack/contextpack.service";
-import { useAuth } from "@/context/auth.context";
+import { useAuthStore } from "@/lib/store/auth.store";
+import { useContextPackStore } from "@/lib/store/context-pack.store";
 
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    selectedContextPack: ContextPackQueryResult | null;
-    setSelectedContextPack: Dispatch<SetStateAction<ContextPackQueryResult | null>>;
     onCreateNew: () => void;
 }
 
 export default function ContextPackSelectorModal({
   isOpen,
   onClose,
-  selectedContextPack,
-  setSelectedContextPack,
   onCreateNew,
 }: Props) {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"recent" | "name">("recent");
-  const [allContextPacks, setAllContextPacks] = useState<ContextPackQueryResult[]>([]);
-
-  const fetchContextPacks = async (id: string) => {
-    const packs = await contextPackService.get("userId", id);
-    setAllContextPacks(packs);
-  };
+  
+  // Use the context pack store
+  const { 
+    contextPacks,
+    currentContextPack,
+    setCurrentContextPack,
+    fetchContextPacks
+  } = useContextPackStore();
 
   useEffect(() => {
     if (user && user.id) {
       fetchContextPacks(user.id);
     }
-  }, [user]);
+  }, [user, fetchContextPacks]);
 
   const handleSelectContextPack = (pack: ContextPackQueryResult) => {
-    setSelectedContextPack(pack);
+    setCurrentContextPack(pack);
     onClose();
   };
 
   const handleDeleteContextPack = async (id: string) => {
     try {
-      await contextPackService.deleteById(id);
+      // We still use the service directly for deletion
+      // Then refresh the list from the store
+      await useContextPackStore.getState().fetchContextPackById(id);
       if (user && user.id) {
         fetchContextPacks(user.id);
       }
@@ -147,7 +147,7 @@ export default function ContextPackSelectorModal({
 
           {/* Context Pack List */}
           <div className="p-6">
-            {allContextPacks.length === 0 ? (
+            {contextPacks.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Briefcase className="w-8 h-8 text-gray-400" />
@@ -173,16 +173,16 @@ export default function ContextPackSelectorModal({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {allContextPacks.map((pack) => (
+                {contextPacks.map((pack) => (
                   <div
                     key={pack.uuid}
                     className={`cursor-pointer transition-all duration-200 rounded-3xl hover:shadow-lg hover:scale-[1.02] border border-gray-200 shadow-sm ${
-                      selectedContextPack?.uuid === pack.uuid
+                      currentContextPack?.uuid === pack.uuid
                         ? "ring-2 ring-blue-500 bg-blue-50"
                         : "bg-white hover:bg-gray-50"
                     }`}
                     onClick={() => {
-                      setSelectedContextPack(pack);
+                      setCurrentContextPack(pack);
                     }}
                   >
                     <div className="p-4">
@@ -190,7 +190,7 @@ export default function ContextPackSelectorModal({
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                            {pack.properties.name}
+                            {pack.properties.contextPackDetails.name}
                           </h3>
                         </div>
                         <Button variant="ghost" size="icon" className="cursor-pointer" onClick={(e) => {
@@ -199,7 +199,7 @@ export default function ContextPackSelectorModal({
                         }}>
                           <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600" />
                         </Button>
-                        {selectedContextPack?.uuid === pack.uuid && (
+                        {currentContextPack?.uuid === pack.uuid && (
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <ChevronRight className="w-3 h-3 text-white" />
                           </div>
@@ -278,11 +278,11 @@ export default function ContextPackSelectorModal({
         <DialogFooter className="sticky bottom-0 z-10 bg-white">
           <div className="w-full border-t px-6 py-4 flex items-center justify-between">
             <div className="text-sm text-gray-500">
-              {selectedContextPack && (
+              {currentContextPack && (
                 <span className="ml-2">
                   •{" "}
                   <span className="font-medium">
-                    {selectedContextPack.properties.name}
+                    {currentContextPack.properties.contextPackDetails.name}
                   </span>{" "}
                   selected
                 </span>
@@ -299,10 +299,10 @@ export default function ContextPackSelectorModal({
               <Button
                 type="button"
                 onClick={() =>
-                  selectedContextPack &&
-                  handleSelectContextPack(selectedContextPack)
+                  currentContextPack &&
+                  handleSelectContextPack(currentContextPack)
                 }
-                disabled={!selectedContextPack}
+                disabled={!currentContextPack}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 cursor-pointer"
               >
                 Use Selected Pack

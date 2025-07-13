@@ -22,9 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "./components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "./components/ui/avatar";
-import { useMemo } from "react";
-import { createClient } from "./lib/supabase/client";
 import { redirect } from "next/navigation";
+import { useAuthStore } from "./lib/store/auth.store";
 
 const projects = [
   { name: "Recording", url: "/", icon: <Mic /> },
@@ -35,20 +34,11 @@ const projects = [
 
 const SidebarPage = () => {
   const pathname = usePathname();
-
-  const supabase = useMemo(() => createClient(), []);
+  const { signOut } = useAuthStore()
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    console.log(error);
-
-    if (error) {
-      console.error("Logout error:", error.message);
-      redirect("/login");
-    } else {
-      console.log("User signed out successfully");
-      redirect("/login");
-    }
+    await signOut();
+    redirect("/login");
   };
 
   return (

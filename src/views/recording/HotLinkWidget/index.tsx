@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HOTLINK_WIDGETS } from "@/constants/hotlink-widget.constants";
-import { useAuth } from "@/context/auth.context";
+import { useAuthStore } from "@/lib/store/auth.store";
 import useHotLinkDetection from "@/hooks/useHotLinkDetection";
 import { contextService } from "@/lib/services/context.service";
 import { useTranscriptionStore } from "@/lib/store/transcription.store";
@@ -15,7 +15,7 @@ const HotLinkWidgetDisplay = () => {
   const { activeWidget, clearActiveWidget } =
     useHotLinkDetection(HOTLINK_WIDGETS);
   const { liveText } = useTranscriptionStore();
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
 
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string>("");
