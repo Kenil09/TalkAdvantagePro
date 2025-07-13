@@ -106,8 +106,10 @@ const Recording = () => {
 
     loadLayout();
 
+    // Empty resize handler to capture window resize events
+    // The WidthProvider already handles resize events automatically
     const handleResize = () => {
-      window.dispatchEvent(new Event("resize"));
+      // Intentionally empty - WidthProvider handles resize automatically
     };
 
     window.addEventListener("resize", handleResize);

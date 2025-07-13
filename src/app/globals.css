@@ -266,3 +266,14 @@ td {
   pointer-events: auto !important;
   cursor: text !important;
 }
+
+/* Custom styling for Tiptap editor with reduced line height */
+.tiptap-editor p {
+  line-height: 1.2; /* Reduced from default (usually 1.5 or 1.6) */
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap-editor li {
+  line-height: 1.2;
+}

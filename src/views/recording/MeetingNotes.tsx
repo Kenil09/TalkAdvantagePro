@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useCallback } from "react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -8,18 +9,14 @@ import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
 import { MenuBar } from "@/views/recording/MenuBar";
-import { AiMenuBar } from "@/views/recording/AiMenuBar";
 import { useTranscriptionStore } from "@/lib/store/transcription.store";
 import { TRANSCRIPTION_TIME_WINDOW } from '@/config';
+import { useContextPackStore } from '@/lib/store/context-pack.store';
 
 const MeetingNotes = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [contextPack, setContextPack] = useState({
-    meetingGoal: "",
-    participants: '',
-  });
+
+  const { currentContextPack } = useContextPackStore()
 
   const editor = useEditor({
     extensions: [
@@ -70,8 +67,7 @@ const MeetingNotes = () => {
 
     const lastFewMinTranscript = getLastFewMinTranscript();
 
-    setIsLoading(true);
-    try {
+   try {
       // Ensure editor is ready before accessing its methods
       if (!editor.isDestroyed && editor.isEditable && lastFewMinTranscript.trim().length > 0) {
         const response = await fetch('/api/ai/generate-notes', {
@@ -79,10 +75,7 @@ const MeetingNotes = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             recentTranscript: lastFewMinTranscript,
-            contextPack: {
-              ...contextPack,
-              participants: contextPack.participants ? contextPack.participants.split(',').map(p => p.trim()) : [],
-            },
+            contextPack: currentContextPack,
             currentCanvasState: JSON.stringify(editor.getJSON())
           }),
         });
@@ -107,10 +100,8 @@ const MeetingNotes = () => {
         <p>Please try again or check the console for more details.</p>
       `).run();
       }
-    } finally {
-      setIsLoading(false);
     }
-  }, [contextPack, editor, getLastFewMinTranscript]);
+  }, [currentContextPack, editor, getLastFewMinTranscript]);
 
   // call this function on interval of 5 minute
   useEffect(() => {
@@ -122,7 +113,7 @@ const MeetingNotes = () => {
 
   return (
     <div className="bg-white rounded-3xl p-4 no-drag h-full flex flex-col">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-0.5">
         <h3 className="font-semibold text-gray-900">Meeting Notes</h3>
         <Button
           variant="ghost"
@@ -134,14 +125,7 @@ const MeetingNotes = () => {
         </Button>
       </div>
 
-      <AiMenuBar
-        onProcess={handleProcessTranscript}
-        isLoading={isLoading}
-        contextPack={contextPack}
-        setContextPack={setContextPack}
-      />
-
-      <div className="flex-1 flex flex-col overflow-hidden border border-gray-200 rounded-2xl mt-4">
+      <div className="flex-1 flex flex-col overflow-hidden border border-gray-200 rounded-2xl mt-1">
         {editor && <MenuBar editor={editor} />}
         <div className="flex-1 overflow-hidden text-sm relative">
           <div className="absolute inset-0 overflow-auto no-drag-handle">

@@ -23,7 +23,7 @@ import {
 } from "./components/ui/dropdown-menu";
 import { Avatar, AvatarImage } from "./components/ui/avatar";
 import { redirect } from "next/navigation";
-import { useAuthStore } from "./lib/store/auth.store";
+import { useAuthStore } from "@/lib/store/auth.store";
 
 const projects = [
   { name: "Recording", url: "/", icon: <Mic /> },
