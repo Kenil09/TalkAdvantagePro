@@ -43,7 +43,7 @@ const MeetingNotes = () => {
     ],
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none p-4 h-full w-full',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl focus:outline-none p-4 h-full w-full tiptap-editor',
       },
     },
     onBlur: () => {
