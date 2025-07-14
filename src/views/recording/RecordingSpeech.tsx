@@ -107,16 +107,16 @@ const RecordingSpeech = ({
         setIsConnecting(false);
       });
 
-      transcriber.on("transcript", (transcript: RealtimeTranscript) => {
+      transcriber.on("transcript.final", (transcript: RealtimeTranscript) => {
         if (!transcript.text || transcript.message_type !== "FinalTranscript") {
           return;
         }
-        console.log(`AssemblyAI FinalTranscript:`, transcript.text);
         // Append final transcript segment to live text and update word count
         setLiveText((prev) => {
           const newText = `${prev}${prev ? " " : ""}${transcript.text}`;
 
-        addTranscriptEntry({ text: transcript.text, timestamp: Date.now() });
+        // Not adding created time from transcript as it's not giving correct local time
+        addTranscriptEntry({ text: transcript.text, timestamp: new Date().getTime() });
 
           // Update word count if needed
           // if (isIntervalEnabled && analysisInterval.startsWith("words-")) {

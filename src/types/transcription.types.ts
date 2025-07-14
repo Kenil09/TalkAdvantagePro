@@ -3,6 +3,11 @@ export interface TranscriptEntry {
   timestamp: number;
 }
 
+export interface WordDetectionResult {
+  matchCount: number;
+  matchedWords: string[];
+}
+
 export interface TranscriptionStore {
   isConnecting: boolean;
   setIsConnecting: (connecting: boolean) => void;
@@ -17,5 +22,6 @@ export interface TranscriptionStore {
   addTranscriptEntry: (entry: TranscriptEntry) => void;
 
   getLastFewMinTranscript: () => string;
+  detectWords: (wordsToDetect: string[]) => WordDetectionResult;
 }
 
