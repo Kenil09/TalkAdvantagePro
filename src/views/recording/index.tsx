@@ -2,7 +2,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Folder, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import CurrentContext from "./CurrentContext";
 import LiveTranscription from "./LiveTranscription";
 import AnalyticsProfile from "./AnalyticsProfile";
 import ChatBot from "./ChatBot";
@@ -153,8 +152,6 @@ const Recording = () => {
             </Button>
           </div>
         </div>
-        {/* Current Context */}
-        <CurrentContext />
         {/* Grid Layout */}
         <div className="min-h-screen flex flex-col gap-5 mt-6">
           {isLoading ? (
