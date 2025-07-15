@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import CurrentContext from "./CurrentContext";
 import LiveTranscription from "./LiveTranscription";
 import AnalyticsProfile from "./AnalyticsProfile";
-import VoiceMarkers from "./VoiceMarkers";
+import ChatBot from "./ChatBot";
 import ConversationCards from "./ConversationCards";
 import MeetingNotes from "./MeetingNotes";
 import RecordingSpeech from "./RecordingSpeech";
@@ -49,7 +49,7 @@ const Recording = () => {
           setEditProfile={setEditProfile}
         />
       ),
-      c: <VoiceMarkers key="c" />,
+      c: <ChatBot key="c" />,
       d: <ConversationCards key="d" />,
       e: <MeetingNotes key="e" />,
     }),
