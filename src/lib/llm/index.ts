@@ -20,24 +20,30 @@ class LLM {
     systemTemplate: string,
     userTemplate: string,
     context?: Record<string, unknown>,
-    outputSchema?: ZodSchema,
+    outputSchema?: ZodSchema | Record<string, unknown>,
   ) => {
-    const promptTemplate = ChatPromptTemplate.fromMessages([
-      ['system', systemTemplate],
-      ['user', userTemplate],
-    ])
+    try {
+      const promptTemplate = ChatPromptTemplate.fromMessages([
+        ['system', systemTemplate],
+        ['user', userTemplate],
+      ])
 
-    const promptValue = await promptTemplate.invoke(context)
+      const promptValue = await promptTemplate.invoke(context)
 
-    let response
+      let response
 
-    if (outputSchema) {
-      const structuredOutput = this.llmModel.withStructuredOutput(outputSchema)
-      response = await structuredOutput.invoke(promptValue)
-    } else {
-      response = await this.llmModel.invoke(promptValue)
+      if (outputSchema) {
+        const structuredOutput =
+          this.llmModel.withStructuredOutput(outputSchema)
+        response = await structuredOutput.invoke(promptValue)
+      } else {
+        response = await this.llmModel.invoke(promptValue)
+      }
+      return response
+    } catch (error) {
+      console.error('Error in LLM.invoke:', JSON.stringify(error, null, 2))
+      return null
     }
-    return response
   }
 }
 
