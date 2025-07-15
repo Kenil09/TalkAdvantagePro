@@ -1,6 +1,6 @@
-'use server'
 import { ChatOpenAI } from '@langchain/openai'
-import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { ChatPromptTemplate } from '@langchain/core/prompts'
+import { ZodSchema } from 'zod'
 
 class LLM {
   llmModel: ChatOpenAI
@@ -16,29 +16,31 @@ class LLM {
     })
   }
 
-  invoke = async (systemTemplate: string, userTemplate: string, context?: Record<string, unknown>, outputSchema?: Record<string, unknown>) => {
+  invoke = async (
+    systemTemplate: string,
+    userTemplate: string,
+    context?: Record<string, unknown>,
+    outputSchema?: ZodSchema,
+  ) => {
     const promptTemplate = ChatPromptTemplate.fromMessages([
       ['system', systemTemplate],
       ['user', userTemplate],
-    ]);
+    ])
 
-    const promptValue = await promptTemplate.invoke(context);
+    const promptValue = await promptTemplate.invoke(context)
 
-    let response;
+    let response
 
     if (outputSchema) {
-      const structuredOutput = this.llmModel.withStructuredOutput(outputSchema);
-      response = await structuredOutput.invoke(promptValue);
+      const structuredOutput = this.llmModel.withStructuredOutput(outputSchema)
+      response = await structuredOutput.invoke(promptValue)
     } else {
-      response = await this.llmModel.invoke(promptValue);
+      response = await this.llmModel.invoke(promptValue)
     }
-
     return response
   }
 }
 
 const llmModel = new LLM()
-
-export const invoke = llmModel.invoke;
 
 export default llmModel

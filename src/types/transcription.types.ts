@@ -22,6 +22,6 @@ export interface TranscriptionStore {
   addTranscriptEntry: (entry: TranscriptEntry) => void;
 
   getLastFewMinTranscript: () => string;
-  detectWords: (wordsToDetect: string[]) => WordDetectionResult;
+  detectWords: (wordsToDetect: string[], transcript?: string) => WordDetectionResult;
 }
 
