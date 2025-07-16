@@ -1,152 +1,155 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { X, Plus, Trash2, Settings, Zap, Upload, Edit3 } from "lucide-react";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { HOTLINK_WIDGETS } from "@/constants/hotlink-widget.constants";
-import { Model } from "@/types/widget.types";
+} from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { X, Plus, Trash2, Settings, Zap, Upload, Edit3 } from 'lucide-react'
+import { DialogTitle } from '@radix-ui/react-dialog'
+import { HOTLINK_WIDGETS } from '@/constants/hotlink-widget.constants'
+import { Model } from '@/types/widget.types'
 
 interface HotLinkSettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 interface FlashWidget {
-  id: string;
-  name: string;
-  triggerWords: string[];
-  model: string;
-  prompt: string;
-  enabled: boolean;
+  id: string
+  name: string
+  triggerWords: string[]
+  model: string
+  prompt: string
+  enabled: boolean
 }
 
 export function HotLinkSettingsModal({
   isOpen,
   onClose,
 }: HotLinkSettingsModalProps) {
-  const [widgets, setWidgets] = useState<FlashWidget[]>(HOTLINK_WIDGETS);
-  const [models, setModels] = useState<Model[]>([]);
+  const [widgets, setWidgets] = useState<FlashWidget[]>(HOTLINK_WIDGETS)
+  const [models, setModels] = useState<Model[]>([])
+  const [selectedWidget, setSelectedWidget] = useState<string>('research')
   const [newWidget, setNewWidget] = useState({
-    name: "",
-    triggerWords: "",
-    model: "", // Start with empty model to show placeholder
-    prompt: "",
-  });
+    name: '',
+    triggerWords: '',
+    model: '', // Start with empty model to show placeholder
+    prompt: '',
+  })
 
-  const [showAddWidget, setShowAddWidget] = useState(false);
+  const [showAddWidget, setShowAddWidget] = useState(false)
 
   const addTriggerWord = (widgetId: string, word: string) => {
-    if (!word.trim()) return;
+    if (!word.trim()) return
     setWidgets(
       widgets.map((w) =>
         w.id === widgetId
           ? { ...w, triggerWords: [...w.triggerWords, word.trim()] }
-          : w
-      )
-    );
-  };
+          : w,
+      ),
+    )
+  }
 
   const removeTriggerWord = (widgetId: string, word: string) => {
     setWidgets(
       widgets.map((w) =>
         w.id === widgetId
           ? { ...w, triggerWords: w.triggerWords.filter((tw) => tw !== word) }
-          : w
-      )
-    );
-  };
+          : w,
+      ),
+    )
+  }
 
   const updateWidget = (widgetId: string, field: string, value: string) => {
     setWidgets(
-      widgets.map((w) => (w.id === widgetId ? { ...w, [field]: value } : w))
-    );
-  };
+      widgets.map((w) => (w.id === widgetId ? { ...w, [field]: value } : w)),
+    )
+  }
 
   const deleteWidget = (widgetId: string) => {
-    setWidgets(widgets.filter((w) => w.id !== widgetId));
-  };
+    setWidgets(widgets.filter((w) => w.id !== widgetId))
+    setSelectedWidget('research')
+  }
 
   const addNewWidget = () => {
-    if (!newWidget.name.trim()) return;
+    if (!newWidget.name.trim()) return
 
     const widget: FlashWidget = {
       id: Date.now().toString(),
       name: newWidget.name,
       triggerWords: newWidget.triggerWords
-        .split(",")
+        .split(',')
         .map((w) => w.trim())
         .filter(Boolean),
       model: newWidget.model,
       prompt: newWidget.prompt,
       enabled: true,
-    };
+    }
 
-    setWidgets([...widgets, widget]);
+    setWidgets([...widgets, widget])
+    setSelectedWidget(widget.id)
     setNewWidget({
-      name: "",
-      triggerWords: "",
-      model: "Mistral 7B Instruct (Free)",
-      prompt: "",
-    });
-    setShowAddWidget(false);
-  };
+      name: '',
+      triggerWords: '',
+      model: 'Mistral 7B Instruct (Free)',
+      prompt: '',
+    })
+    setShowAddWidget(false)
+  }
 
   const handleSave = () => {
-    onClose();
-  };
+    onClose()
+  }
 
   const fetchModels = async () => {
     try {
-      const response = await fetch("/api/models", {
-        method: "GET",
+      const response = await fetch('/api/models', {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch models");
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch models')
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
       const modelsSet = new Map(
-        data.data.map((model: { slug: string }) => [model.slug, model])
-      );
+        data.data.map((model: { slug: string }) => [model.slug, model]),
+      )
 
-      const uniqueModels = Array.from(modelsSet.values());
+      const uniqueModels = Array.from(modelsSet.values())
 
-      setModels(uniqueModels as Model[]);
+      setModels(uniqueModels as Model[])
 
-      return data;
+      return data
     } catch (error) {
-      console.error("Failed to fetch models:", error);
+      console.error('Failed to fetch models:', error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchModels();
-  }, []);
+    fetchModels()
+  }, [])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -183,9 +186,29 @@ export function HotLinkSettingsModal({
           <div className="p-6">
             {/* Action Buttons */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                HotLink Widgets
-              </h2>
+              {!showAddWidget && (
+                <div className="flex flex-col items-end w-full max-w-[200px] gap-2">
+                  <Select
+                    value={selectedWidget}
+                    onValueChange={(value) => setSelectedWidget(value)}
+                  >
+                  <SelectTrigger className="bg-white border-gray-300 text-gray-900 cursor-pointer w-full">
+                    <SelectValue placeholder="Select a widget..." />
+                  </SelectTrigger>
+                  <SelectContent
+                    className="cursor-pointer w-full z-[9999999] h-full max-h-[250px]"
+                    position="popper"
+                    sideOffset={5}
+                  >
+                    {widgets?.map((widget: FlashWidget) => (
+                      <SelectItem key={widget.id} value={widget.id}>
+                        {widget.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              )}
               <div className="flex items-center space-x-3">
                 <Button
                   variant="outline"
@@ -307,134 +330,145 @@ export function HotLinkSettingsModal({
                 </Card>
               )}
               {/* Existing Widgets */}
-              {widgets.map((widget) => (
-                <Card
-                  key={widget.id}
-                  className="bg-white border-gray-200 shadow-sm"
-                >
-                  <CardHeader className="">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-gray-900 flex items-center space-x-2">
-                        <span>{widget.name}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 cursor-pointer"
-                        >
-                          <Edit3 className="w-3 h-3" />
-                        </Button>
-                      </CardTitle>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteWidget(widget.id)}
-                          type="button"
-                          className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          type="button"
-                          className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 cursor-pointer"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Trigger Words */}
-                    <div>
-                      <Label className="text-gray-700 text-sm mb-2 block">
-                        Trigger Words
-                      </Label>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {widget.triggerWords.map((word, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          >
-                            {word}
+              {!showAddWidget &&
+                widgets
+                  .filter(
+                    (widget) => !selectedWidget || widget.id === selectedWidget,
+                  )
+                  .map((widget) => (
+                    <Card
+                      key={widget.id}
+                      className="bg-white border-gray-200 shadow-sm"
+                    >
+                      <CardHeader className="">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-gray-900 flex items-center space-x-2">
+                            <span>{widget.name}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 cursor-pointer"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </Button>
+                          </CardTitle>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteWidget(widget.id)}
+                              type="button"
+                              className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               type="button"
-                              onClick={() => removeTriggerWord(widget.id, word)}
-                              className="h-4 w-4 p-0 ml-1 text-gray-400 hover:text-gray-600 cursor-pointer"
+                              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
-                              <X className="w-2 h-2" />
+                              <X className="w-3 h-3" />
                             </Button>
-                          </Badge>
-                        ))}
-                      </div>
-                      <Input
-                        placeholder="Add trigger word and press Enter"
-                        className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            addTriggerWord(widget.id, e.currentTarget.value);
-                            e.currentTarget.value = "";
-                          }
-                        }}
-                      />
-                    </div>
-
-                    {/* Model Selection */}
-                    <div>
-                      <Label className="text-gray-700 text-sm mb-2 block">
-                        Model
-                      </Label>
-                      <Select
-                        value={widget.model}
-                        onValueChange={(value) =>
-                          updateWidget(widget.id, "model", value)
-                        }
-                      >
-                        <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500">
-                          <SelectValue placeholder="Select Model" />
-                        </SelectTrigger>
-                        <SelectContent className="cursor-pointer w-full">
-                          {models?.map(
-                            (model: {
-                              name: string;
-                              slug: string;
-                              context_length: number;
-                            }) => (
-                              <SelectItem
-                                key={`${model.slug}-${model.name}-${model.context_length}`}
-                                value={model.slug}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* Trigger Words */}
+                        <div>
+                          <Label className="text-gray-700 text-sm mb-2 block">
+                            Trigger Words
+                          </Label>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {widget.triggerWords.map((word, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="bg-gray-100 text-gray-700 hover:bg-gray-200"
                               >
-                                {model.name}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                                {word}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  type="button"
+                                  onClick={() =>
+                                    removeTriggerWord(widget.id, word)
+                                  }
+                                  className="h-4 w-4 p-0 ml-1 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                >
+                                  <X className="w-2 h-2" />
+                                </Button>
+                              </Badge>
+                            ))}
+                          </div>
+                          <Input
+                            placeholder="Add trigger word and press Enter"
+                            className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                addTriggerWord(widget.id, e.currentTarget.value)
+                                e.currentTarget.value = ''
+                              }
+                            }}
+                          />
+                        </div>
 
-                    {/* Prompt */}
-                    <div>
-                      <Label className="text-gray-700 text-sm mb-2 block">
-                        Prompt
-                      </Label>
-                      <div className="relative">
-                        <Textarea
-                          value={widget.prompt}
-                          onChange={(e) =>
-                            updateWidget(widget.id, "prompt", e.target.value)
-                          }
-                          className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 min-h-[100px] resize-none focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="Enter your prompt here..."
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        {/* Model Selection */}
+                        <div>
+                          <Label className="text-gray-700 text-sm mb-2 block">
+                            Model
+                          </Label>
+                          <Select
+                            value={widget.model}
+                            onValueChange={(value) =>
+                              updateWidget(widget.id, 'model', value)
+                            }
+                          >
+                            <SelectTrigger className="w-full bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue placeholder="Select Model" />
+                            </SelectTrigger>
+                            <SelectContent className="cursor-pointer w-full">
+                              {models?.map(
+                                (model: {
+                                  name: string
+                                  slug: string
+                                  context_length: number
+                                }) => (
+                                  <SelectItem
+                                    key={`${model.slug}-${model.name}-${model.context_length}`}
+                                    value={model.slug}
+                                  >
+                                    {model.name}
+                                  </SelectItem>
+                                ),
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Prompt */}
+                        <div>
+                          <Label className="text-gray-700 text-sm mb-2 block">
+                            Prompt
+                          </Label>
+                          <div className="relative">
+                            <Textarea
+                              value={widget.prompt}
+                              onChange={(e) =>
+                                updateWidget(
+                                  widget.id,
+                                  'prompt',
+                                  e.target.value,
+                                )
+                              }
+                              className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 min-h-[100px] resize-none focus:border-blue-500 focus:ring-blue-500"
+                              placeholder="Enter your prompt here..."
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
             </div>
           </div>
         </div>
@@ -443,7 +477,7 @@ export function HotLinkSettingsModal({
         <DialogFooter className="sticky bottom-0 ">
           <div className="bg-white  px-6 py-4 flex items-center justify-between w-full">
             <div className="text-sm text-gray-500">
-              {widgets.length} widget{widgets.length !== 1 ? "s" : ""}{" "}
+              {widgets.length} widget{widgets.length !== 1 ? 's' : ''}{' '}
               configured
             </div>
             <div className="flex items-center space-x-3">
@@ -467,5 +501,5 @@ export function HotLinkSettingsModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -5,7 +5,10 @@ export interface TranscriptEntry {
 
 export interface WordDetectionResult {
   matchCount: number;
-  matchedWords: string[];
+  matchedWords: Array<{
+    word: string;
+    index: number;
+  }>;
 }
 
 export interface TranscriptionStore {

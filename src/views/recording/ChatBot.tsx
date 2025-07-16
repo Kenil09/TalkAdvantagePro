@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranscriptionStore } from "@/lib/store/transcription.store";
 import { motion } from "framer-motion";
-import { useContextPackStore } from "@/lib/store/context-pack.store";
+import { useRecordingStore } from "@/lib/store/recording.store";
 import ChatSettingsDialog from "./ChatSettingsDialog";
 import { containerVariants, dotVariants } from "@/lib/framer-motion";
 import { generateChatBotService } from "@/lib/llm/services/chatbot.service";
@@ -16,7 +16,7 @@ interface ChatMessage {
 
 const ChatBot = () => {
   const { liveText, getLastFewMinTranscript } = useTranscriptionStore();
-  const { startWord, endWord, aiPersonalityName } = useContextPackStore();
+  const { startWord, endWord, aiPersonalityName } = useRecordingStore();
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState("");
   const lastProcessedRef = useRef("");
@@ -88,8 +88,8 @@ const ChatBot = () => {
 
   // Invoke LLM when a new question is detected
   useEffect(() => {
-    if (!question) {
-      console.log("[LLM] No question to process");
+    if (!question || !aiPersonalityName) {
+      console.log("[LLM] No question or aiPersonalityName to process");
       return;
     }
     let cancelled = false;
@@ -151,7 +151,7 @@ const ChatBot = () => {
     return () => {
       cancelled = true;
     };
-  }, [question]);
+  }, [question, aiPersonalityName]);
 
   return (
     <div className="bg-white rounded-3xl p-4 no-drag h-full flex flex-col">

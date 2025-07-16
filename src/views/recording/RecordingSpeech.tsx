@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AssemblyAI,
   RealtimeTranscript,
-  SessionBeginsEventData,
 } from "assemblyai";
 
 import { Button } from "@/components/ui/button";
@@ -91,8 +90,6 @@ const RecordingSpeech = ({
       // Create the AssemblyAI client using the SDK
       const client = new AssemblyAI({ apiKey: token });
 
-      console.log("AssemblyAI client created");
-
       // Create a real-time transcriber with the correct sample rate
       const transcriber = client.realtime.transcriber({
         sampleRate: 16000,
@@ -100,9 +97,7 @@ const RecordingSpeech = ({
       });
 
       // Set up transcriber event handlers
-      transcriber.on("open", (data: SessionBeginsEventData) => {
-        const { sessionId } = data;
-        console.log(`AssemblyAI session opened with ID: ${sessionId}`);
+      transcriber.on("open", () => {
         setIsTranscribing(true);
         setIsConnecting(false);
       });
@@ -159,8 +154,6 @@ const RecordingSpeech = ({
         setIsTranscribing(false);
       });
 
-      // Connect to the service
-      console.log("Connecting to AssemblyAI real-time service...");
       await transcriber.connect();
 
       // Save references
@@ -179,24 +172,9 @@ const RecordingSpeech = ({
   }, [addTranscriptEntry, setIsConnecting, setIsTranscribing, setLiveText]);
 
   const startRecording = useCallback(async () => {
-    console.log("startRecording function called"); // Log start of function
     let currentStep = "Checking mediaDevices support";
     try {
       currentStep = "Checking mediaDevices support";
-      console.log(`[1/9] ${currentStep}`);
-      // Detailed debug information
-      console.log("navigator defined:", typeof navigator !== "undefined");
-      console.log(
-        "navigator.mediaDevices:",
-        navigator?.mediaDevices ? "exists" : "does not exist"
-      );
-      console.log(
-        "navigator.mediaDevices.getUserMedia:",
-        typeof navigator?.mediaDevices?.getUserMedia === "function"
-          ? "exists"
-          : "does not exist"
-      );
-
       // More graceful detection that works around some browser quirks
       if (typeof navigator === "undefined") {
         console.error("Navigator is undefined - not in a browser environment");
@@ -204,13 +182,6 @@ const RecordingSpeech = ({
       }
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.error("Microphone API not available. Please check:");
-        console.error(
-          "• Browser permissions (look for camera/mic icon in address bar)"
-        );
-        console.error("• Privacy extensions or settings blocking media access");
-        console.error("• Try a different browser (Chrome or Edge recommended)");
-
         // toast({
         //   variant: "destructive",
         //   title: "Microphone Access API Unavailable",
@@ -220,22 +191,17 @@ const RecordingSpeech = ({
         return;
       }
       currentStep = "Starting new session";
-      console.log(`[2/9] ${currentStep}`);
 
       currentStep = "Requesting microphone access";
-      console.log(`[3/9] ${currentStep}`);
       // Get microphone access
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       currentStep = "Microphone access granted";
-      console.log(`[4/9] ${currentStep}`);
       audioStreamRef.current = stream;
 
       currentStep = "Creating MediaRecorder";
-      console.log(`[5/9] ${currentStep}`);
       const recorder = new MediaRecorder(stream);
 
       currentStep = "Setting up MediaRecorder event handlers";
-      console.log(`[6/9] ${currentStep}`);
       // Set up event handlers
       recorder.ondataavailable = (e: BlobEvent) => {
         if (e.data.size > 0) {
@@ -245,17 +211,14 @@ const RecordingSpeech = ({
       };
 
       currentStep = "Starting MediaRecorder";
-      console.log(`[7/9] ${currentStep}`);
       // Start recording
       recorder.start(500);
       currentStep = "Updating component state (pre-async)";
-      console.log(`[8/9] ${currentStep}`);
       setMediaRecorder(recorder);
       setRecordingTime(0);
       setAudioChunks([]);
 
       currentStep = "Initializing AssemblyAI transcription";
-      console.log(`[9/9] ${currentStep}`);
       // Initialize AssemblyAI transcription
       await initializeTranscription();
 
@@ -310,8 +273,6 @@ const RecordingSpeech = ({
 
       // Set recording state *after* everything is initialized
       setRecordingState("recording");
-
-      console.log("startRecording finished successfully.");
     } catch (error) {
       console.error(
         `Error during startRecording at step: ${currentStep}`,

@@ -8,13 +8,12 @@ import Table from '@tiptap/extension-table'
 import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
-import { Button } from '@/components/ui/button'
-import { Settings } from 'lucide-react'
 import { MenuBar } from '@/views/recording/MenuBar'
 import { useTranscriptionStore } from '@/lib/store/transcription.store'
 import { TRANSCRIPTION_TIME_WINDOW } from '@/config'
 import { useContextPackStore } from '@/lib/store/context-pack.store'
 import { generateMeetingNotesService } from '@/lib/llm/services/meetingNotes.service'
+import MeetingNotesDialog from './MeetingNotesDialog'
 
 const MeetingNotes = () => {
   const { currentContextPack } = useContextPackStore()
@@ -100,14 +99,7 @@ const MeetingNotes = () => {
     <div className="bg-white rounded-3xl p-4 no-drag h-full flex flex-col">
       <div className="flex items-center justify-between mb-0.5">
         <h3 className="font-semibold text-gray-900">Meeting Notes</h3>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 text-gray-500 hover:text-gray-400 cursor-pointer"
-          onClick={() => console.log('Settings clicked')}
-        >
-          <Settings className="size-4" />
-        </Button>
+        <MeetingNotesDialog />
       </div>
       <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
       <button onClick={() => handleProcessTranscript()}>Process</button>

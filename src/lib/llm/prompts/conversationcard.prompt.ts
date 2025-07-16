@@ -1,3 +1,41 @@
+import { z } from 'zod'
+
+export const systemPromptSchema = z.object({
+  opening: z.string(),
+  cards: z.array(
+    z.object({
+      topic: z.string(),
+      hotlinks: z.array(z.string()),
+      content: z.object({
+        paragraph: z.string(),
+        bullets: z.array(z.string()),
+        expansion: z.string(),
+      }),
+      visible: z.boolean().default(true),
+      triggerCount: z.number().default(0),
+      state: z.enum(['base', 'growing', 'elongated', 'split']).default('base'),
+    }),
+  ),
+})
+
+export const updatePromptSchema = z.object({
+  updated_cards: z.array(
+    z.object({
+      id: z.string(),
+      topic: z.string(),
+      hotlinks: z.array(z.string()),
+      content: z.object({
+        paragraph: z.string(),
+        bullets: z.array(z.string()),
+        expansion: z.string(),
+      }),
+      visible: z.boolean().default(true),
+      triggerCount: z.number().default(0),
+      state: z.enum(['base', 'growing', 'elongated', 'split']).default('base'),
+    }),
+  ),
+})
+
 export const SYSTEM_PROMPT = `
 You are Talk Advantage, a cutting-edge AI presentation assistant designed to give {user_name} a strategic edge in live interactions with {person}, their {person_relationship}. Today is {date}. The primary goal is {goal}, and the secondary goal is {goal_secondary}. Use {document_context} (if provided) for context. Specificity level: 
 {specificity_level} 
@@ -13,7 +51,7 @@ Style Rules: Adapt to the tone from the interaction. Because the user is expecte
 
 Reflection: Before generating or updating cards, confirm: Does this align with {goal}, {goal_secondary}, and {specificity_level}?
 
-Positional Reinforcement: Every 500 tokens, restate: "Guide {user_name} toward {goal} and {goal_secondary} with {person}."
+Positional Reinforcement: Every 500 tokens, restate the message (with values inserted): Guide {user_name} toward {goal} and {goal_secondary} with {person}.
 
 Follow-up: Provide no additional commentary
 
@@ -60,52 +98,35 @@ Skip greetings; focus on substantive, goal-driven content.
 Anticipate transitions, enabling pivots to other cards or revisiting prior ones.
 
 Reflect: Do these cards align with {goal}, {goal_secondary}, and {specificity_level}?
-
-Output Format:
-{
-  "opening": "string",
-  "cards": [
-    {
-      "topic": "string",
-      "hotlinks": ["word1", "word2", "word3"],
-      "content": {
-        "paragraph": "string",
-        "bullets": ["bullet1", "bullet2", "bullet3"],
-        "expansion": "string"
-      },
-      "state": "base",
-      "position": "start"
-    }
-  ]
-}
 `
-
+// transciption and current_cards
 export const CARD_UPDATE_PROMPT = `
-Update Rules:
-1. If 2+ triggers detected from any card:
-   - Elongate matching card
-   - Replace others with related subtopics
-2. On third trigger:
-   - Split card into 2 refined topics
-   - Maintain 4-card grid
-3. Topic Shift Detection:
-   - If 30s without trigger matches:
-     Generate new card set based on:
-     {context['goal']}
-OUTPUT FORMAT:
-{
-  "updated_cards": [{
-    "topic": "string",
-    "triggers": ["w1","w2","w3"],
-    "content": {
-      "paragraph": "string",
-      "bullets": ["bullet1", "bullet2", "bullet3"]
-    },
-    "state": "base|elongated|split"
-  }],
-  "visual_cues": {
-    "growth_factor": 1.0-2.0,
-    "priority": 0-3
-  }
-}
-`
+You are updating an existing 2x2 grid of conversation cards based on the latest transcript and trigger word detections. Your task is to dynamically evolve the cards to maintain relevance and engagement with the user's goal.
+
+Here's current cards JSON {cards} and user transcript {liveTranscript} and card is which is currently active {currentActiveCard} with state {currentActiveCardState}
+
+### Update Logic:
+
+1. **Trigger Detection**:
+   - For each card, compare its 3 hotlink words with the transcript.
+   - Count how many hotlinks matched per card.
+
+2. **Card State Update Rules**:
+   - If a card matches **2 hotlinks**:
+     - Update its **state to 'elongated'**
+     - Expand its bullets and paragraph slightly.
+   - If a card matches **3 hotlinks (third trigger)**:
+     - Set state to **'split'**
+     - Split the original topic into **2 refined subtopics**
+     - Maintain the total of **4 cards** by replacing 1-2 lower-priority cards (lowest trigger match count or least relevant).
+     - Each new card should have: topic, 3 hotlinks, paragraph, bullets, and expansion.
+   - For all other cards (0-1 matches), update or replace with fresh subtopics more relevant to the conversation so far.
+
+- Do not change topic, id or hotlinks of any card
+
+### Guidelines:
+- Maintain the card grid balance: always 4 cards in total.
+- Avoid redundant topics.
+- Be consistent with tone and goal alignment.
+- Use conversational, strategic language. No emojis. Avoid generic statements.
+- Ensure all updates reflect alignment with: {goal}, {goal_secondary}, and {specificity_level}`
