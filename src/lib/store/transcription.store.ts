@@ -58,12 +58,16 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
     
     // Check each word in the array
     wordsToDetect.forEach(word => {
-      // Create a regex to match whole words case-insensitively
-      const regex = new RegExp(`\\b${word}\\b`, 'i');
-      
-      if (regex.test(textToSearch)) {
+      // Create case-insensitive regex with word boundary
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+
+      let match;
+      while ((match = regex.exec(textToSearch as string)) !== null) {
         result.matchCount++;
-        result.matchedWords.push(word);
+        result.matchedWords.push({
+          word,
+          index: match.index,
+        });
       }
     });
     

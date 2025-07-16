@@ -9,22 +9,12 @@ interface ContextPackStore {
   currentContextPack: ContextPackQueryResult | null;
   isLoading: boolean;
   error: string | null;
-  startWord: string;
-  endWord: string;
-  aiPersonalityName: string;
-  systemPrompt: string;
-
 
   // Actions
   setContextPacks: (contextPacks: ContextPackQueryResult[]) => void;
   setCurrentContextPack: (contextPack: ContextPackQueryResult | null) => void;
   setIsLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
-
-  setStartWord: (startWord: string) => void;
-  setEndWord: (endWord: string) => void;
-  setAiPersonalityName: (aiPersonalityName: string) => void;
-  setSystemPrompt: (systemPrompt: string) => void;
 
   // Async actions
   fetchContextPacks: (userId: string) => Promise<void>;
@@ -38,12 +28,6 @@ export const useContextPackStore = create<ContextPackStore>()(persist(
     currentContextPack: null,
     isLoading: false,
     error: null,
-    
-    // chatbot
-    startWord: "Alexa",
-    endWord: "Done",
-    aiPersonalityName: "Nova",
-    systemPrompt: "You are a helpful AI assistant. Provide clear, concise answers to the user's questions.",
 
     // Actions
     setContextPacks: (contextPacks: ContextPackQueryResult[]) =>
@@ -52,22 +36,9 @@ export const useContextPackStore = create<ContextPackStore>()(persist(
     setCurrentContextPack: (contextPack: ContextPackQueryResult | null) =>
       set({ currentContextPack: contextPack }),
 
-    setStartWord: (startWord: string) =>
-      set({ startWord }),
+    setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
-    setEndWord: (endWord: string) =>
-      set({ endWord }),
-
-    setAiPersonalityName: (aiPersonalityName: string) =>
-      set({ aiPersonalityName }),
-
-    setSystemPrompt: (systemPrompt: string) =>
-      set({ systemPrompt }),
-    setIsLoading: (isLoading: boolean) =>
-      set({ isLoading }),
-
-    setError: (error: string | null) =>
-      set({ error }),
+    setError: (error: string | null) => set({ error }),
 
   // Async actions
   fetchContextPacks: async (userId: string) => {
@@ -132,10 +103,6 @@ export const useContextPackStore = create<ContextPackStore>()(persist(
     name: "context-pack-storage",
     storage: createJSONStorage(() => localStorage),
     partialize: (state) => ({
-      currentContextPack: state.currentContextPack, startWord: state.startWord,
-      endWord: state.endWord,
-      aiPersonalityName: state.aiPersonalityName,
-      systemPrompt: state.systemPrompt,
-    }),
+      currentContextPack: state.currentContextPack }),
   }
 ));

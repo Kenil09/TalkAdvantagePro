@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HOTLINK_WIDGETS } from "@/constants/hotlink-widget.constants";
-import { useAuthStore } from "@/lib/store/auth.store";
+import { useContextPackStore } from "@/lib/store/context-pack.store";
 import useHotLinkDetection from "@/hooks/useHotLinkDetection";
-import { contextService } from "@/lib/services/context.service";
 import { useTranscriptionStore } from "@/lib/store/transcription.store";
 import { Participant } from "@/types/knowledge-graph.types";
 import { Copy, Loader2, X } from "lucide-react";
@@ -14,8 +13,8 @@ import remarkGfm from "remark-gfm";
 const HotLinkWidgetDisplay = () => {
   const { activeWidget, clearActiveWidget } =
     useHotLinkDetection(HOTLINK_WIDGETS);
-  const { liveText } = useTranscriptionStore();
-  const user = useAuthStore((state) => state.user);
+    const { liveText } = useTranscriptionStore();
+    const { currentContextPack } = useContextPackStore()
 
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string>("");
@@ -38,14 +37,10 @@ const HotLinkWidgetDisplay = () => {
         day: "numeric",
       });
 
-      // Get context for hotlink analysis
-      const { contextPack, relevantChunks } =
-        await contextService.getContextForAnalysis(
-          user?.id || "",
-          "hotlink",
-          lastWords,
-          name
-        );
+      // Get context pack from store
+      const contextPack = currentContextPack?.properties
+      // Initialize empty array for backward compatibility
+      const relevantChunks: Array<{ content: string }> = [];
 
       // Construct the system prompt
       const contextInfo = contextPack
@@ -54,8 +49,8 @@ const HotLinkWidgetDisplay = () => {
     Sub Goals: ${contextPack.subGoals.join(", ")}
     User Name: ${contextPack.name}
     User Role: ${contextPack.userRole}
-    Person: ${contextPack.person}
-    Relationship: ${contextPack.personRelationship}
+    Person: ${contextPack.nonUserName} // TODO: Update this
+    Relationship: ${contextPack.clientName} // TODO: Update this
 
     Participants:
     ${contextPack.participants
@@ -69,9 +64,9 @@ const HotLinkWidgetDisplay = () => {
       )
       .join("\n")}
 
-    Key Topics: ${contextPack.keyTopics.join(", ")}
-    Context Description: ${contextPack.contextDescription}
-    Notes: ${contextPack.notes}
+    Key Topics: ${(contextPack.preInteraction.keyTopics).join(", ")}
+    Context Description: ${contextPack.preInteraction.description}
+    Notes: ${contextPack.preInteractionNotes}
 
     ${
       contextPack.timeline
@@ -79,11 +74,11 @@ const HotLinkWidgetDisplay = () => {
         : ""
     }
     ${
-      contextPack.conflictMap ? `Conflict Map:\n${contextPack.conflictMap}` : ""
+      contextPack.conflictMap ? `Conflict Map:\n${contextPack.conflictMap}` : "" // TODO: Update this
     }
     ${
       contextPack.environmentalFactors
-        ? `Environmental Factors:\n${contextPack.environmentalFactors}`
+        ? `Environmental Factors:\n${contextPack.environmentalFactors}` // TODO: Update this
         : ""
     }
 
