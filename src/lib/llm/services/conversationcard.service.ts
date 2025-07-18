@@ -1,6 +1,6 @@
 'use server'
 
-import llmModel from '@/lib/llm'
+import LLM from "@/lib/llm"
 import {
   CARD_UPDATE_PROMPT,
   INITIAL_CARD_GEN_PROMPT,
@@ -11,7 +11,8 @@ import {
 import { ContextPrompt, ConversationCard } from '@/lib/store/recording.store'
 
 // generate cards
-export const generateConversationCards = async (contextPack: ContextPrompt) => {
+export const generateConversationCards = async (contextPack: ContextPrompt, model: string) => {
+  const llmModel = new LLM(model)
   const result = await llmModel.invoke(
     SYSTEM_PROMPT,
     INITIAL_CARD_GEN_PROMPT,
@@ -30,7 +31,9 @@ export const generateCardUpdate = async (
     currentActiveCard: string
     currentActiveCardState: string
   },
+  model: string,
 ) => {
+  const llmModel = new LLM(model)
   const result = await llmModel.invoke(
     SYSTEM_PROMPT,
     CARD_UPDATE_PROMPT,

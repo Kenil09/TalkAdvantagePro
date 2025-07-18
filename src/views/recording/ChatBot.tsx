@@ -16,7 +16,7 @@ interface ChatMessage {
 
 const ChatBot = () => {
   const { liveText, getLastFewMinTranscript } = useTranscriptionStore();
-  const { startWord, endWord, aiPersonalityName } = useRecordingStore();
+  const { startWord, endWord, aiPersonalityName, chatbotSelectedModel } = useRecordingStore();
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState("");
   const lastProcessedRef = useRef("");
@@ -102,7 +102,7 @@ const ChatBot = () => {
 
     const generateResponse = async () => {
       try {
-        const response = await generateChatBotService({ question, aiPersonalityName });
+        const response = await generateChatBotService({ question, aiPersonalityName }, chatbotSelectedModel);
         if (cancelled) {
           console.log("[LLM] Request was cancelled, aborting...");
           return;
@@ -151,13 +151,13 @@ const ChatBot = () => {
     return () => {
       cancelled = true;
     };
-  }, [question, aiPersonalityName]);
+  }, [question, aiPersonalityName, chatbotSelectedModel]);
 
   return (
     <div className="bg-white rounded-3xl p-4 no-drag h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">Chat Bot</h3>
-        <ChatSettingsDialog />
+          <ChatSettingsDialog />
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-4 mb-2 relative" ref={chatContainerRef}>

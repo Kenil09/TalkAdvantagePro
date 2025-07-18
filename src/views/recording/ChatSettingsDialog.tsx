@@ -82,7 +82,9 @@ const ChatSettingsDialog = () => {
     setEndWord(formState.endWord.trim())
     setAiPersonalityName(formState.aiPersonalityName.trim())
     setSystemPrompt(formState.systemPrompt.trim())
-    setSelectedModel('chatbotSelectedModel', formState.selectedModel)
+    if (process.env.NEXT_PUBLIC_IS_LOCAL_ENVIRONMENT === 'local') {
+      setSelectedModel('chatbotSelectedModel', formState.selectedModel)
+    }
     setOpen(false)
   }
   return (
@@ -110,6 +112,7 @@ const ChatSettingsDialog = () => {
           <DialogDescription>Customize the chatbot settings</DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
+          {process.env.NEXT_PUBLIC_IS_LOCAL_ENVIRONMENT === 'local' && (
           <div className="">
             <Label className="text-gray-700 text-sm block">Model</Label>
             <Select
@@ -134,6 +137,7 @@ const ChatSettingsDialog = () => {
               </SelectContent>
             </Select>
           </div>
+          )}
           <div className="flex flex-col gap-1">
             <Label className="text-gray-700 text-sm block" htmlFor="startWord">
               Start word

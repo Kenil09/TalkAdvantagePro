@@ -115,6 +115,7 @@ export const useRecordingStore = create<RecordingStore>()(
       updateConversationCards: async (currentActiveCard: { id: string; state: string } | null) => {
         const { currentContextPack } = useContextPackStore.getState()
         const { liveText } = useTranscriptionStore.getState()
+        const { conversationCardsSelectedModel } = get()
         const cards = await generateCardUpdate({
           user_name: currentContextPack?.properties?.name ?? '',
           person: currentContextPack?.properties?.nonUserName ?? '',
@@ -129,7 +130,7 @@ export const useRecordingStore = create<RecordingStore>()(
           liveTranscript: liveText,
           currentActiveCard: currentActiveCard?.id || '',
           currentActiveCardState: currentActiveCard?.state || '',
-        })
+        }, conversationCardsSelectedModel)
         set({ conversationCards: cards.updated_cards })
       },
 
@@ -162,7 +163,8 @@ export const useRecordingStore = create<RecordingStore>()(
         setError(null)
 
         try {
-          const rawResponse = await generateConversationCards(context)
+          const { conversationCardsSelectedModel } = get()
+          const rawResponse = await generateConversationCards(context, conversationCardsSelectedModel)
           const cards = rawResponse.cards.map(
             (card: ConversationCard, index: number) => ({
               ...card,

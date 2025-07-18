@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
-import { Settings } from 'lucide-react'
 import { useTranscriptionStore } from '@/lib/store/transcription.store'
 import {
   ConversationCard,
   useRecordingStore,
 } from '@/lib/store/recording.store'
 import { Card, CardState } from '@/types/conversationCards'
+import ConversationCardsDialog from "./ConversationCardsDialog"
 
 // Colors for cards
 const cardColors = [
@@ -52,6 +51,7 @@ const ConversationCards = () => {
     id: string
     state: 'growing' | 'elongated' | 'split'
   } | null>(null)
+  const [matchedWords, setMatchedWords] = useState<{ word: string; index: number }[]>([]);
 
   const generateInitialCards = useCallback(() => {
     try {
@@ -87,6 +87,9 @@ const ConversationCards = () => {
       );
       if (!matchedWords.length) return null;
 
+      if (matchedWords.length) {
+        setMatchedWords([matchedWords[matchedWords.length - 1]]);
+      }
       // Enrich each hit with cardId + pos, sort by text index
       const hits = matchedWords
         .map(({ word, index }) => {
@@ -157,7 +160,7 @@ const ConversationCards = () => {
 
   const getCardStyles = (card: Card) => {
     const isActive = currentActiveCard?.id === card.id;
-    const state = isActive ? currentActiveCard.state : 'base';
+    const state = isActive ? currentActiveCard?.state : 'base';
     const isSplitState = currentActiveCard?.state === 'split';
 
     let baseClasses = 'border rounded-xl p-4 overflow-auto transition-all duration-500';
@@ -203,6 +206,21 @@ const ConversationCards = () => {
     };
   }
 
+  const highlightMatchedWords = (text: string, matchedWords: string[]): React.ReactNode => {
+    if (!text || !matchedWords?.length) return text;
+    console.log(matchedWords)
+    const wordsToHighlight = new Set(matchedWords.map(w => w.toLowerCase()));
+    const parts = text.split(/(\s+)/); // Split by whitespace but keep it
+  
+    return parts.map((part, index) => {
+      const cleanWord = part.replace(/[^\w]/g, '').toLowerCase(); // Strip punctuation for matching
+      if (wordsToHighlight.has(cleanWord)) {
+        return <span key={index} className="font-bold">{part}</span>;
+      }
+      return part;
+    });
+  };
+  
   const renderCard = (card: Card, index: number, isHidden: boolean) => {
     const { className, zIndex } = getCardStyles(card);
     const colorClass = cardColors[index % cardColors.length] || cardColors[0];
@@ -217,30 +235,40 @@ const ConversationCards = () => {
           animationFillMode: 'forwards'
         }}
       >
-        <h3 className="font-bold text-2xl mb-2">{card.topic || 'Topic'}</h3>
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <h2 className="font-bold text-2xl">{card.topic || 'Topic'}</h2>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          {Array.isArray(card?.hotlinks) && card.hotlinks.map((word, idx) => (
-            <span
-              key={idx}
-              className="text-sm px-2 py-1 bg-white bg-opacity-50 rounded-full"
-            >
-              {word}
-            </span>
-          ))}
+          <div className="flex flex-wrap gap-2">
+            {Array.isArray(card?.hotlinks) && card.hotlinks.map((word, idx) => (
+              <span
+                key={idx}
+                className="text-sm px-2 py-1 bg-white bg-opacity-50 rounded-full"
+              >
+                {word}
+              </span>
+            ))}
+          </div>
         </div>
 
         {isActive && (
           <>
             {(cardState === 'growing' || cardState === 'elongated' || cardState === 'split') && (
-              <p className="text-sm mb-3">{card?.content?.paragraph || ''}</p>
+              // <p className="text-sm mb-3">{card?.content?.paragraph || ''}</p>
+              <p className="text-sm mb-3">
+                {highlightMatchedWords(card?.content?.paragraph || '', matchedWords.map(m => m.word))}
+              </p>
             )}
 
             {(cardState === 'elongated' || cardState === 'split') && (
               <ul className="list-disc pl-5 mb-3 space-y-1">
-                {card.content?.bullets?.map((bullet, idx) => (
+                {/* {card.content?.bullets?.map((bullet, idx) => (
                   <li key={idx} className="text-sm">
                     {bullet}
+                  </li>
+                ))} */}
+                {card.content?.bullets?.map((bullet, idx) => (
+                  <li key={idx} className="text-sm">
+                    {highlightMatchedWords(bullet, matchedWords.map(m => m.word))}
                   </li>
                 ))}
               </ul>
@@ -248,7 +276,10 @@ const ConversationCards = () => {
 
             {cardState === 'split' && (
               <div className="mt-4 pt-4 border-t">
-                <p className="text-sm font-medium">{card?.content?.expansion}</p>
+                {/* <p className="text-sm font-medium">{card?.content?.expansion}</p> */}
+                <p className="text-sm font-medium">
+                  {highlightMatchedWords(card?.content?.expansion || '', matchedWords.map(m => m.word))}
+                </p>
               </div>
             )}
           </>
@@ -279,14 +310,9 @@ const ConversationCards = () => {
       `}</style>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">Conversation Cards</h3>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 text-gray-500 hover:text-gray-700 cursor-pointer"
-          onClick={() => console.log('Settings clicked')}
-        >
-          <Settings className="size-4" />
-        </Button>
+        {process.env.NEXT_PUBLIC_IS_LOCAL_ENVIRONMENT === 'local' && (
+          <ConversationCardsDialog />
+        )}
       </div>
 
       <div className="flex-1 overflow-auto w-full p-2" >
@@ -311,7 +337,7 @@ const ConversationCards = () => {
                 )
                 return (
                   <div
-                    key={card.id}
+                    key={`${card.id}-${index}`}
                     className={`transition-all duration-500 h-full ${currentActiveCard?.id === card.id
                       ? `animate-${card.state} ${currentActiveCard?.state === 'elongated'
                         ? '!h-[208%] !z-10'

@@ -4,10 +4,10 @@ import { ZodSchema } from 'zod'
 
 class LLM {
   llmModel: ChatOpenAI
-  constructor() {
+  constructor(model: string) {
     this.llmModel = new ChatOpenAI({
       apiKey: process.env.OPENROUTER_API_KEY,
-      model: 'openai/gpt-4o-mini',
+      model: model || 'deepseek/deepseek-r1-0528:free',
       configuration: {
         baseURL: 'https://openrouter.ai/api/v1',
       },
@@ -47,6 +47,4 @@ class LLM {
   }
 }
 
-const llmModel = new LLM()
-
-export default llmModel
+export default LLM

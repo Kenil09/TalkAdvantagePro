@@ -14,9 +14,11 @@ import { TRANSCRIPTION_TIME_WINDOW } from '@/config'
 import { useContextPackStore } from '@/lib/store/context-pack.store'
 import { generateMeetingNotesService } from '@/lib/llm/services/meetingNotes.service'
 import MeetingNotesDialog from './MeetingNotesDialog'
+import { useRecordingStore } from "@/lib/store/recording.store"
 
 const MeetingNotes = () => {
   const { currentContextPack } = useContextPackStore()
+  const { meetingNotesSelectedModel } = useRecordingStore()
   const { getLastFewMinTranscript } = useTranscriptionStore()
   const [text, setText] = useState('')
 
@@ -70,7 +72,7 @@ const MeetingNotes = () => {
         CANVAS_STATE: editor.getJSON(),
       }
 
-      const response = await generateMeetingNotesService(contextPrompt)
+      const response = await generateMeetingNotesService(contextPrompt, meetingNotesSelectedModel)
 
       editor.commands.setContent(response as Content)
     } catch (error) {
@@ -85,7 +87,7 @@ const MeetingNotes = () => {
         )
         .run()
     }
-  }, [currentContextPack?.properties, editor, getLastFewMinTranscript])
+  }, [currentContextPack?.properties, editor, getLastFewMinTranscript, meetingNotesSelectedModel])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -99,7 +101,9 @@ const MeetingNotes = () => {
     <div className="bg-white rounded-3xl p-4 no-drag h-full flex flex-col">
       <div className="flex items-center justify-between mb-0.5">
         <h3 className="font-semibold text-gray-900">Meeting Notes</h3>
-        <MeetingNotesDialog />
+        {process.env.NEXT_PUBLIC_IS_LOCAL_ENVIRONMENT === 'local' && (
+          <MeetingNotesDialog />
+        )}
       </div>
       <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
       <button onClick={() => handleProcessTranscript()}>Process</button>
