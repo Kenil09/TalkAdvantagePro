@@ -26,5 +26,12 @@ export interface TranscriptionStore {
 
   getLastFewMinTranscript: () => string;
   detectWords: (wordsToDetect: string[], transcript?: string) => WordDetectionResult;
+  uploadRecording: (
+    uploadData: { user_id?: string; tags: string; transcript: string; duration: number },
+    blob: Blob
+  ) => Promise<
+    | { success: true; filename: string; path: string }
+    | { success: false; error: string }
+  >
 }
 

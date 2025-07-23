@@ -17,6 +17,7 @@ import dynamic from "next/dynamic";
 import HotLinkWidgetDisplay from "./HotLinkWidget";
 import AddAnalyticsModal from "./AnalyticsModal/AddAnalyticsModal";
 import { AnalyticsProfileFormData } from "@/types/contextPack";
+import TagAddModal from "@/views/recording/TagAddModal";
 
 // Dynamic import for pdf-dist to prevent server-side rendering
 const ContextPackModal = dynamic(() => import("./ContextPackModal"), {
@@ -29,13 +30,14 @@ const STORAGE_KEY = "recording-layout";
 
 const Recording = () => {
   const [editMode, setEditMode] = useState(false);
-  const [isEditContextPack, setIsEditContextPack] = useState({status: false, uuid: ""});
+  const [isEditContextPack, setIsEditContextPack] = useState({ status: false, uuid: "" });
   const [isOpen, setIsOpen] = useState(false);
   const [hotLinkModal, setHotLinkModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [addAnalyticsModal, setAddAnalyticsModal] = useState(false);
   const [editProfile, setEditProfile] =
     useState<AnalyticsProfileFormData | null>(null);
+  const [addTagModal, setAddTagModal] = useState(false)
 
   // Components mapped to layout keys
   const components = useMemo(
@@ -134,11 +136,10 @@ const Recording = () => {
           <div className="flex gap-2">
             <Button
               onClick={() => setEditMode(!editMode)}
-              className={`rounded-4xl text-white flex items-center gap-2 cursor-pointer ${
-                editMode
+              className={`rounded-4xl text-white flex items-center gap-2 cursor-pointer ${editMode
                   ? "bg-primary-400"
                   : "bg-primary-600 hover:bg-primary-500"
-              }`}
+                }`}
             >
               <Pencil />
               Edit Mode
@@ -190,16 +191,17 @@ const Recording = () => {
 
       {/* Sticky Footer */}
       <div className="sticky bottom-0 w-full bg-white shadow-md z-10">
-        <ContextPackSelect setIsOpen={setIsOpen} setIsEditContextPack={setIsEditContextPack}/>
+        <ContextPackSelect setIsOpen={setIsOpen} setIsEditContextPack={setIsEditContextPack} />
         <RecordingSpeech
           editMode={editMode}
           setHotLinkModal={setHotLinkModal}
+          setAddTagModal={setAddTagModal}
         />
       </div>
       <HotLinkWidgetDisplay />
 
       {/* Modals */}
-      <ContextPackModal isOpen={isOpen} setIsOpen={setIsOpen} isEditContextPack={isEditContextPack} setIsEditContextPack={setIsEditContextPack}/>
+      <ContextPackModal isOpen={isOpen} setIsOpen={setIsOpen} isEditContextPack={isEditContextPack} setIsEditContextPack={setIsEditContextPack} />
       <HotLinkSettingsModal
         isOpen={hotLinkModal}
         onClose={() => setHotLinkModal(false)}
@@ -209,6 +211,7 @@ const Recording = () => {
         onClose={() => setAddAnalyticsModal(false)}
         defaultValues={editProfile}
       />
+      <TagAddModal isOpen={addTagModal} setAddTagModal={setAddTagModal} />
     </div>
   );
 };

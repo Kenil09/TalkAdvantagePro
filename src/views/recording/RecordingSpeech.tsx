@@ -22,6 +22,7 @@ import {
   MicOff,
   Pause,
   Play,
+  Plus,
   Squircle,
   Zap,
 } from "lucide-react";
@@ -30,13 +31,19 @@ import { AUDIO_RECORDING_STATE } from "@/constants/audio-recording.constants";
 import { AudioRecordingState } from "@/types/audio-recording.types";
 import { convertSecondsToTime } from "@/utils/dateFormats";
 import { useTranscriptionStore } from "@/lib/store/transcription.store";
+import toast from "react-hot-toast";
+import { useAuthStore } from "@/lib/store/auth.store";
+import { useRecordingStore } from "@/lib/store/recording.store";
+import { Tag } from "@/types/library.types";
 
 const RecordingSpeech = ({
   editMode,
   setHotLinkModal,
+  setAddTagModal,
 }: {
   editMode: boolean;
   setHotLinkModal: (modal: boolean) => void;
+  setAddTagModal: (modal: boolean) => void;
 }) => {
   const transcriberRef = useRef<ReturnType<
     AssemblyAI["realtime"]["transcriber"]
@@ -46,7 +53,7 @@ const RecordingSpeech = ({
   const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioAnalyzerRef = useRef<AnalyserNode | null>(null);
   const audioWorkletNodeRef = useRef<AudioWorkletNode | null>(null);
-
+  const user = useAuthStore((state) => state.user);
   const [recordingTime, setRecordingTime] = useState<number>(0);
 
   // const [isConnecting, setIsConnecting] = useState<boolean>(false);
@@ -62,8 +69,20 @@ const RecordingSpeech = ({
     setAudioChunks,
   } = useAudioRecordingStore();
 
-  const { isConnecting, setIsConnecting, setIsTranscribing, setLiveText, addTranscriptEntry } =
+  const { liveText, isConnecting, setIsConnecting, setIsTranscribing, setLiveText, addTranscriptEntry, uploadRecording } =
     useTranscriptionStore();
+
+  const { setTags, tags } = useRecordingStore()
+
+  const tagsToJSON = (tags: Tag[]): string => {
+    return JSON.stringify(
+      tags.map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        color: tag.color,
+      })),
+    )
+  }
 
   // Initialize AssemblyAI transcription
   const initializeTranscription = useCallback(async () => {
@@ -110,8 +129,8 @@ const RecordingSpeech = ({
         setLiveText((prev) => {
           const newText = `${prev}${prev ? " " : ""}${transcript.text}`;
 
-        // Not adding created time from transcript as it's not giving correct local time
-        addTranscriptEntry({ text: transcript.text, timestamp: new Date().getTime() });
+          // Not adding created time from transcript as it's not giving correct local time
+          addTranscriptEntry({ text: transcript.text, timestamp: new Date().getTime() });
 
           // Update word count if needed
           // if (isIntervalEnabled && analysisInterval.startsWith("words-")) {
@@ -206,18 +225,18 @@ const RecordingSpeech = ({
       recorder.ondataavailable = (e: BlobEvent) => {
         if (e.data.size > 0) {
           // Store chunk for session recording; transcription is handled via Web Audio pipeline
-          setAudioChunks([...audioChunks, e.data]);
+          setAudioChunks((prev: Blob[]) => [...prev, e.data]);
         }
       };
 
-      currentStep = "Starting MediaRecorder";
-      // Start recording
-      recorder.start(500);
       currentStep = "Updating component state (pre-async)";
       setMediaRecorder(recorder);
       setRecordingTime(0);
       setAudioChunks([]);
 
+      currentStep = "Starting MediaRecorder";
+      // Start recording
+      recorder.start(500);
       currentStep = "Initializing AssemblyAI transcription";
       // Initialize AssemblyAI transcription
       await initializeTranscription();
@@ -283,7 +302,6 @@ const RecordingSpeech = ({
       setRecordingState("idle");
     }
   }, [
-    audioChunks,
     initializeTranscription,
     isMuted,
     setAudioChunks,
@@ -317,7 +335,7 @@ const RecordingSpeech = ({
     // })
   }, [mediaRecorder, setRecordingState]);
 
-  const stopRecording = useCallback(() => {
+  const stopRecording = useCallback(async () => {
     if (recordingState === AUDIO_RECORDING_STATE.idle) return;
 
     // Stop media recorder
@@ -363,8 +381,41 @@ const RecordingSpeech = ({
       audioAnalyzerRef.current = null;
     }
 
-    setRecordingState(AUDIO_RECORDING_STATE.idle as AudioRecordingState);
-  }, [recordingState, mediaRecorder, setRecordingState, setMediaRecorder]);
+    // Combine audio chunks and upload to R2
+    if (audioChunks.length > 0) {
+      try {
+        const blob = new Blob(audioChunks, { type: 'audio/mpeg' });
+        // Set loading state
+        setRecordingState(AUDIO_RECORDING_STATE.uploading as AudioRecordingState);
+
+        const uploadData = {
+          user_id: user?.id,
+          transcript: liveText,
+          duration: recordingTime,
+          tags: tagsToJSON(tags)
+        }
+        const result = await uploadRecording(uploadData, blob);
+        if (result.success) {
+          setTags([])
+          console.log("Recording saved successfully", result);
+          toast.success(`Recording saved as ${result.filename}`);
+        } else {
+          setTags([])
+          console.log("Recording upload failed", result);
+          toast.error(result.error || "Failed to save recording");
+        }
+      } catch (error) {
+        console.error('Error processing recording:', error);
+        toast.error("An unexpected error occurred during upload");
+      } finally {
+        setAudioChunks([]);
+        setTags([])
+        setRecordingState(AUDIO_RECORDING_STATE.idle as AudioRecordingState);
+      }
+    } else {
+      setRecordingState(AUDIO_RECORDING_STATE.idle as AudioRecordingState);
+    }
+  }, [recordingState, mediaRecorder, audioChunks, setMediaRecorder, setRecordingState, user?.id, liveText, recordingTime, tags, uploadRecording, setTags, setAudioChunks]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -381,66 +432,75 @@ const RecordingSpeech = ({
   return (
     <div className="border-t border-gray-200 bg-white p-4">
       <div className="flex items-center justify-between">
-        {isConnecting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : recordingState === AUDIO_RECORDING_STATE.idle ? (
-          <div className="flex items-center space-x-2">
-            <Button
-              className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-              onClick={startRecording}
-            >
-              <CircleDot className="!h-4 !w-4 stroke-red-500" />
-            </Button>
-            <p className="text-sm font-medium text-gray-700">Start Recording</p>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-              <p className="text-sm font-medium text-gray-700 capitalize">
-                {recordingState}
-              </p>
-              <p className="text-sm text-gray-500">
-                {convertSecondsToTime(recordingTime)}
-              </p>
-            </div>
-
+        <div className="flex items-center space-x-2">
+          {isConnecting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : recordingState === AUDIO_RECORDING_STATE.idle ? (
             <div className="flex items-center space-x-2">
               <Button
                 className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                onClick={toggleMute}
+                onClick={startRecording}
               >
-                {isMuted ? (
-                  <MicOff className="size-4" />
-                ) : (
-                  <Mic className="size-4" />
-                )}
+                <CircleDot className="!h-4 !w-4 stroke-red-500" />
               </Button>
-              {recordingState === AUDIO_RECORDING_STATE.recording && (
-                <Button
-                  className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                  onClick={pauseRecording}
-                >
-                  <Pause className="size-4" />
-                </Button>
-              )}
-              {recordingState === AUDIO_RECORDING_STATE.paused && (
-                <Button
-                  className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                  onClick={resumeRecording}
-                >
-                  <Play className="size-4 stroke-green-400" />
-                </Button>
-              )}
-              <Button
-                className="!px-2 py-2 bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors cursor-pointer"
-                onClick={stopRecording}
-              >
-                <Squircle />
-              </Button>
+              <p className="text-sm font-medium text-gray-700">Start Recording</p>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                <p className="text-sm font-medium text-gray-700 capitalize">
+                  {recordingState}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {convertSecondsToTime(recordingTime)}
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Button
+                  className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+                  onClick={toggleMute}
+                >
+                  {isMuted ? (
+                    <MicOff className="size-4" />
+                  ) : (
+                    <Mic className="size-4" />
+                  )}
+                </Button>
+                {recordingState === AUDIO_RECORDING_STATE.recording && (
+                  <Button
+                    className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+                    onClick={pauseRecording}
+                  >
+                    <Pause className="size-4" />
+                  </Button>
+                )}
+                {recordingState === AUDIO_RECORDING_STATE.paused && (
+                  <Button
+                    className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+                    onClick={resumeRecording}
+                  >
+                    <Play className="size-4 stroke-green-400" />
+                  </Button>
+                )}
+                <Button
+                  className="!px-2 py-2 bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors cursor-pointer"
+                  onClick={stopRecording}
+                >
+                  <Squircle />
+                </Button>
+              </div>
+            </div>
+          )}
+          <Button
+            className="px-4 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-500 transition-colors cursor-pointer"
+            onClick={() => setAddTagModal(true)}
+          >
+            <Plus className="w-3 h-3 " />
+            Tags
+          </Button>
+        </div>
 
         <div className="flex items-center space-x-4">
           <Button
