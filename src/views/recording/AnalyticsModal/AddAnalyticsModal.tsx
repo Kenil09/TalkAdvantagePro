@@ -1,83 +1,87 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { useRecordingStore } from "@/lib/store/recording.store";
-import { Model } from "@/types/widget.types";
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
+import { useRecordingStore } from '@/lib/store/recording.store'
+import { Model } from '@/types/widget.types'
 import {
   analyticsProfileSchema,
   AnalyticsProfileFormDataSchema,
-} from "@/utils/schema/analyticsmodel.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Settings, Zap, BarChart3, Brain } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+} from '@/utils/schema/analyticsmodel.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { X, Settings, Zap, BarChart3, Brain } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 
 const AddAnalyticsModal = () => {
-  const [activeTab, setActiveTab] = useState("basic");
-  const [models, setModels] = useState<Model[]>([]);
-  const { addAnalyticsModal, setAddAnalyticsModal, editProfile } = useRecordingStore();
-  const { handleSubmit, register, control, formState: { errors } } =
-    useForm<AnalyticsProfileFormDataSchema>({
-      resolver: zodResolver(analyticsProfileSchema),
-      defaultValues: {
-        profileName: editProfile?.profileName || "",
-        description: editProfile?.description || "",
-        aiModel:
-          editProfile?.aiModel || "mistralai/mistral-small-3.2-24b-instruct",
-        conversationMode:
-          editProfile?.conversationMode || "Tracking (Passive)",
-        userPrompt: editProfile?.userPrompt || "",
-        systemPrompt: editProfile?.systemPrompt || "",
-        templatePrompt: editProfile?.templatePrompt || "",
-        curiosityEnginePrompt: editProfile?.curiosityEnginePrompt || "",
-        defaultLayout: editProfile?.defaultLayout || "radial",
-        colorScheme: editProfile?.colorScheme || "Default",
-        maxTokens: editProfile?.maxTokens || 1000,
-        temperature: editProfile?.temperature || 0.7,
-      },
-    });
+  const [activeTab, setActiveTab] = useState('basic')
+  const [models, setModels] = useState<Model[]>([])
+  const { addAnalyticsModal, setAddAnalyticsModal, editProfile } =
+    useRecordingStore()
+  const {
+    handleSubmit,
+    register,
+    control,
+    formState: { errors },
+  } = useForm<AnalyticsProfileFormDataSchema>({
+    resolver: zodResolver(analyticsProfileSchema),
+    defaultValues: {
+      profileName: editProfile?.profileName || '',
+      description: editProfile?.description || '',
+      aiModel:
+        editProfile?.aiModel || 'mistralai/mistral-small-3.2-24b-instruct',
+      conversationMode: editProfile?.conversationMode || 'Tracking (Passive)',
+      userPrompt: editProfile?.userPrompt || '',
+      systemPrompt: editProfile?.systemPrompt || '',
+      templatePrompt: editProfile?.templatePrompt || '',
+      curiosityEnginePrompt: editProfile?.curiosityEnginePrompt || '',
+      defaultLayout: editProfile?.defaultLayout || 'radial',
+      colorScheme: editProfile?.colorScheme || 'Default',
+      maxTokens: editProfile?.maxTokens || 1000,
+      temperature: editProfile?.temperature || 0.7,
+    },
+  })
 
   const fetchModels = async () => {
     try {
-      const response = await fetch("/api/models");
-      if (!response.ok) throw new Error("Failed to fetch models");
-      const data = await response.json();
+      const response = await fetch('/api/models')
+      if (!response.ok) throw new Error('Failed to fetch models')
+      const data = await response.json()
       const modelsSet = new Map(
-        data.data.map((model: { slug: string }) => [model.slug, model])
-      );
+        data.data.map((model: { slug: string }) => [model.slug, model]),
+      )
 
-      const uniqueModels = Array.from(modelsSet.values());
+      const uniqueModels = Array.from(modelsSet.values())
 
-      setModels(uniqueModels as Model[]);
+      setModels(uniqueModels as Model[])
     } catch (err) {
-      console.error(err);
+      console.error(err)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchModels();
-  }, []);
+    fetchModels()
+  }, [])
 
   const onSubmit = (data: AnalyticsProfileFormDataSchema) => {
-    console.log("Submitted data:", data);
-    setAddAnalyticsModal(false);
-  };
+    console.log('Submitted data:', data)
+    setAddAnalyticsModal(false)
+  }
 
   const handleClose = () => {
     setAddAnalyticsModal(false)
@@ -94,13 +98,13 @@ const AddAnalyticsModal = () => {
             <div>
               <DialogTitle className="text-2xl font-bold">
                 {editProfile
-                  ? "Edit Analytics Profile"
-                  : "Create New Analytics Profile"}{" "}
+                  ? 'Edit Analytics Profile'
+                  : 'Create New Analytics Profile'}{' '}
               </DialogTitle>
               <p className="text-blue-100 text-sm">
                 {editProfile
-                  ? "Update existing profile settings."
-                  : "Create a new analytics profile from scratch."}
+                  ? 'Update existing profile settings.'
+                  : 'Create a new analytics profile from scratch.'}
               </p>
             </div>
             <Button
@@ -152,12 +156,14 @@ const AddAnalyticsModal = () => {
                   </Label>
                   <Input
                     id="profileName"
-                    {...register("profileName")}
+                    {...register('profileName')}
                     placeholder="Enter profile name"
                     className="h-12 text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500"
                   />
                   {errors.profileName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.profileName.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.profileName.message}
+                    </p>
                   )}
                 </div>
 
@@ -170,13 +176,15 @@ const AddAnalyticsModal = () => {
                   </Label>
                   <Textarea
                     id="description"
-                    {...register("description")}
+                    {...register('description')}
                     rows={4}
                     placeholder="Enter description"
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
                   {errors.description && (
-                    <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.description.message}
+                    </p>
                   )}
                 </div>
 
@@ -194,23 +202,24 @@ const AddAnalyticsModal = () => {
                       <Select
                         value={field.value}
                         onValueChange={(value) => {
-                          field.onChange(value);
+                          field.onChange(value)
                         }}
                       >
                         <SelectTrigger
-                          className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.aiModel ? "border-red-500" : ""
-                            }`}
+                          className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                            errors.aiModel ? 'border-red-500' : ''
+                          }`}
                         >
                           <SelectValue placeholder="Select an AI model" />
                         </SelectTrigger>
                         <SelectContent>
                           {models?.map((model) => {
-                            const uniqueKey = `${model.slug}-${model.name}-${model.context_length}`;
+                            const uniqueKey = `${model.slug}-${model.name}-${model.context_length}`
                             return (
                               <SelectItem key={uniqueKey} value={model.slug}>
                                 {model.name}
                               </SelectItem>
-                            );
+                            )
                           })}
                         </SelectContent>
                       </Select>
@@ -242,14 +251,19 @@ const AddAnalyticsModal = () => {
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger
-                          className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.conversationMode ? "border-red-500" : ""
-                            }`}
+                          className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                            errors.conversationMode ? 'border-red-500' : ''
+                          }`}
                         >
                           <SelectValue placeholder="Select a conversation mode" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Tracking (Passive)">Tracking (Passive)</SelectItem>
-                          <SelectItem value="Guided (Active)">Guided (Active)</SelectItem>
+                          <SelectItem value="Tracking (Passive)">
+                            Tracking (Passive)
+                          </SelectItem>
+                          <SelectItem value="Guided (Active)">
+                            Guided (Active)
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     )}
@@ -260,7 +274,8 @@ const AddAnalyticsModal = () => {
                     </p>
                   )}
                   <p className="text-sm text-gray-500 mt-2">
-                    Tracking mode passively analyzes conversations. Guided mode provides real-time suggestions.
+                    Tracking mode passively analyzes conversations. Guided mode
+                    provides real-time suggestions.
                   </p>
                 </div>
               </div>
@@ -280,13 +295,15 @@ const AddAnalyticsModal = () => {
                   </Label>
                   <Textarea
                     id="userPrompt"
-                    {...register("userPrompt")}
+                    {...register('userPrompt')}
                     placeholder="Enter user prompt"
                     rows={3}
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
                   {errors.userPrompt && (
-                    <p className="text-red-500 text-sm mt-1">{errors.userPrompt.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.userPrompt.message}
+                    </p>
                   )}
                   <p className="text-sm text-gray-500 mt-2">
                     The initial instruction to the AI. Keep it concise and
@@ -303,13 +320,15 @@ const AddAnalyticsModal = () => {
                   </Label>
                   <Textarea
                     id="systemPrompt"
-                    {...register("systemPrompt")}
+                    {...register('systemPrompt')}
                     placeholder="Enter system prompt"
                     rows={8}
                     className="text-base border-gray-300  bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
                   {errors.systemPrompt && (
-                    <p className="text-red-500 text-sm mt-1">{errors.systemPrompt.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.systemPrompt.message}
+                    </p>
                   )}
                   <p className="text-sm text-gray-500 mt-2">
                     Instructions that define the AI&apos;s role and behavior.
@@ -326,13 +345,15 @@ const AddAnalyticsModal = () => {
                   </Label>
                   <Textarea
                     id="templatePrompt"
-                    {...register("templatePrompt")}
+                    {...register('templatePrompt')}
                     placeholder="Enter template prompt"
                     rows={8}
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
                   {errors.templatePrompt && (
-                    <p className="text-red-500 text-sm mt-1">{errors.templatePrompt.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.templatePrompt.message}
+                    </p>
                   )}
                   <p className="text-sm text-gray-500 mt-2">
                     The structured format for the AI&apos;s response. Use
@@ -356,13 +377,15 @@ const AddAnalyticsModal = () => {
                   </Label>
                   <Textarea
                     id="curiosityEnginePrompt"
-                    {...register("curiosityEnginePrompt")}
+                    {...register('curiosityEnginePrompt')}
                     placeholder="Enter curiosity engine prompt"
                     rows={12}
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none font-mono "
                   />
                   {errors.curiosityEnginePrompt && (
-                    <p className="text-red-500 text-sm mt-1">{errors.curiosityEnginePrompt.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.curiosityEnginePrompt.message}
+                    </p>
                   )}
                   <p className="text-sm text-black mt-3">
                     Instructions for generating questions about the
@@ -391,14 +414,17 @@ const AddAnalyticsModal = () => {
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger
-                              className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.defaultLayout ? "border-red-500" : ""
-                                }`}
+                              className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                                errors.defaultLayout ? 'border-red-500' : ''
+                              }`}
                             >
                               <SelectValue placeholder="Select default layout" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="radial">Radial</SelectItem>
-                              <SelectItem value="flowchart">Flow Chart</SelectItem>
+                              <SelectItem value="flowchart">
+                                Flow Chart
+                              </SelectItem>
                               <SelectItem value="network">Network</SelectItem>
                             </SelectContent>
                           </Select>
@@ -427,15 +453,18 @@ const AddAnalyticsModal = () => {
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger
-                              className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.colorScheme ? "border-red-500" : ""
-                                }`}
+                              className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                                errors.colorScheme ? 'border-red-500' : ''
+                              }`}
                             >
                               <SelectValue placeholder="Select color scheme" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="Default">Default</SelectItem>
                               <SelectItem value="business">Business</SelectItem>
-                              <SelectItem value="professional">Professional</SelectItem>
+                              <SelectItem value="professional">
+                                Professional
+                              </SelectItem>
                               <SelectItem value="creative">Creative</SelectItem>
                             </SelectContent>
                           </Select>
@@ -467,9 +496,9 @@ const AddAnalyticsModal = () => {
             <div className=" bg-white w-full px-6 py-4">
               <div className="w-full flex items-center justify-between">
                 <div className="text-sm text-gray-500">
-                  {activeTab === "basic" && "Basic settings"}
-                  {activeTab === "prompts" && "AI behavior settings"}
-                  {activeTab === "advanced" && "Advanced model settings"}
+                  {activeTab === 'basic' && 'Basic settings'}
+                  {activeTab === 'prompts' && 'AI behavior settings'}
+                  {activeTab === 'advanced' && 'Advanced model settings'}
                 </div>
                 <div className="flex items-center space-x-3">
                   <Button
@@ -494,7 +523,7 @@ const AddAnalyticsModal = () => {
         </form>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default AddAnalyticsModal;
+export default AddAnalyticsModal

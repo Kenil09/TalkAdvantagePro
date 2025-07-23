@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
 import { useLibraryStore } from '@/lib/store/library.store'
-import { DATABASE_TABLE } from "@/config"
+import { DATABASE_TABLE } from '@/config'
 
 export const RenameDialog = () => {
   const {
@@ -28,10 +28,7 @@ export const RenameDialog = () => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Add rename handler
-  const handleRename = async (
-    id: string,
-    newName: string,
-  ) => {
+  const handleRename = async (id: string, newName: string) => {
     try {
       const recording = recordings.find((r) => r.id === id)
       if (!recording) return
@@ -45,16 +42,16 @@ export const RenameDialog = () => {
         ? `${datePart}_${newName.trim()}.mp3`
         : `${newName.trim()}.mp3`
 
-        const supabase = createClient()
-        const { error } = await supabase
-          .from(DATABASE_TABLE.RECORDINGS)
-          .update({
-            filename: finalName,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', id)
+      const supabase = createClient()
+      const { error } = await supabase
+        .from(DATABASE_TABLE.RECORDINGS)
+        .update({
+          filename: finalName,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
 
-        if (error) throw error
+      if (error) throw error
 
       // Update local state
       setRecordings((prev) =>

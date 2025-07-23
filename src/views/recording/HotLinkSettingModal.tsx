@@ -24,7 +24,7 @@ import { X, Plus, Trash2, Settings, Zap, Upload, Edit3 } from 'lucide-react'
 import { DialogTitle } from '@radix-ui/react-dialog'
 import { HOTLINK_WIDGETS } from '@/constants/hotlink-widget.constants'
 import { Model } from '@/types/widget.types'
-import { useRecordingStore } from "@/lib/store/recording.store"
+import { useRecordingStore } from '@/lib/store/recording.store'
 
 interface FlashWidget {
   id: string
@@ -190,22 +190,22 @@ export function HotLinkSettingsModal() {
                     value={selectedWidget}
                     onValueChange={(value) => setSelectedWidget(value)}
                   >
-                  <SelectTrigger className="bg-white border-gray-300 text-gray-900 cursor-pointer w-full">
-                    <SelectValue placeholder="Select a widget..." />
-                  </SelectTrigger>
-                  <SelectContent
-                    className="cursor-pointer w-full z-[9999999] h-full max-h-[250px]"
-                    position="popper"
-                    sideOffset={5}
-                  >
-                    {widgets?.map((widget: FlashWidget) => (
-                      <SelectItem key={widget.id} value={widget.id}>
-                        {widget.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                    <SelectTrigger className="bg-white border-gray-300 text-gray-900 cursor-pointer w-full">
+                      <SelectValue placeholder="Select a widget..." />
+                    </SelectTrigger>
+                    <SelectContent
+                      className="cursor-pointer w-full z-[9999999] h-full max-h-[250px]"
+                      position="popper"
+                      sideOffset={5}
+                    >
+                      {widgets?.map((widget: FlashWidget) => (
+                        <SelectItem key={widget.id} value={widget.id}>
+                          {widget.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
               <div className="flex items-center space-x-3">
                 <Button

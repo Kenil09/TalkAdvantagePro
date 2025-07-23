@@ -1,52 +1,52 @@
-import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { HOTLINK_WIDGETS } from "@/constants/hotlink-widget.constants";
-import { useContextPackStore } from "@/lib/store/context-pack.store";
-import useHotLinkDetection from "@/hooks/useHotLinkDetection";
-import { useTranscriptionStore } from "@/lib/store/transcription.store";
-import { Participant } from "@/types/knowledge-graph.types";
-import { Copy, Loader2, X } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useEffect, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { HOTLINK_WIDGETS } from '@/constants/hotlink-widget.constants'
+import { useContextPackStore } from '@/lib/store/context-pack.store'
+import useHotLinkDetection from '@/hooks/useHotLinkDetection'
+import { useTranscriptionStore } from '@/lib/store/transcription.store'
+import { Participant } from '@/types/knowledge-graph.types'
+import { Copy, Loader2, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const HotLinkWidgetDisplay = () => {
   const { activeWidget, clearActiveWidget } =
-    useHotLinkDetection(HOTLINK_WIDGETS);
-    const { liveText } = useTranscriptionStore();
-    const { currentContextPack } = useContextPackStore()
+    useHotLinkDetection(HOTLINK_WIDGETS)
+  const { liveText } = useTranscriptionStore()
+  const { currentContextPack } = useContextPackStore()
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false)
+  const [result, setResult] = useState<string>('')
 
-  const { name, triggerWords, model, prompt } = activeWidget || {};
+  const { name, triggerWords, model, prompt } = activeWidget || {}
 
   const runAnalysis = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
       // Get the last 400 words of the transcript
-      const words = liveText.split(/\s+/);
-      const lastWords = words.slice(-400).join(" ");
+      const words = liveText.split(/\s+/)
+      const lastWords = words.slice(-400).join(' ')
 
       // Get today's date
-      const today = new Date().toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+      const today = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
 
       // Get context pack from store
       const contextPack = currentContextPack?.properties
       // Initialize empty array for backward compatibility
-      const relevantChunks: Array<{ content: string }> = [];
+      const relevantChunks: Array<{ content: string }> = []
 
       // Construct the system prompt
       const contextInfo = contextPack
         ? `
     Goal: ${contextPack.goal}
-    Sub Goals: ${contextPack.subGoals.join(", ")}
+    Sub Goals: ${contextPack.subGoals.join(', ')}
     User Name: ${contextPack.name}
     User Role: ${contextPack.userRole}
     Person: ${contextPack.nonUserName} // TODO: Update this
@@ -59,49 +59,49 @@ const HotLinkWidgetDisplay = () => {
           `- ${p.name} (${p.role}, ${p.relationship_to_user})${
             p.apex_profile
               ? `\n  Profile: ${JSON.stringify(p.apex_profile)}`
-              : ""
-          }`
+              : ''
+          }`,
       )
-      .join("\n")}
+      .join('\n')}
 
-    Key Topics: ${(contextPack.preInteraction.keyTopics).join(", ")}
+    Key Topics: ${contextPack.preInteraction.keyTopics.join(', ')}
     Context Description: ${contextPack.preInteraction.description}
     Notes: ${contextPack.preInteractionNotes}
 
     ${
       contextPack.timeline
-        ? `Timeline:\n${contextPack.timeline.map((t) => `- ${t}`).join("\n")}`
-        : ""
+        ? `Timeline:\n${contextPack.timeline.map((t) => `- ${t}`).join('\n')}`
+        : ''
     }
     ${
       contextPack.contextFactors
         ? `Environmental Factors:\n${contextPack.contextFactors}`
-        : ""
+        : ''
     }
 
     Documents:
     ${contextPack.documents
-      .map((d) => `- ${d.name}${d.tags ? ` (Tags: ${d.tags.join(", ")})` : ""}`)
-      .join("\n")}
+      .map((d) => `- ${d.name}${d.tags ? ` (Tags: ${d.tags.join(', ')})` : ''}`)
+      .join('\n')}
     `
-        : "";
+        : ''
 
       const relevantDocs = relevantChunks.length
         ? `\nRelevant Documents:\n${relevantChunks
             .map((chunk) => `- ${chunk.content}`)
-            .join("\n")}`
-        : "";
+            .join('\n')}`
+        : ''
 
       const systemPrompt = `You are an expert in ${name}. Today's date is ${today}. Please perform the analysis according to the template provided. If no template is provided, use your knowledge and provide the result in a well-structured format. Must use Markdown formatting for better readability.
 
     Context Information:
-    ${contextInfo}${relevantDocs}`;
+    ${contextInfo}${relevantDocs}`
 
       // Send the request to OpenRouter API
-      const response = await fetch("/api/openrouter/generate", {
-        method: "POST",
+      const response = await fetch('/api/openrouter/generate', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           transcript: lastWords,
@@ -111,42 +111,42 @@ const HotLinkWidgetDisplay = () => {
           isHotLink: true,
           contextPack,
         }),
-      });
+      })
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error("Session expired. Please refresh the page.");
+          throw new Error('Session expired. Please refresh the page.')
         }
-        throw new Error("Failed to analyze transcript");
+        throw new Error('Failed to analyze transcript')
       }
 
-      const data = await response.json();
-      setResult(data?.text);
+      const data = await response.json()
+      setResult(data?.text)
     } catch (error) {
-      console.log("Analysis error:", error);
+      console.log('Analysis error:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleCopy = () => {
-    if (!result) return;
+    if (!result) return
 
     try {
-      navigator.clipboard.writeText(result);
+      navigator.clipboard.writeText(result)
     } catch (err) {
-      console.log(err);
+      console.log(err)
     }
-  };
+  }
 
   useEffect(() => {
     if (!isLoading && !result && activeWidget) {
-      runAnalysis();
+      runAnalysis()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, result, activeWidget]);
+  }, [isLoading, result, activeWidget])
 
-  if (!activeWidget) return null;
+  if (!activeWidget) return null
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center">
@@ -208,7 +208,7 @@ const HotLinkWidgetDisplay = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HotLinkWidgetDisplay;
+export default HotLinkWidgetDisplay

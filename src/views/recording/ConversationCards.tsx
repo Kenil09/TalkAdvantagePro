@@ -6,7 +6,7 @@ import {
 } from '@/lib/store/recording.store'
 import { Card, CardState } from '@/types/conversationCards'
 import ConversationCardsDialog from './ConversationCardsDialog'
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 
 // Colors for cards
 const cardColors = [
@@ -211,8 +211,9 @@ const ConversationCards = () => {
     const isHidden = isSplitState && !isActive
 
     return {
-      className: `${baseClasses} ${extraClass} ${widthClass} ${heightClass} ${isHidden ? 'hidden' : ''
-        } ${animationClass}`,
+      className: `${baseClasses} ${extraClass} ${widthClass} ${heightClass} ${
+        isHidden ? 'hidden' : ''
+      } ${animationClass}`,
       zIndex,
       isHidden,
     }
@@ -275,14 +276,14 @@ const ConversationCards = () => {
             {(cardState === 'growing' ||
               cardState === 'elongated' ||
               cardState === 'split') && (
-                // <p className="text-sm mb-3">{card?.content?.paragraph || ''}</p>
-                <p className="text-sm mb-3">
-                  {highlightMatchedWords(
-                    card?.content?.paragraph || '',
-                    matchedWords.map((m) => m.word),
-                  )}
-                </p>
-              )}
+              // <p className="text-sm mb-3">{card?.content?.paragraph || ''}</p>
+              <p className="text-sm mb-3">
+                {highlightMatchedWords(
+                  card?.content?.paragraph || '',
+                  matchedWords.map((m) => m.word),
+                )}
+              </p>
+            )}
 
             {(cardState === 'elongated' || cardState === 'split') && (
               <ul className="list-disc pl-5 mb-3 space-y-1">
@@ -340,7 +341,11 @@ const ConversationCards = () => {
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">Conversation Cards</h3>
         <div className="flex items-center gap-2">
-          <Button variant="default" className="px-2 !py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-xs transition-colors cursor-pointer" onClick={() => generateInitialCards()}>
+          <Button
+            variant="default"
+            className="px-2 !py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-xs transition-colors cursor-pointer"
+            onClick={() => generateInitialCards()}
+          >
             Regenerate cards
           </Button>
           {process.env.NEXT_PUBLIC_IS_LOCAL_ENVIRONMENT === 'local' && (
@@ -355,7 +360,7 @@ const ConversationCards = () => {
           style={{
             alignItems:
               currentActiveCard?.state === 'elongated' &&
-                ['2', '3'].includes(currentActiveCard.id)
+              ['2', '3'].includes(currentActiveCard.id)
                 ? 'end'
                 : 'unset',
           }}
@@ -383,13 +388,15 @@ const ConversationCards = () => {
               return (
                 <div
                   key={`${card.id}-${index}`}
-                  className={`transition-all duration-500 h-full ${currentActiveCard?.id === card.id
-                    ? `animate-${card.state} ${currentActiveCard?.state === 'elongated'
-                      ? '!h-[208%] !z-10'
+                  className={`transition-all duration-500 h-full ${
+                    currentActiveCard?.id === card.id
+                      ? `animate-${card.state} ${
+                          currentActiveCard?.state === 'elongated'
+                            ? '!h-[208%] !z-10'
+                            : ''
+                        }`
                       : ''
-                    }`
-                    : ''
-                    }`}
+                  }`}
                 >
                   {renderCard(card, index, isHidden)}
                 </div>

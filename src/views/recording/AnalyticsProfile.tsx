@@ -1,36 +1,36 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { existingProfile } from "@/utils/contextData";
-import { Edit, Plus, Settings } from "lucide-react";
-import { useRecordingStore } from "@/lib/store/recording.store";
+} from '@/components/ui/select'
+import { existingProfile } from '@/utils/contextData'
+import { Edit, Plus, Settings } from 'lucide-react'
+import { useRecordingStore } from '@/lib/store/recording.store'
 
-type AnalysisType = "full" | "meeting" | "interview";
+type AnalysisType = 'full' | 'meeting' | 'interview'
 
 const AnalyticsProfile = () => {
-  const { setEditProfile, setAddAnalyticsModal } = useRecordingStore();
-  const [analysisType, setAnalysisType] = useState<AnalysisType>("full");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { setEditProfile, setAddAnalyticsModal } = useRecordingStore()
+  const [analysisType, setAnalysisType] = useState<AnalysisType>('full')
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleProcess = async () => {
     try {
-      setIsProcessing(true);
+      setIsProcessing(true)
       // Add your processing logic here
-      console.log(`Processing ${analysisType} analysis...`);
+      console.log(`Processing ${analysisType} analysis...`)
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     } catch (error) {
-      console.error("Error processing analysis:", error);
+      console.error('Error processing analysis:', error)
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   return (
     <div className="bg-white rounded-3xl p-4 no-drag h-full flex flex-col">
@@ -43,8 +43,8 @@ const AnalyticsProfile = () => {
             type="button"
             className="size-8 text-gray-500 hover:text-gray-700 cursor-pointer"
             onClick={() => {
-              setAddAnalyticsModal(true);
-              setEditProfile(null);
+              setAddAnalyticsModal(true)
+              setEditProfile(null)
             }}
             aria-label="Add new profile"
           >
@@ -57,8 +57,8 @@ const AnalyticsProfile = () => {
             type="button"
             className="size-8 text-gray-500 hover:text-gray-700 cursor-pointer"
             onClick={() => {
-              setAddAnalyticsModal(true);
-              setEditProfile(existingProfile);
+              setAddAnalyticsModal(true)
+              setEditProfile(existingProfile)
             }}
             aria-label="Edit profile"
           >
@@ -70,7 +70,7 @@ const AnalyticsProfile = () => {
             size="icon"
             type="button"
             className="size-8 text-gray-500 hover:text-gray-700 cursor-pointer"
-            onClick={() => console.log("Settings clicked")}
+            onClick={() => console.log('Settings clicked')}
             aria-label="Settings"
           >
             <Settings className="size-4" />
@@ -99,12 +99,12 @@ const AnalyticsProfile = () => {
             onClick={handleProcess}
             disabled={isProcessing}
           >
-            {isProcessing ? "Processing..." : "Process Analysis"}
+            {isProcessing ? 'Processing...' : 'Process Analysis'}
           </Button>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AnalyticsProfile;
+export default AnalyticsProfile

@@ -11,8 +11,12 @@ import { useLibraryStore } from '@/lib/store/library.store'
 
 const BulkActions: React.FC = () => {
   const [mounted, setMounted] = useState(false)
-  const {recordings, setShowDeleteDialog, selectedRecordings, setSelectedRecordings } =
-    useLibraryStore()
+  const {
+    recordings,
+    setShowDeleteDialog,
+    selectedRecordings,
+    setSelectedRecordings,
+  } = useLibraryStore()
   // Check if any selected recordings are processed
   const hasProcessedRecordings = Array.from(selectedRecordings).some(
     (id) => recordings.find((r) => r.id === id)?.is_processed,
@@ -23,7 +27,7 @@ const BulkActions: React.FC = () => {
   }, [])
 
   if (!mounted) return null
-  
+
   return (
     <div className="flex items-center gap-2">
       {selectedRecordings.size > 0 && (

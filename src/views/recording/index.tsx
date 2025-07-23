@@ -1,64 +1,63 @@
-"use client";
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { Folder, Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import LiveTranscription from "./LiveTranscription";
-import AnalyticsProfile from "./AnalyticsProfile";
-import ChatBot from "./ChatBot";
-import ConversationCards from "./ConversationCards";
-import MeetingNotes from "./MeetingNotes";
-import RecordingSpeech from "./RecordingSpeech";
-import ContextPackSelect from "./ContextPackSelect";
-import { HotLinkSettingsModal } from "./HotLinkSettingModal";
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import { Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
-import dynamic from "next/dynamic";
-import HotLinkWidgetDisplay from "./HotLinkWidget";
-import AddAnalyticsModal from "./AnalyticsModal/AddAnalyticsModal";
-import TagAddModal from "@/views/recording/TagAddModal";
-import { useRecordingStore } from "@/lib/store/recording.store";
+'use client'
+import { useEffect, useState, useCallback, useMemo } from 'react'
+import { Folder, Pencil } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import LiveTranscription from './LiveTranscription'
+import AnalyticsProfile from './AnalyticsProfile'
+import ChatBot from './ChatBot'
+import ConversationCards from './ConversationCards'
+import MeetingNotes from './MeetingNotes'
+import RecordingSpeech from './RecordingSpeech'
+import ContextPackSelect from './ContextPackSelect'
+import { HotLinkSettingsModal } from './HotLinkSettingModal'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
+import { Layout, Layouts, Responsive, WidthProvider } from 'react-grid-layout'
+import dynamic from 'next/dynamic'
+import HotLinkWidgetDisplay from './HotLinkWidget'
+import AddAnalyticsModal from './AnalyticsModal/AddAnalyticsModal'
+import TagAddModal from '@/views/recording/TagAddModal'
+import { useRecordingStore } from '@/lib/store/recording.store'
 
 // Dynamic import for pdf-dist to prevent server-side rendering
-const ContextPackModal = dynamic(() => import("./ContextPackModal"), {
+const ContextPackModal = dynamic(() => import('./ContextPackModal'), {
   ssr: false,
-});
+})
 
-const ResponsiveGridLayout = WidthProvider(Responsive);
+const ResponsiveGridLayout = WidthProvider(Responsive)
 
-const STORAGE_KEY = "recording-layout";
+const STORAGE_KEY = 'recording-layout'
 
 const Recording = () => {
-  const { editMode, setEditMode } = useRecordingStore();
-  const [isEditContextPack, setIsEditContextPack] = useState({ status: false, uuid: "" });
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { editMode, setEditMode } = useRecordingStore()
+  const [isEditContextPack, setIsEditContextPack] = useState({
+    status: false,
+    uuid: '',
+  })
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Components mapped to layout keys
   const components = useMemo(
     () => ({
       a: <LiveTranscription key="a" />,
-      b: (
-        <AnalyticsProfile
-          key="b"
-        />
-      ),
+      b: <AnalyticsProfile key="b" />,
       c: <ChatBot key="c" />,
       d: <ConversationCards key="d" />,
       e: <MeetingNotes key="e" />,
     }),
-    []
-  );
+    [],
+  )
   // Default layout
   const defaultLayout = useMemo<Layout[]>(() => {
-    const componentKeys = Object.keys(components) as string[];
-    const itemsPerRow = 3;
-    const itemHeight = 3;
+    const componentKeys = Object.keys(components) as string[]
+    const itemsPerRow = 3
+    const itemHeight = 3
 
     return componentKeys.map((key, index) => {
-      const row = Math.floor(index / itemsPerRow);
-      const col = index % itemsPerRow;
-      const y = row * itemHeight;
+      const row = Math.floor(index / itemsPerRow)
+      const col = index % itemsPerRow
+      const y = row * itemHeight
 
       return {
         i: key,
@@ -72,53 +71,53 @@ const Recording = () => {
         maxH: 12,
         isResizable: true,
         isDraggable: true,
-      };
-    });
-  }, [components]);
+      }
+    })
+  }, [components])
 
-  const [layouts, setLayouts] = useState<Layouts>({ lg: defaultLayout });
+  const [layouts, setLayouts] = useState<Layouts>({ lg: defaultLayout })
 
   // Load layout from localStorage
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return
 
     const loadLayout = () => {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY)
         if (saved) {
-          const parsed = JSON.parse(saved);
+          const parsed = JSON.parse(saved)
           if (parsed?.lg) {
-            setLayouts(parsed);
+            setLayouts(parsed)
           }
         }
       } catch (error) {
-        console.error("Failed to load layout:", error);
+        console.error('Failed to load layout:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    loadLayout();
+    loadLayout()
 
     // Empty resize handler to capture window resize events
     // The WidthProvider already handles resize events automatically
     const handleResize = () => {
       // Intentionally empty - WidthProvider handles resize automatically
-    };
+    }
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Save layout to localStorage on change
   const onLayoutChange = useCallback((_: Layout[], allLayouts: Layouts) => {
-    setLayouts(allLayouts);
+    setLayouts(allLayouts)
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLayouts));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allLayouts))
     } catch (error) {
-      console.error("Failed to save layout:", error);
+      console.error('Failed to save layout:', error)
     }
-  }, []);
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -129,10 +128,11 @@ const Recording = () => {
           <div className="flex gap-2">
             <Button
               onClick={() => setEditMode(!editMode)}
-              className={`rounded-4xl text-white flex items-center gap-2 cursor-pointer ${editMode
-                ? "bg-primary-400"
-                : "bg-primary-600 hover:bg-primary-500"
-                }`}
+              className={`rounded-4xl text-white flex items-center gap-2 cursor-pointer ${
+                editMode
+                  ? 'bg-primary-400'
+                  : 'bg-primary-600 hover:bg-primary-500'
+              }`}
             >
               <Pencil />
               Edit Mode
@@ -175,7 +175,7 @@ const Recording = () => {
                   >
                     {component}
                   </div>
-                );
+                )
               })}
             </ResponsiveGridLayout>
           )}
@@ -184,18 +184,26 @@ const Recording = () => {
 
       {/* Sticky Footer */}
       <div className="sticky bottom-0 w-full bg-white shadow-md z-10">
-        <ContextPackSelect setIsOpen={setIsOpen} setIsEditContextPack={setIsEditContextPack} />
+        <ContextPackSelect
+          setIsOpen={setIsOpen}
+          setIsEditContextPack={setIsEditContextPack}
+        />
         <RecordingSpeech />
       </div>
       <HotLinkWidgetDisplay />
 
       {/* Modals */}
-      <ContextPackModal isOpen={isOpen} setIsOpen={setIsOpen} isEditContextPack={isEditContextPack} setIsEditContextPack={setIsEditContextPack} />
+      <ContextPackModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        isEditContextPack={isEditContextPack}
+        setIsEditContextPack={setIsEditContextPack}
+      />
       <HotLinkSettingsModal />
       <AddAnalyticsModal />
       <TagAddModal />
     </div>
-  );
-};
+  )
+}
 
-export default Recording;
+export default Recording

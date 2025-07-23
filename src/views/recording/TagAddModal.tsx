@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Tag } from '@/types/library.types'
 import { Dialog } from '@radix-ui/react-dialog'
 import { useRecordingStore } from '@/lib/store/recording.store'
-import { tagFormSchema } from "@/utils/schema/tagaddmodel.schema"
+import { tagFormSchema } from '@/utils/schema/tagaddmodel.schema'
 
 type TagFormValues = z.infer<typeof tagFormSchema>
 
@@ -27,21 +27,24 @@ const TagAddModal = () => {
     resolver: zodResolver(tagFormSchema),
     defaultValues: {
       name: '',
-      color: TAG_COLORS[0].value
-    }
+      color: TAG_COLORS[0].value,
+    },
   })
 
   const [isSaving, setIsSaving] = useState(false)
 
   // Group tags by color for better organization
   const groupedTags = useMemo(() => {
-    return tags?.reduce((acc, tag) => {
-      const colorGroup = acc[tag.color] || []
-      return {
-        ...acc,
-        [tag.color]: [...colorGroup, tag],
-      }
-    }, {} as Record<string, Tag[]>)
+    return tags?.reduce(
+      (acc, tag) => {
+        const colorGroup = acc[tag.color] || []
+        return {
+          ...acc,
+          [tag.color]: [...colorGroup, tag],
+        }
+      },
+      {} as Record<string, Tag[]>,
+    )
   }, [tags])
 
   const addTag = (data: TagFormValues) => {

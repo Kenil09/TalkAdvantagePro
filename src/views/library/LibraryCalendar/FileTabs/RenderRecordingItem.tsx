@@ -18,8 +18,8 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog'
 import useTagManagement from '@/hooks/useTagManagement'
 import { formatDuration, formatExactDate, TAG_COLORS } from '@/utils/date'
 
-import { useSettingsStore } from "@/lib/store/user-setting.store"
-import TagEditorModal from "./TagEditorModal"
+import { useSettingsStore } from '@/lib/store/user-setting.store'
+import TagEditorModal from './TagEditorModal'
 import { useState } from 'react'
 
 interface RenderRecordingItemProps {
@@ -43,8 +43,8 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
   } = useLibraryStore()
   const { recordingTags, saveTags } = useTagManagement()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  
-   const toggleAnalysisPanel = (recordingId: string) => {
+
+  const toggleAnalysisPanel = (recordingId: string) => {
     console.log('toggleAnalysisPanel', recordingId)
 
     // setExpandedAnalysis(prev => {
@@ -175,14 +175,17 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
     <div
       key={recording.id}
       className={`border rounded-md border-slate-300 py-2 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors 
-              ${selectedRecording?.id === recording.id
-          ? 'bg-blue-50 dark:bg-blue-900/20'
-          : ''
-        }`}
-      onClick={() => setSelectedRecording({
-        ...recording,
-        filepath: recording.filepath,
-      })}
+              ${
+                selectedRecording?.id === recording.id
+                  ? 'bg-blue-50 dark:bg-blue-900/20'
+                  : ''
+              }`}
+      onClick={() =>
+        setSelectedRecording({
+          ...recording,
+          filepath: recording.filepath,
+        })
+      }
     >
       <div className="flex items-center gap-[3px] px-2 py-2">
         {/* Add checkbox for selection */}
@@ -196,7 +199,7 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
           <input
             type="checkbox"
             // checked={selectedRecordings.has(recording.id)}
-            onChange={() => { }}
+            onChange={() => {}}
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>
@@ -209,8 +212,9 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
         </span>
 
         <span
-          className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${recording.is_processed ? 'bg-green-500' : 'bg-yellow-500'
-            } mx-0.5`}
+          className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+            recording.is_processed ? 'bg-green-500' : 'bg-yellow-500'
+          } mx-0.5`}
           title={recording.is_processed ? 'Processed' : 'Not processed'}
         />
 
@@ -220,8 +224,9 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
             {recordingTags[recording.id]?.slice(0, 4).map((tag) => (
               <div
                 key={tag.id}
-                className={`px-1.5 py-0.5 rounded-full text-[10px] font-normal border ${TAG_COLORS.find((c) => c.value === tag.color)?.class
-                  } cursor-pointer hover:opacity-80 transition-opacity`}
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-normal border ${
+                  TAG_COLORS.find((c) => c.value === tag.color)?.class
+                } cursor-pointer hover:opacity-80 transition-opacity`}
                 onClick={(e) => {
                   e.stopPropagation()
                   if (
@@ -242,14 +247,15 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
                     setActiveTagFilters((prev) => [...prev, tag])
                   }
                 }}
-                title={`${activeTagFilters.some(
-                  (filterTag) =>
-                    filterTag.name === tag.name &&
-                    filterTag.color === tag.color,
-                )
-                  ? 'Click to remove filter'
-                  : 'Click to filter by'
-                  } "${tag.name}"`}
+                title={`${
+                  activeTagFilters.some(
+                    (filterTag) =>
+                      filterTag.name === tag.name &&
+                      filterTag.color === tag.color,
+                  )
+                    ? 'Click to remove filter'
+                    : 'Click to filter by'
+                } "${tag.name}"`}
               >
                 {tag.name}
               </div>
@@ -301,13 +307,14 @@ function RenderRecordingItem({ recording }: RenderRecordingItemProps) {
             }}
           >
             <Brain
-              className={`h-2.5 w-2.5 text-slate-500 transition-transform duration-200 ${expandedAnalysis[recording.id] ? 'rotate-180' : ''
-                }`}
+              className={`h-2.5 w-2.5 text-slate-500 transition-transform duration-200 ${
+                expandedAnalysis[recording.id] ? 'rotate-180' : ''
+              }`}
             />
           </Button>
 
           {/* Add Tag Button */}
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 variant="ghost"

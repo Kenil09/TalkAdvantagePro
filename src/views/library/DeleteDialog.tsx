@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createClient } from "@/lib/supabase/client"
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useLibraryStore } from '@/lib/store/library.store'
-import { DATABASE_TABLE } from "@/config"
+import { DATABASE_TABLE } from '@/config'
 
 function DeleteDialog() {
   const [isDeleting, setIsDeleting] = useState(false)

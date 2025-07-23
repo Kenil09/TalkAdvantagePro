@@ -14,7 +14,7 @@ import { TRANSCRIPTION_TIME_WINDOW } from '@/config'
 import { useContextPackStore } from '@/lib/store/context-pack.store'
 import { generateMeetingNotesService } from '@/lib/llm/services/meetingNotes.service'
 import MeetingNotesDialog from './MeetingNotesDialog'
-import { useRecordingStore } from "@/lib/store/recording.store"
+import { useRecordingStore } from '@/lib/store/recording.store'
 
 const MeetingNotes = () => {
   const { currentContextPack } = useContextPackStore()
@@ -72,7 +72,10 @@ const MeetingNotes = () => {
         CANVAS_STATE: editor.getJSON(),
       }
 
-      const response = await generateMeetingNotesService(contextPrompt, meetingNotesSelectedModel)
+      const response = await generateMeetingNotesService(
+        contextPrompt,
+        meetingNotesSelectedModel,
+      )
 
       editor.commands.setContent(response as Content)
     } catch (error) {
@@ -87,7 +90,12 @@ const MeetingNotes = () => {
         )
         .run()
     }
-  }, [currentContextPack?.properties, editor, getLastFewMinTranscript, meetingNotesSelectedModel])
+  }, [
+    currentContextPack?.properties,
+    editor,
+    getLastFewMinTranscript,
+    meetingNotesSelectedModel,
+  ])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -105,7 +113,11 @@ const MeetingNotes = () => {
           <MeetingNotesDialog />
         )}
       </div>
-      <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
       <button onClick={() => handleProcessTranscript()}>Process</button>
 
       <div className="flex-1 flex flex-col overflow-hidden border border-gray-200 rounded-2xl mt-1">

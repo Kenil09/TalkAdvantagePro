@@ -1,11 +1,16 @@
 import { create } from 'zustand'
-import { type DateRange } from "react-day-picker"
+import { type DateRange } from 'react-day-picker'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Recording, Tag } from '@/types/library.types'
-import { getCurrentWeek } from "@/utils/date"
+import { getCurrentWeek } from '@/utils/date'
 
 type SearchType = 'transcript' | 'tags'
-export type RecordingStatus = 'all' | 'processed' | 'processing' | 'failed' | 'holiday'
+export type RecordingStatus =
+  | 'all'
+  | 'processed'
+  | 'processing'
+  | 'failed'
+  | 'holiday'
 
 interface LibraryStore {
   // State
@@ -123,7 +128,6 @@ interface LibraryStore {
   // Helpers
   getLongestRecording: () => { duration: number; date: Date | null }
   getShortestRecording: () => { duration: number; date: Date | null }
-
 }
 
 export const useLibraryStore = create<LibraryStore>()(
@@ -222,7 +226,8 @@ export const useLibraryStore = create<LibraryStore>()(
               ? updater(state.selectedRecordings)
               : updater,
         })),
-      setViewMode: (viewMode: 'calendar' | 'heatmap' | 'list' | 'grid') => set({ viewMode }),
+      setViewMode: (viewMode: 'calendar' | 'heatmap' | 'list' | 'grid') =>
+        set({ viewMode }),
       setFilterStatus: (filterStatus: RecordingStatus) => set({ filterStatus }),
       setIsFetchingSummary: (isFetchingSummary: Record<string, boolean>) =>
         set({ isFetchingSummary }),
@@ -248,12 +253,12 @@ export const useLibraryStore = create<LibraryStore>()(
       setSelectedHourInfo: (
         selectedHourInfo: { day: string; hour: number } | null,
       ) => set({ selectedHourInfo }),
-      setCurrentMonth: (
-        updater: Date | ((prev: Date) => Date)
-      ) =>
+      setCurrentMonth: (updater: Date | ((prev: Date) => Date)) =>
         set((state) => ({
           currentMonth:
-            typeof updater === 'function' ? updater(state.currentMonth) : updater,
+            typeof updater === 'function'
+              ? updater(state.currentMonth)
+              : updater,
         })),
       setShowTranscriptDialog: (showTranscriptDialog: boolean) =>
         set({ showTranscriptDialog }),
@@ -336,8 +341,7 @@ export const useLibraryStore = create<LibraryStore>()(
           selectedDate: state.selectedDate,
           selectedHourInfo: state.selectedHourInfo,
         },
-      }
-      ),
+      }),
     },
   ),
 )

@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { FormProvider, useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Mic } from "lucide-react";
-import { useAuthStore } from "@/lib/store/auth.store";
+import { FormProvider, useForm } from 'react-hook-form'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { Mic } from 'lucide-react'
+import { useAuthStore } from '@/lib/store/auth.store'
 
-import { loginSchema, LoginSchema } from "@/utils/schema/login.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/formInput";
+import { loginSchema, LoginSchema } from '@/utils/schema/login.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import FormInput from '@/components/formInput'
 import {
   Card,
   CardContent,
@@ -16,36 +16,36 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const defaultValues: LoginSchema = {
-  email: "",
-  password: "",
-};
+  email: '',
+  password: '',
+}
 
 export default function LogInPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/";
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirectTo') || '/'
 
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const error = useAuthStore((state) => state.error);
-  const signIn = useAuthStore((state) => state.signIn);
+  const isLoading = useAuthStore((state) => state.isLoading)
+  const error = useAuthStore((state) => state.error)
+  const signIn = useAuthStore((state) => state.signIn)
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues,
-  });
+  })
 
   const onSubmit = async (data: LoginSchema) => {
     try {
-      await signIn(data);
-      router.push(redirectTo);
+      await signIn(data)
+      router.push(redirectTo)
     } catch (e: unknown) {
-      console.log("Sign up error:", e);
+      console.log('Sign up error:', e)
     }
-  };
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -86,10 +86,10 @@ export default function LogInPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="text-primary hover:underline">
                 Sign up
               </Link>
@@ -98,5 +98,5 @@ export default function LogInPage() {
         </form>
       </FormProvider>
     </Card>
-  );
+  )
 }

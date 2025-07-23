@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { Key, useEffect, useState } from "react";
+import { Key, useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import {
   Search,
   Users,
@@ -20,16 +20,16 @@ import {
   Briefcase,
   ChevronRight,
   X,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { ContextPackQueryResult } from "@/lib/weaviate-v3/collections/contextpack";
-import { useAuthStore } from "@/lib/store/auth.store";
-import { useContextPackStore } from "@/lib/store/context-pack.store";
+} from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { ContextPackQueryResult } from '@/lib/weaviate-v3/collections/contextpack'
+import { useAuthStore } from '@/lib/store/auth.store'
+import { useContextPackStore } from '@/lib/store/context-pack.store'
 
 interface Props {
-    isOpen: boolean;
-    onClose: () => void;
-    onCreateNew: () => void;
+  isOpen: boolean
+  onClose: () => void
+  onCreateNew: () => void
 }
 
 export default function ContextPackSelectorModal({
@@ -37,39 +37,39 @@ export default function ContextPackSelectorModal({
   onClose,
   onCreateNew,
 }: Props) {
-  const user = useAuthStore((state) => state.user);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"recent" | "name">("recent");
-  
+  const user = useAuthStore((state) => state.user)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState<'recent' | 'name'>('recent')
+
   // Use the context pack store
-  const { 
+  const {
     contextPacks,
     currentContextPack,
     setCurrentContextPack,
-    fetchContextPacks
-  } = useContextPackStore();
+    fetchContextPacks,
+  } = useContextPackStore()
 
   useEffect(() => {
     if (user && user.id) {
-      fetchContextPacks(user.id);
+      fetchContextPacks(user.id)
     }
-  }, [user, fetchContextPacks]);
+  }, [user, fetchContextPacks])
 
   const handleSelectContextPack = (pack: ContextPackQueryResult) => {
-    setCurrentContextPack(pack);
-    onClose();
-  };
+    setCurrentContextPack(pack)
+    onClose()
+  }
 
   const handleDeleteContextPack = async (id: string) => {
     try {
       // We still use the service directly for deletion
       // Then refresh the list from the store
-      await useContextPackStore.getState().fetchContextPackById(id);
+      await useContextPackStore.getState().fetchContextPackById(id)
       if (user && user.id) {
-        fetchContextPacks(user.id);
+        fetchContextPacks(user.id)
       }
     } catch (error) {
-      console.error("Error deleting context pack:", error);
+      console.error('Error deleting context pack:', error)
     }
   }
 
@@ -118,8 +118,8 @@ export default function ContextPackSelectorModal({
                 <Button
                   type="button"
                   size="sm"
-                  variant={sortBy === "recent" ? "default" : "outline"}
-                  onClick={() => setSortBy("recent")}
+                  variant={sortBy === 'recent' ? 'default' : 'outline'}
+                  onClick={() => setSortBy('recent')}
                   className="h-8 px-3 text-xs cursor-pointer"
                 >
                   Recent
@@ -127,8 +127,8 @@ export default function ContextPackSelectorModal({
                 <Button
                   type="button"
                   size="sm"
-                  variant={sortBy === "name" ? "default" : "outline"}
-                  onClick={() => setSortBy("name")}
+                  variant={sortBy === 'name' ? 'default' : 'outline'}
+                  onClick={() => setSortBy('name')}
                   className="h-8 px-3 text-xs cursor-pointer"
                 >
                   Name
@@ -154,13 +154,13 @@ export default function ContextPackSelectorModal({
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   {searchQuery
-                    ? "No matching context packs"
-                    : "No context packs yet"}
+                    ? 'No matching context packs'
+                    : 'No context packs yet'}
                 </h3>
                 <p className="text-gray-500 mb-4">
                   {searchQuery
-                    ? "Try adjusting your search terms"
-                    : "Create your first context pack to get started"}
+                    ? 'Try adjusting your search terms'
+                    : 'Create your first context pack to get started'}
                 </p>
                 <Button
                   onClick={onCreateNew}
@@ -178,11 +178,11 @@ export default function ContextPackSelectorModal({
                     key={pack.uuid}
                     className={`cursor-pointer transition-all duration-200 rounded-3xl hover:shadow-lg hover:scale-[1.02] border border-gray-200 shadow-sm ${
                       currentContextPack?.uuid === pack.uuid
-                        ? "ring-2 ring-blue-500 bg-blue-50"
-                        : "bg-white hover:bg-gray-50"
+                        ? 'ring-2 ring-blue-500 bg-blue-50'
+                        : 'bg-white hover:bg-gray-50'
                     }`}
                     onClick={() => {
-                      setCurrentContextPack(pack);
+                      setCurrentContextPack(pack)
                     }}
                   >
                     <div className="p-4">
@@ -193,10 +193,15 @@ export default function ContextPackSelectorModal({
                             {pack.properties.contextPackDetails.name}
                           </h3>
                         </div>
-                        <Button variant="ghost" size="icon" className="cursor-pointer" onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteContextPack(pack.uuid);
-                        }}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteContextPack(pack.uuid)
+                          }}
+                        >
                           <Trash2 className="w-4 h-4 text-red-500 hover:text-red-600" />
                         </Button>
                         {currentContextPack?.uuid === pack.uuid && (
@@ -236,7 +241,7 @@ export default function ContextPackSelectorModal({
                       <div className="flex items-start space-x-2 mb-3">
                         <Target className="w-3 h-3 text-purple-600 mt-0.5 flex-shrink-0" />
                         <p className="text-xs text-gray-700 line-clamp-2">
-                          {pack.properties.goal || "No goal specified"}
+                          {pack.properties.goal || 'No goal specified'}
                         </p>
                       </div>
 
@@ -256,7 +261,7 @@ export default function ContextPackSelectorModal({
                                 className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-medium border border-white"
                                 title={participant.name}
                               >
-                                {participant.name.charAt(0) || "?"}
+                                {participant.name.charAt(0) || '?'}
                               </div>
                             ))}
                           {pack.properties.participants.length > 3 && (
@@ -280,10 +285,10 @@ export default function ContextPackSelectorModal({
             <div className="text-sm text-gray-500">
               {currentContextPack && (
                 <span className="ml-2">
-                  •{" "}
+                  •{' '}
                   <span className="font-medium">
                     {currentContextPack.properties.contextPackDetails.name}
-                  </span>{" "}
+                  </span>{' '}
                   selected
                 </span>
               )}
@@ -312,5 +317,5 @@ export default function ContextPackSelectorModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

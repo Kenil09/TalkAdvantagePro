@@ -1,14 +1,13 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-  Clock,
-  FileAudio,
-  FileText,
-  Loader2,
-} from 'lucide-react'
+import { Clock, FileAudio, FileText, Loader2 } from 'lucide-react'
 import { useLibraryStore } from '@/lib/store/library.store'
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { Card, CardContent } from "@/components/ui/card"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { Card, CardContent } from '@/components/ui/card'
 
 const LibraryRecordingStats = () => {
   const [isMounted, setIsMounted] = useState(false)
@@ -19,8 +18,14 @@ const LibraryRecordingStats = () => {
   } = useLibraryStore()
 
   // Get stats data
-  const longestRecording = getLongestRecording?.() || { duration: 0, date: null }
-  const shortestRecording = getShortestRecording?.() || { duration: 0, date: null }
+  const longestRecording = getLongestRecording?.() || {
+    duration: 0,
+    date: null,
+  }
+  const shortestRecording = getShortestRecording?.() || {
+    duration: 0,
+    date: null,
+  }
 
   useEffect(() => {
     setIsMounted(true)
@@ -44,7 +49,6 @@ const LibraryRecordingStats = () => {
   return (
     <div className="p-4 bg-white border-b border-gray-200">
       <div className="grid grid-cols-6 gap-3">
-
         {/* Total Recordings */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -54,7 +58,9 @@ const LibraryRecordingStats = () => {
                   <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center">
                     <FileAudio className="w-3 h-3 text-blue-600" />
                   </div>
-                  <p className="text-xl font-bold text-gray-900">{recordings.length}</p>
+                  <p className="text-xl font-bold text-gray-900">
+                    {recordings.length}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -186,7 +192,6 @@ const LibraryRecordingStats = () => {
             <p>Shortest Recording</p>
           </TooltipContent>
         </Tooltip>
-
       </div>
     </div>
   )

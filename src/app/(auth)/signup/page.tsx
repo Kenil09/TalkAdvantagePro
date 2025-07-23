@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useAuthStore } from "@/lib/store/auth.store";
-import { FormProvider, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { signupSchema, SignupSchema } from "@/utils/schema/signup.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/formInput";
+import { useAuthStore } from '@/lib/store/auth.store'
+import { FormProvider, useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { signupSchema, SignupSchema } from '@/utils/schema/signup.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import FormInput from '@/components/formInput'
 import {
   Card,
   CardContent,
@@ -14,37 +14,37 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Mic } from "lucide-react";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card'
+import { Mic } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const defaultValues: SignupSchema = {
-  displayName: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-};
+  displayName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+}
 
 export default function SignUpPage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const error = useAuthStore((state) => state.error);
-  const signUp = useAuthStore((state) => state.signUp);
+  const isLoading = useAuthStore((state) => state.isLoading)
+  const error = useAuthStore((state) => state.error)
+  const signUp = useAuthStore((state) => state.signUp)
 
   const form = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
     defaultValues,
-  });
+  })
 
   const onSubmit = async (data: SignupSchema) => {
     try {
-      await signUp(data);
-      router.push("/");
+      await signUp(data)
+      router.push('/')
     } catch (e: unknown) {
-      console.log("Sign up error:", e);
+      console.log('Sign up error:', e)
     }
-  };
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -95,10 +95,10 @@ export default function SignUpPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
             <div className="text-center text-sm">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <Link href="/login" className="text-primary hover:underline">
                 Sign in
               </Link>
@@ -107,5 +107,5 @@ export default function SignUpPage() {
         </form>
       </FormProvider>
     </Card>
-  );
+  )
 }

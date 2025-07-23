@@ -409,16 +409,16 @@ export function RecordingHeatmap({
                           date.getFullYear() === selectedYear
                         const dayRecordings = isCurrentYear
                           ? recordings.filter((recording) => {
-                            const recordingDate = new Date(
-                              recording.created_at,
-                            )
-                            return (
-                              recordingDate.getFullYear() ===
-                              date.getFullYear() &&
-                              recordingDate.getMonth() === date.getMonth() &&
-                              recordingDate.getDate() === date.getDate()
-                            )
-                          })
+                              const recordingDate = new Date(
+                                recording.created_at,
+                              )
+                              return (
+                                recordingDate.getFullYear() ===
+                                  date.getFullYear() &&
+                                recordingDate.getMonth() === date.getMonth() &&
+                                recordingDate.getDate() === date.getDate()
+                              )
+                            })
                           : []
                         const count = dayRecordings.length
                         const intensity = getIntensity(count)
@@ -568,9 +568,7 @@ export function RecordingHeatmap({
                                         {recording.filename}
                                       </span>
                                       <span className="text-muted-foreground">
-                                        {formatDuration(
-                                          recording.duration,
-                                        )}
+                                        {formatDuration(recording.duration)}
                                       </span>
                                     </div>
                                   ))}
@@ -699,9 +697,7 @@ export function RecordingHeatmap({
                                       {recording.filename}
                                     </span>
                                     <span className="text-muted-foreground">
-                                      {formatDuration(
-                                        recording.duration,
-                                      )}
+                                      {formatDuration(recording.duration)}
                                     </span>
                                   </div>
                                 ))}

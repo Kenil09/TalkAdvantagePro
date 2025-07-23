@@ -1,5 +1,5 @@
-import Library from "@/views/library"
-import { Metadata } from "next"
+import Library from '@/views/library'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'TalkAdvantage - Library',

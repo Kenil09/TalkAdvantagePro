@@ -113,30 +113,30 @@ const ChatSettingsDialog = () => {
         </DialogHeader>
         <div className="space-y-2">
           {process.env.NEXT_PUBLIC_IS_LOCAL_ENVIRONMENT === 'local' && (
-          <div className="">
-            <Label className="text-gray-700 text-sm block">Model</Label>
-            <Select
-              value={formState.selectedModel}
-              onValueChange={(value) =>
-                setFormState({ ...formState, selectedModel: value })
-              }
-            >
-              <SelectTrigger className="bg-white border-gray-300 text-gray-900 cursor-pointer w-full">
-                <SelectValue placeholder="Select a model..." />
-              </SelectTrigger>
-              <SelectContent
-                className="cursor-pointer w-full z-[9999999] h-full max-h-[250px]"
-                position="popper"
-                sideOffset={5}
+            <div className="">
+              <Label className="text-gray-700 text-sm block">Model</Label>
+              <Select
+                value={formState.selectedModel}
+                onValueChange={(value) =>
+                  setFormState({ ...formState, selectedModel: value })
+                }
               >
-                {models?.map((model: string) => (
-                  <SelectItem key={model} value={model}>
-                    {model}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <SelectTrigger className="bg-white border-gray-300 text-gray-900 cursor-pointer w-full">
+                  <SelectValue placeholder="Select a model..." />
+                </SelectTrigger>
+                <SelectContent
+                  className="cursor-pointer w-full z-[9999999] h-full max-h-[250px]"
+                  position="popper"
+                  sideOffset={5}
+                >
+                  {models?.map((model: string) => (
+                    <SelectItem key={model} value={model}>
+                      {model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
           <div className="flex flex-col gap-1">
             <Label className="text-gray-700 text-sm block" htmlFor="startWord">

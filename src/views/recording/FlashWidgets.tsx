@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import { Button } from '@/components/ui/button'
+import { Settings } from 'lucide-react'
 
 const FlashWidgets = () => {
   return (
@@ -10,7 +10,7 @@ const FlashWidgets = () => {
           variant="ghost"
           size="icon"
           className="size-8 text-gray-500 hover:text-gray-700"
-          onClick={() => console.log("Widget settings clicked")}
+          onClick={() => console.log('Widget settings clicked')}
         >
           <Settings className="size-4" />
         </Button>
@@ -25,7 +25,7 @@ const FlashWidgets = () => {
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default FlashWidgets;
+export default FlashWidgets
