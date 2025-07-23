@@ -24,11 +24,7 @@ import { X, Plus, Trash2, Settings, Zap, Upload, Edit3 } from 'lucide-react'
 import { DialogTitle } from '@radix-ui/react-dialog'
 import { HOTLINK_WIDGETS } from '@/constants/hotlink-widget.constants'
 import { Model } from '@/types/widget.types'
-
-interface HotLinkSettingsModalProps {
-  isOpen: boolean
-  onClose: () => void
-}
+import { useRecordingStore } from "@/lib/store/recording.store"
 
 interface FlashWidget {
   id: string
@@ -39,10 +35,8 @@ interface FlashWidget {
   enabled: boolean
 }
 
-export function HotLinkSettingsModal({
-  isOpen,
-  onClose,
-}: HotLinkSettingsModalProps) {
+export function HotLinkSettingsModal() {
+  const { hotLinkModal, setHotLinkModal } = useRecordingStore()
   const [widgets, setWidgets] = useState<FlashWidget[]>(HOTLINK_WIDGETS)
   const [models, setModels] = useState<Model[]>([])
   const [selectedWidget, setSelectedWidget] = useState<string>('research')
@@ -114,7 +108,7 @@ export function HotLinkSettingsModal({
   }
 
   const handleSave = () => {
-    onClose()
+    setHotLinkModal(false)
   }
 
   const fetchModels = async () => {
@@ -151,8 +145,12 @@ export function HotLinkSettingsModal({
     fetchModels()
   }, [])
 
+  const handleClose = () => {
+    setHotLinkModal(false)
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={hotLinkModal} onOpenChange={handleClose}>
       <DialogContent className="!max-w-[700px] max-h-[90vh] p-0 overflow-y-auto bg-white border-gray-200 [&>button]:hidden">
         {/* Header */}
 
@@ -173,7 +171,7 @@ export function HotLinkSettingsModal({
               variant="ghost"
               size="sm"
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-4 right-4 text-white hover:bg-white/20 cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -483,7 +481,7 @@ export function HotLinkSettingsModal({
             <div className="flex items-center space-x-3">
               <Button
                 variant="outline"
-                onClick={onClose}
+                onClick={handleClose}
                 type="button"
                 className="h-11 text-base px-8 w-24 cursor-pointer"
               >

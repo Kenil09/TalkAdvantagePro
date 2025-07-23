@@ -7,19 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AnalyticsProfileFormData } from "@/types/contextPack";
 import { existingProfile } from "@/utils/contextData";
 import { Edit, Plus, Settings } from "lucide-react";
+import { useRecordingStore } from "@/lib/store/recording.store";
 
 type AnalysisType = "full" | "meeting" | "interview";
 
-const AnalyticsProfile = ({
-  setAddAnalyticsModal,
-  setEditProfile,
-}: {
-  setAddAnalyticsModal: (modal: boolean) => void;
-  setEditProfile: (profile: AnalyticsProfileFormData | null) => void;
-}) => {
+const AnalyticsProfile = () => {
+  const { setEditProfile, setAddAnalyticsModal } = useRecordingStore();
   const [analysisType, setAnalysisType] = useState<AnalysisType>("full");
   const [isProcessing, setIsProcessing] = useState(false);
 

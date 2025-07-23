@@ -9,7 +9,7 @@ import type {
   SignUpWithPasswordCredentials,
 } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import { getError } from "@/utils/error.hrlper";
+import { getError } from "@/utils/error.helper";
 
 /**
  * Custom error type for authentication errors

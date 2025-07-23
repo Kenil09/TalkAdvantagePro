@@ -36,18 +36,11 @@ import { useAuthStore } from "@/lib/store/auth.store";
 import { useRecordingStore } from "@/lib/store/recording.store";
 import { Tag } from "@/types/library.types";
 
-const RecordingSpeech = ({
-  editMode,
-  setHotLinkModal,
-  setAddTagModal,
-}: {
-  editMode: boolean;
-  setHotLinkModal: (modal: boolean) => void;
-  setAddTagModal: (modal: boolean) => void;
-}) => {
+const RecordingSpeech = () => {
   const transcriberRef = useRef<ReturnType<
     AssemblyAI["realtime"]["transcriber"]
   > | null>(null);
+  const { editMode, setHotLinkModal, setAddTagModal } = useRecordingStore();
   const audioStreamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -55,8 +48,6 @@ const RecordingSpeech = ({
   const audioWorkletNodeRef = useRef<AudioWorkletNode | null>(null);
   const user = useAuthStore((state) => state.user);
   const [recordingTime, setRecordingTime] = useState<number>(0);
-
-  // const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
   const {
     recordingState,
@@ -272,7 +263,10 @@ const RecordingSpeech = ({
       // Handle messages from the worklet (audio data)
       workletNode.port.onmessage = (event) => {
         // event.data is the Float32Array from the processor
-        if (transcriberRef.current && !isMuted) {
+        // Get the current mute state directly from the store instead of using the captured value
+        const currentMuteState = useAudioRecordingStore.getState().isMuted;
+        
+        if (transcriberRef.current && !currentMuteState) {
           // Use the correct helper function name
           const pcmData = floatTo16BitPCM(event.data);
           // Send the audio data to the transcriber
@@ -303,7 +297,6 @@ const RecordingSpeech = ({
     }
   }, [
     initializeTranscription,
-    isMuted,
     setAudioChunks,
     setMediaRecorder,
     setRecordingState,
@@ -429,70 +422,83 @@ const RecordingSpeech = ({
     return () => clearInterval(interval);
   }, [recordingState]);
 
+  const renderRecordingControls = () => {
+    if (isConnecting) {
+      return <Loader2 className="h-4 w-4 animate-spin" />;
+    }
+
+    if (recordingState === AUDIO_RECORDING_STATE.idle) {
+      return (
+        <div className="flex items-center space-x-2">
+          <Button
+            className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+            onClick={startRecording}
+          >
+            <CircleDot className="!h-4 !w-4 stroke-red-500" />
+          </Button>
+          <p className="text-sm font-medium text-gray-700">Start Recording</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+          <p className="text-sm font-medium text-gray-700 capitalize">
+            {recordingState}
+          </p>
+          <p className="text-sm text-gray-500">
+            {convertSecondsToTime(recordingTime)}
+          </p>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Button
+            className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+            onClick={toggleMute}
+          >
+            {isMuted ? (
+              <MicOff className="size-4" />
+            ) : (
+              <Mic className="size-4" />
+            )}
+          </Button>
+
+          {recordingState === AUDIO_RECORDING_STATE.recording && (
+            <Button
+              className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={pauseRecording}
+            >
+              <Pause className="size-4" />
+            </Button>
+          )}
+
+          {recordingState === AUDIO_RECORDING_STATE.paused && (
+            <Button
+              className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+              onClick={resumeRecording}
+            >
+              <Play className="size-4 stroke-green-400" />
+            </Button>
+          )}
+
+          <Button
+            className="!px-2 py-2 bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors cursor-pointer"
+            onClick={stopRecording}
+          >
+            <Squircle />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="border-t border-gray-200 bg-white p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          {isConnecting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : recordingState === AUDIO_RECORDING_STATE.idle ? (
-            <div className="flex items-center space-x-2">
-              <Button
-                className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                onClick={startRecording}
-              >
-                <CircleDot className="!h-4 !w-4 stroke-red-500" />
-              </Button>
-              <p className="text-sm font-medium text-gray-700">Start Recording</p>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                <p className="text-sm font-medium text-gray-700 capitalize">
-                  {recordingState}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {convertSecondsToTime(recordingTime)}
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Button
-                  className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                  onClick={toggleMute}
-                >
-                  {isMuted ? (
-                    <MicOff className="size-4" />
-                  ) : (
-                    <Mic className="size-4" />
-                  )}
-                </Button>
-                {recordingState === AUDIO_RECORDING_STATE.recording && (
-                  <Button
-                    className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                    onClick={pauseRecording}
-                  >
-                    <Pause className="size-4" />
-                  </Button>
-                )}
-                {recordingState === AUDIO_RECORDING_STATE.paused && (
-                  <Button
-                    className="!px-2 py-2 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
-                    onClick={resumeRecording}
-                  >
-                    <Play className="size-4 stroke-green-400" />
-                  </Button>
-                )}
-                <Button
-                  className="!px-2 py-2 bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors cursor-pointer"
-                  onClick={stopRecording}
-                >
-                  <Squircle />
-                </Button>
-              </div>
-            </div>
-          )}
+          {renderRecordingControls()}
           <Button
             className="px-4 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-500 transition-colors cursor-pointer"
             onClick={() => setAddTagModal(true)}
