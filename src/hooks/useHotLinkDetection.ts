@@ -1,18 +1,17 @@
-import { useTranscriptionStore } from "@/lib/store/transcription.store";
-import { HotLinkWidget } from "@/types/widget.types";
-import { useEffect, useState } from "react";
+import { useTranscriptionStore } from '@/lib/store/transcription.store'
+import { HotLinkWidget } from '@/types/widget.types'
+import { useEffect, useState } from 'react'
 
 // const STORAGE_KEY = "hotlink-widgets";
-const TRIGGER_COOLDOWN = 5000;
+const TRIGGER_COOLDOWN = 5000
 
 const useHotLinkDetection = (widgets: HotLinkWidget[]) => {
-  const { liveText } = useTranscriptionStore();
+  const { liveText } = useTranscriptionStore()
 
-  const [activeWidget, setActiveWidget] = useState<HotLinkWidget | null>(null);
-  const [lastTriggerTime, setLastTriggerTime] = useState<number>(0);
+  const [activeWidget, setActiveWidget] = useState<HotLinkWidget | null>(null)
+  const [lastTriggerTime, setLastTriggerTime] = useState<number>(0)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [currentWidgets, setCurrentWidgets] =
-    useState<HotLinkWidget[]>(widgets);
+  const [currentWidgets, setCurrentWidgets] = useState<HotLinkWidget[]>(widgets)
 
   //   // Update currentWidgets when widgets prop changes
   //   useEffect(() => {
@@ -45,22 +44,22 @@ const useHotLinkDetection = (widgets: HotLinkWidget[]) => {
   //   }, []);
 
   useEffect(() => {
-    if (!liveText || !currentWidgets?.length) return;
+    if (!liveText || !currentWidgets?.length) return
 
     // Check if we're within the cooldown period
-    const currentTime = Date.now();
+    const currentTime = Date.now()
     if (currentTime - lastTriggerTime < TRIGGER_COOLDOWN) {
-      console.log("Skipping trigger check - within cooldown period");
-      return;
+      console.log('Skipping trigger check - within cooldown period')
+      return
     }
 
     // Check the last few words of the liveText for trigger words
-    const words = liveText.split(/\s+/).filter(Boolean);
-    const lastFiveWords = words.slice(-5);
+    const words = liveText.split(/\s+/).filter(Boolean)
+    const lastFiveWords = words.slice(-5)
 
     // Debug log the words being checked
-    console.log("Checking words:", lastFiveWords);
-    console.log("Current widgets:", currentWidgets);
+    console.log('Checking words:', lastFiveWords)
+    console.log('Current widgets:', currentWidgets)
 
     // Check each widget's trigger words
     for (const widget of currentWidgets) {
@@ -69,42 +68,37 @@ const useHotLinkDetection = (widgets: HotLinkWidget[]) => {
         // Check if any of the last five words match the trigger word (case-insensitive)
         // Remove punctuation from the word before comparison
         const hasMatch = lastFiveWords.some((word) => {
-          const cleanWord = word.replace(/[.,?!]/g, "").toLowerCase();
-          return cleanWord === triggerWord.toLowerCase();
-        });
+          const cleanWord = word.replace(/[.,?!]/g, '').toLowerCase()
+          return cleanWord === triggerWord.toLowerCase()
+        })
 
         if (hasMatch) {
-          console.log(
-            "Widget triggered:",
-            widget.name,
-            "by word:",
-            triggerWord
-          );
-          setActiveWidget(widget);
-          setLastTriggerTime(currentTime);
-          return;
+          console.log('Widget triggered:', widget.name, 'by word:', triggerWord)
+          setActiveWidget(widget)
+          setLastTriggerTime(currentTime)
+          return
         }
       }
     }
-  }, [liveText, currentWidgets, lastTriggerTime]);
+  }, [liveText, currentWidgets, lastTriggerTime])
 
   const clearActiveWidget = () => {
-    console.log("clearing active widget");
-    setActiveWidget(null);
-  };
+    console.log('clearing active widget')
+    setActiveWidget(null)
+  }
 
   const setDummy = () => {
     setActiveWidget({
-      id: "github",
-      name: "GitHub Widget",
-      triggerWords: ["github", "code", "repository"],
-      model: "Mistral 7B Instruct (Free)",
+      id: 'github',
+      name: 'GitHub Widget',
+      triggerWords: ['github', 'code', 'repository'],
+      model: 'Mistral 7B Instruct (Free)',
       prompt:
-        "Based on the conversation provided below, your job is to carefully analyze the recent discussion to identify any problems, challenges, issues, or gaps mentioned. Then automatically search for relevant GitHub repositories that could help address these problems, prioritizing repositories with high star counts, recent activity, and good documentation...",
-    });
-  };
+        'Based on the conversation provided below, your job is to carefully analyze the recent discussion to identify any problems, challenges, issues, or gaps mentioned. Then automatically search for relevant GitHub repositories that could help address these problems, prioritizing repositories with high star counts, recent activity, and good documentation...',
+    })
+  }
 
-  return { activeWidget, clearActiveWidget, setDummy };
-};
+  return { activeWidget, clearActiveWidget, setDummy }
+}
 
-export default useHotLinkDetection;
+export default useHotLinkDetection

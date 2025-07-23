@@ -1,23 +1,23 @@
-import { AssemblyAI } from "assemblyai";
+import { AssemblyAI } from 'assemblyai'
 
 export const assemblyClient = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
+})
 
 // Update the transcribeAudioFromUrl function to include additional features
 export async function transcribeAudioFromUrl(
   audioUrl: string,
   options: {
-    speakerLabels?: boolean;
-    timestamps?: boolean;
-    sentimentAnalysis?: boolean;
-    topicDetection?: boolean;
-    summarization?: boolean;
-    summaryType?: "bullets" | "paragraph" | "headline";
-    summaryModel?: "informative" | "conversational";
-    webhookUrl?: string;
-    entityDetection?: boolean;
-  }
+    speakerLabels?: boolean
+    timestamps?: boolean
+    sentimentAnalysis?: boolean
+    topicDetection?: boolean
+    summarization?: boolean
+    summaryType?: 'bullets' | 'paragraph' | 'headline'
+    summaryModel?: 'informative' | 'conversational'
+    webhookUrl?: string
+    entityDetection?: boolean
+  },
 ) {
   try {
     // Validate file size if possible
@@ -27,11 +27,11 @@ export async function transcribeAudioFromUrl(
       audio: audioUrl,
       speaker_labels: options.speakerLabels,
       word_boost: [
-        "meeting",
-        "project",
-        "deadline",
-        "action item",
-        "follow up",
+        'meeting',
+        'project',
+        'deadline',
+        'action item',
+        'follow up',
       ],
       auto_highlights: true,
       punctuate: true,
@@ -43,7 +43,7 @@ export async function transcribeAudioFromUrl(
       summary_model: options.summaryModel,
       webhook_url: options.webhookUrl,
       entity_detection: options.entityDetection,
-    });
+    })
 
     return {
       success: true,
@@ -56,25 +56,25 @@ export async function transcribeAudioFromUrl(
       summary: transcript.summary,
       entities: transcript.entities,
       error: null,
-    };
+    }
   } catch (error) {
-    console.error("Error transcribing audio:", error);
+    console.error('Error transcribing audio:', error)
 
     // Improved error handling with more specific messages
-    let errorMessage = "Unknown error occurred during transcription";
+    let errorMessage = 'Unknown error occurred during transcription'
 
     if (error instanceof Error) {
-      errorMessage = error.message;
+      errorMessage = error.message
 
       // Parse API-specific errors if available
-      if ("status" in error && typeof error.status === "number") {
+      if ('status' in error && typeof error.status === 'number') {
         if (error.status === 413) {
           errorMessage =
-            "File size exceeds the maximum limit (5GB or 10 hours of audio)";
+            'File size exceeds the maximum limit (5GB or 10 hours of audio)'
         } else if (error.status === 400) {
-          errorMessage = "Invalid request: " + errorMessage;
+          errorMessage = 'Invalid request: ' + errorMessage
         } else if (error.status >= 500) {
-          errorMessage = "Server error occurred. Please try again later.";
+          errorMessage = 'Server error occurred. Please try again later.'
         }
       }
     }
@@ -86,35 +86,35 @@ export async function transcribeAudioFromUrl(
       words: null,
       utterances: null,
       error: errorMessage,
-    };
+    }
   }
 }
 
 export async function generateRealtimeToken(apiKey: string): Promise<string> {
   try {
     const response = await fetch(
-      "https://api.assemblyai.com/v2/realtime/token",
+      'https://api.assemblyai.com/v2/realtime/token',
       {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: apiKey,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           expires_in: 3600, // Token valid for 1 hour
         }),
-      }
-    );
+      },
+    )
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Failed to generate token");
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to generate token')
     }
 
-    const data = await response.json();
-    return data.token;
+    const data = await response.json()
+    return data.token
   } catch (error) {
-    console.error("Error generating token:", error);
-    throw error;
+    console.error('Error generating token:', error)
+    throw error
   }
 }

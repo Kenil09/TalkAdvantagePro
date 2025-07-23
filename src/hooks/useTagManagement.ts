@@ -1,11 +1,11 @@
-import { DATABASE_TABLE } from "@/config"
-import { createClient } from "@/lib/supabase/client"
-import { Tag } from "@/types/library.types"
-import { useCallback, useEffect, useState } from "react"
+import { DATABASE_TABLE } from '@/config'
+import { createClient } from '@/lib/supabase/client'
+import { Tag } from '@/types/library.types'
+import { useCallback, useEffect, useState } from 'react'
 
 function useTagManagement() {
   const [recordingTags, setRecordingTags] = useState<Record<string, Tag[]>>({})
-  
+
   const tagsToJSON = (tags: Tag[]): string => {
     return JSON.stringify(
       tags.map((tag) => ({
@@ -35,20 +35,20 @@ function useTagManagement() {
     try {
       console.log('Saving tags for recording:', { recordingId, tags })
       const tagsJSON = tagsToJSON(tags)
-        // Save tags in Supabase
-        const supabase = createClient()
-        const { error } = await supabase
-          .from(DATABASE_TABLE.RECORDINGS)
-          .update({
-            tags: tagsJSON,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', recordingId)
+      // Save tags in Supabase
+      const supabase = createClient()
+      const { error } = await supabase
+        .from(DATABASE_TABLE.RECORDINGS)
+        .update({
+          tags: tagsJSON,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', recordingId)
 
-        if (error) {
-          throw error
-        }
-        console.log('Tags saved to cloud:', { recordingId, tags })
+      if (error) {
+        throw error
+      }
+      console.log('Tags saved to cloud:', { recordingId, tags })
 
       // Update local state
       setRecordingTags((prev) => {
@@ -67,23 +67,23 @@ function useTagManagement() {
 
   const loadTags = useCallback(async () => {
     try {
-        // Load tags from Supabase recordings table
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from(DATABASE_TABLE.RECORDINGS)
-          .select('id, tags')
+      // Load tags from Supabase recordings table
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from(DATABASE_TABLE.RECORDINGS)
+        .select('id, tags')
 
-        if (error) {
-          throw error
+      if (error) {
+        throw error
+      }
+
+      const tags: Record<string, Tag[]> = {}
+      data?.forEach((recording) => {
+        if (recording.tags) {
+          tags[recording.id] = JSONToTags(recording.tags)
         }
-
-        const tags: Record<string, Tag[]> = {}
-        data?.forEach((recording) => {
-          if (recording.tags) {
-            tags[recording.id] = JSONToTags(recording.tags)
-          }
-        })
-        setRecordingTags(tags)
+      })
+      setRecordingTags(tags)
     } catch (error) {
       console.error('Error loading tags:', error)
     }

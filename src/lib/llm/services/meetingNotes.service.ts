@@ -4,7 +4,7 @@ import LLM from '@/lib/llm'
 import {
   SYSTEM_PROMPT,
   USER_PROMPT,
-  tiptapSchema
+  tiptapSchema,
 } from '@/lib/llm/prompts/meetingnotes.prompt'
 import { Content } from '@tiptap/react'
 

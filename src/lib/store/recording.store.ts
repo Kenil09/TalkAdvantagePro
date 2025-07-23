@@ -1,10 +1,13 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { generateConversationCards, generateCardUpdate } from '../llm/services/conversationcard.service'
-import { useContextPackStore } from "./context-pack.store"
-import { useTranscriptionStore } from "./transcription.store"
-import { Tag } from "@/types/library.types"
-import { AnalyticsProfileFormData } from "@/types/contextPack"
+import {
+  generateConversationCards,
+  generateCardUpdate,
+} from '../llm/services/conversationcard.service'
+import { useContextPackStore } from './context-pack.store'
+import { useTranscriptionStore } from './transcription.store'
+import { Tag } from '@/types/library.types'
+import { AnalyticsProfileFormData } from '@/types/contextPack'
 
 export interface CardContent {
   paragraph: string
@@ -88,7 +91,9 @@ interface RecordingStore {
 
   // Async actions
   fetchConversationCards: () => Promise<ConversationCard[] | undefined>
-  updateConversationCards: (currentActiveCard: { id: string; state: string } | null) => void
+  updateConversationCards: (
+    currentActiveCard: { id: string; state: string } | null,
+  ) => void
   fetchModels: () => Promise<void>
   setTags: (tags: Tag[]) => void
 }
@@ -136,25 +141,30 @@ export const useRecordingStore = create<RecordingStore>()(
         })),
       setTags: (tags: Tag[]) => set({ tags }),
 
-      updateConversationCards: async (currentActiveCard: { id: string; state: string } | null) => {
+      updateConversationCards: async (
+        currentActiveCard: { id: string; state: string } | null,
+      ) => {
         const { currentContextPack } = useContextPackStore.getState()
         const { liveText } = useTranscriptionStore.getState()
         const { conversationCardsSelectedModel } = get()
-        const cards = await generateCardUpdate({
-          user_name: currentContextPack?.properties?.name ?? '',
-          person: currentContextPack?.properties?.nonUserName ?? '',
-          person_relationship: 'client',
-          goal: currentContextPack?.properties?.goal ?? '',
-          goal_secondary: currentContextPack?.properties?.subGoals?.[0] ?? '',
-          document_context:
-            currentContextPack?.properties?.contextFactors ?? '',
-          specificity_level: 'medium',
-          date: new Date().toISOString().split('T')[0],
-          cards: get().conversationCards,
-          liveTranscript: liveText,
-          currentActiveCard: currentActiveCard?.id || '',
-          currentActiveCardState: currentActiveCard?.state || '',
-        }, conversationCardsSelectedModel)
+        const cards = await generateCardUpdate(
+          {
+            user_name: currentContextPack?.properties?.name ?? '',
+            person: currentContextPack?.properties?.nonUserName ?? '',
+            person_relationship: 'client',
+            goal: currentContextPack?.properties?.goal ?? '',
+            goal_secondary: currentContextPack?.properties?.subGoals?.[0] ?? '',
+            document_context:
+              currentContextPack?.properties?.contextFactors ?? '',
+            specificity_level: 'medium',
+            date: new Date().toISOString().split('T')[0],
+            cards: get().conversationCards,
+            liveTranscript: liveText,
+            currentActiveCard: currentActiveCard?.id || '',
+            currentActiveCardState: currentActiveCard?.state || '',
+          },
+          conversationCardsSelectedModel,
+        )
         set({ conversationCards: cards.updated_cards })
       },
 
@@ -188,7 +198,10 @@ export const useRecordingStore = create<RecordingStore>()(
 
         try {
           const { conversationCardsSelectedModel } = get()
-          const rawResponse = await generateConversationCards(context, conversationCardsSelectedModel)
+          const rawResponse = await generateConversationCards(
+            context,
+            conversationCardsSelectedModel,
+          )
           const cards = rawResponse.cards.map(
             (card: ConversationCard, index: number) => ({
               ...card,

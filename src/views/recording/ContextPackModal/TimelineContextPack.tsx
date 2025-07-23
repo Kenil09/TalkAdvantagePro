@@ -1,35 +1,33 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ContextPackForm } from "@/lib/weaviate-v3/collections/contextpack";
-import { Plus, X } from "lucide-react";
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
+import { Plus, X } from 'lucide-react'
+import { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 
 const TimelineContextPack = () => {
-  const [timelineInput, setTimeLineInput] = useState("");
+  const [timelineInput, setTimeLineInput] = useState('')
 
-  const { register, watch, setValue } = useFormContext<ContextPackForm>();
+  const { register, watch, setValue } = useFormContext<ContextPackForm>()
 
-  const formData = watch();
+  const formData = watch()
 
   const addTimelineItem = () => {
-    if (!timelineInput.trim()) return;
-    const newTimelineItems = [...formData.timeline];
-    newTimelineItems.push(timelineInput.trim());
-    setValue("timeline", newTimelineItems);
-    setTimeLineInput("");
-  };
+    if (!timelineInput.trim()) return
+    const newTimelineItems = [...formData.timeline]
+    newTimelineItems.push(timelineInput.trim())
+    setValue('timeline', newTimelineItems)
+    setTimeLineInput('')
+  }
 
   const removeTimelineItem = (id: string) => {
-    const newTimelineItems = formData.timeline.filter(
-      (item) => item !== id
-    );
-    setValue("timeline", newTimelineItems);
-    setTimeLineInput("");
-  };
+    const newTimelineItems = formData.timeline.filter((item) => item !== id)
+    setValue('timeline', newTimelineItems)
+    setTimeLineInput('')
+  }
 
   return (
     <div className="py-4 flex flex-col ">
@@ -56,9 +54,9 @@ const TimelineContextPack = () => {
                   placeholder="Add timeline item"
                   className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addTimelineItem();
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addTimelineItem()
                     }
                   }}
                 />
@@ -101,7 +99,7 @@ const TimelineContextPack = () => {
               </Label>
               <Textarea
                 id="alliancesRivalries"
-                {...register("preInteractionNotes")}
+                {...register('preInteractionNotes')}
                 placeholder="Any notes or preparation points before the interaction..."
                 rows={3}
                 className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
@@ -117,7 +115,7 @@ const TimelineContextPack = () => {
               </Label>
               <Textarea
                 id="contextFactors"
-                {...register("contextFactors")}
+                {...register('contextFactors')}
                 placeholder="Any notes or preparation points before the interaction..."
                 rows={3}
                 className="text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
@@ -127,7 +125,7 @@ const TimelineContextPack = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TimelineContextPack;
+export default TimelineContextPack

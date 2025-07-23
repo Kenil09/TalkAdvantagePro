@@ -4,7 +4,7 @@ import { endOfDay, isWithinInterval, startOfDay } from 'date-fns'
 import { Calendar, FolderOpen } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useTagManagement from '@/hooks/useTagManagement'
-import RenderRecordingItem from "@/views/library/LibraryCalendar/FileTabs/RenderRecordingItem"
+import RenderRecordingItem from '@/views/library/LibraryCalendar/FileTabs/RenderRecordingItem'
 
 function FileTabs() {
   const { recordingTags } = useTagManagement()
@@ -82,9 +82,9 @@ function FileTabs() {
         const isInRange =
           dateRange?.from && dateRange?.to
             ? isWithinInterval(recordingDate, {
-              start: startOfDay(dateRange.from),
-              end: endOfDay(dateRange.to),
-            })
+                start: startOfDay(dateRange.from),
+                end: endOfDay(dateRange.to),
+              })
             : true
 
         return isOnDate && isInRange
@@ -256,9 +256,9 @@ function FileTabs() {
               ? `${selectedHourInfo.day} ${selectedHourInfo.hour}:00`
               : viewMode === 'calendar' && selectedDate
                 ? new Date(selectedDate).toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                })
+                    month: 'short',
+                    day: 'numeric',
+                  })
                 : isWeekView && viewMode === 'heatmap'
                   ? `Week ${currentWeek}`
                   : 'By Date'}
@@ -281,10 +281,11 @@ function FileTabs() {
             <div className="text-xs text-muted-foreground">Sort by:</div>
             <div className="flex gap-2">
               <button
-                className={`px-2 py-1 text-xs rounded ${sortBy === 'name'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted hover:bg-muted/80'
-                  }`}
+                className={`px-2 py-1 text-xs rounded ${
+                  sortBy === 'name'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80'
+                }`}
                 onClick={() => {
                   if (sortBy === 'name') {
                     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -297,10 +298,11 @@ function FileTabs() {
                 Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
               </button>
               <button
-                className={`px-2 py-1 text-xs rounded ${sortBy === 'date'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted hover:bg-muted/80'
-                  }`}
+                className={`px-2 py-1 text-xs rounded ${
+                  sortBy === 'date'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80'
+                }`}
                 onClick={() => {
                   if (sortBy === 'date') {
                     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -369,7 +371,10 @@ function FileTabs() {
                 </div>
               )}
 
-              {(selectedHourRecordings.length > 0 ? selectedHourRecordings : sortedFilteredDateRecordings).map((recording, key) => (
+              {(selectedHourRecordings.length > 0
+                ? selectedHourRecordings
+                : sortedFilteredDateRecordings
+              ).map((recording, key) => (
                 <RenderRecordingItem key={key} recording={recording} />
               ))}
             </div>
@@ -382,7 +387,8 @@ function FileTabs() {
                     ? 'No recordings matching your search for this week'
                     : 'No recordings for this week'
                   : selectedDate
-                    ? searchQuery && getRecordingsForDate(selectedDate).length > 0
+                    ? searchQuery &&
+                      getRecordingsForDate(selectedDate).length > 0
                       ? 'No recordings matching your search for this date'
                       : 'No recordings for this date'
                     : 'Select a date or hour to view recordings'}

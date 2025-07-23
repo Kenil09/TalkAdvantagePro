@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { DATABASE_TABLE } from "@/config"
+import { DATABASE_TABLE } from '@/config'
 import { useLibraryStore } from '@/lib/store/library.store'
 import { useSettingsStore } from '@/lib/store/user-setting.store'
 import { createClient } from '@/lib/supabase/client'
@@ -38,27 +38,27 @@ const TranscriptDialog = () => {
       let transcriptText: string | null = null
       let summaryText: string | null = null
 
-        // For cloud recordings, fetch from Supabase as before
-        console.log('Downloading cloud recording transcript', { recordingId })
-        const supabase = createClient()
+      // For cloud recordings, fetch from Supabase as before
+      console.log('Downloading cloud recording transcript', { recordingId })
+      const supabase = createClient()
 
-        // Get transcript and summary
-        const { data, error } = await supabase
-          .from(DATABASE_TABLE.TRANSCRIPTS)
-          .select('full_text, summary')
-          .eq('recording_id', recordingId)
-          .single()
+      // Get transcript and summary
+      const { data, error } = await supabase
+        .from(DATABASE_TABLE.TRANSCRIPTS)
+        .select('full_text, summary')
+        .eq('recording_id', recordingId)
+        .single()
 
-        if (error || !data) {
-          console.error('Error fetching transcript:', error)
-          alert(
-            'No transcript available. This recording may not have been processed yet.',
-          )
-          return
-        }
+      if (error || !data) {
+        console.error('Error fetching transcript:', error)
+        alert(
+          'No transcript available. This recording may not have been processed yet.',
+        )
+        return
+      }
 
-        transcriptText = data.full_text
-        summaryText = data.summary
+      transcriptText = data.full_text
+      summaryText = data.summary
 
       // Create a blob with the transcript text, including summary if available
       let finalText = transcriptText || ''

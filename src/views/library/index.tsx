@@ -5,7 +5,7 @@ import { useLibraryStore } from '@/lib/store/library.store'
 
 import LibraryRecordingStats from '@/views/library/LibraryRecordingStats'
 import LibraryCalendar from '@/views/library/LibraryCalendar'
-import MediaPlayer from "./LibraryCalendar/MediaPlayer"
+import MediaPlayer from './LibraryCalendar/MediaPlayer'
 
 const Library = () => {
   const {
@@ -66,7 +66,7 @@ const Library = () => {
           <LibrarySearchBar />
           <LibraryCalendar />
           <MediaPlayer />
-          {/* Delete Dialog  TODO:: REMOVE */} 
+          {/* Delete Dialog  TODO:: REMOVE */}
           {/* <DeleteDialog /> */}
           {/* Calendar TODO:: REMOVE*/}
           {/* Transcript Dialog TODO:: REMOVE */}
@@ -74,7 +74,6 @@ const Library = () => {
           {/* Add RenameDialog TODO:: REMOVE*/}
           {/* <RenameDialog  TODO:: REMOVE/> */}
         </div>
-
       </div>
     </div>
   )

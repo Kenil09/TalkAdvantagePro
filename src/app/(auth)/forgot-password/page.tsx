@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { FormProvider, useForm } from "react-hook-form";
-import Link from "next/link";
-import { Mic } from "lucide-react";
-import { useAuthStore } from "@/lib/store/auth.store";
-import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/formInput";
+import { FormProvider, useForm } from 'react-hook-form'
+import Link from 'next/link'
+import { Mic } from 'lucide-react'
+import { useAuthStore } from '@/lib/store/auth.store'
+import { zodResolver } from '@hookform/resolvers/zod'
+import FormInput from '@/components/formInput'
 import {
   Card,
   CardContent,
@@ -13,38 +13,38 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   ForgotPasswordSchema,
   forgotPasswordSchema,
-} from "@/utils/schema/forgotpassword.schema";
-import { useRouter } from "next/navigation";
+} from '@/utils/schema/forgotpassword.schema'
+import { useRouter } from 'next/navigation'
 
 const defaultValues: ForgotPasswordSchema = {
-  email: "",
-};
+  email: '',
+}
 
 export default function ForgotPasswordPage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const error = useAuthStore((state) => state.error);
-  const forgotPassword = useAuthStore((state) => state.forgotPassword);
+  const isLoading = useAuthStore((state) => state.isLoading)
+  const error = useAuthStore((state) => state.error)
+  const forgotPassword = useAuthStore((state) => state.forgotPassword)
 
   const form = useForm<ForgotPasswordSchema>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues,
-  });
+  })
 
   const onSubmit = async (data: ForgotPasswordSchema) => {
     try {
-      await forgotPassword({ email: data.email });
-      router.push("/");
+      await forgotPassword({ email: data.email })
+      router.push('/')
     } catch (e: unknown) {
-      console.log("Sign up error:", e);
+      console.log('Sign up error:', e)
     }
-  };
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -77,11 +77,11 @@ export default function ForgotPasswordPage() {
           <CardFooter className="flex flex-col space-y-2">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading
-                ? "Sending Reset Password Link..."
-                : "Send Reset Password Link"}
+                ? 'Sending Reset Password Link...'
+                : 'Send Reset Password Link'}
             </Button>
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="text-primary hover:underline">
                 Sign up
               </Link>
@@ -90,5 +90,5 @@ export default function ForgotPasswordPage() {
         </form>
       </FormProvider>
     </Card>
-  );
+  )
 }

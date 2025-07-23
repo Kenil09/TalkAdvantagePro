@@ -65,8 +65,7 @@ const ContextPackModal = ({
     defaultValues: formDefaultValues,
   })
 
-  const { setValue } = methods;
-
+  const { setValue } = methods
 
   useEffect(() => {
     const getData = async () => {
@@ -85,22 +84,21 @@ const ContextPackModal = ({
     }
   }, [isEditContextPack.uuid, setValue])
 
-
   const createContextPack = async (data: ContextPackForm, userId: string) => {
     try {
-        await contextPackService.create({ ...data, userId })
-        // Fetch context packs again to update the list
-        fetchContextPacks(userId)
+      await contextPackService.create({ ...data, userId })
+      // Fetch context packs again to update the list
+      fetchContextPacks(userId)
     } catch (error) {
-        alert(error)
+      alert(error)
     }
   }
 
   const updateContextPack = async (data: ContextPackForm, uuid: string) => {
     try {
-        await contextPackService.update(uuid, data)
+      await contextPackService.update(uuid, data)
     } catch (error) {
-        alert(error)
+      alert(error)
     }
   }
 

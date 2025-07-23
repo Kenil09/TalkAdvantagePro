@@ -1,12 +1,12 @@
-import { create } from "zustand";
+import { create } from 'zustand'
 import { format } from 'date-fns'
 import {
   TranscriptionStore,
   TranscriptEntry,
   WordDetectionResult,
-} from "@/types/transcription.types";
-import { DATABASE_TABLE, TRANSCRIPTION_TIME_WINDOW } from "@/config";
-import { createClient } from "../supabase/client";
+} from '@/types/transcription.types'
+import { DATABASE_TABLE, TRANSCRIPTION_TIME_WINDOW } from '@/config'
+import { createClient } from '../supabase/client'
 
 export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
   isConnecting: false,
@@ -15,72 +15,82 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
   isTranscribing: false,
   setIsTranscribing: (transcribing) => set({ isTranscribing: transcribing }),
 
-  liveText: "",
+  liveText: '',
   setLiveText: (textOrFn) =>
     set((state) => ({
       liveText:
-        typeof textOrFn === "function" ? textOrFn(state.liveText) : textOrFn,
+        typeof textOrFn === 'function' ? textOrFn(state.liveText) : textOrFn,
     })),
 
   transcriptHistory: [],
 
   addTranscriptEntry: (entry: TranscriptEntry) => {
     const updated = [...get().transcriptHistory, entry]
-    set({ transcriptHistory: updated });
+    set({ transcriptHistory: updated })
   },
 
   getLastFewMinTranscript: () => {
-    const now = Date.now();
+    const now = Date.now()
     return get()
-      .transcriptHistory.filter((e) => e.timestamp >= now - TRANSCRIPTION_TIME_WINDOW)
+      .transcriptHistory.filter(
+        (e) => e.timestamp >= now - TRANSCRIPTION_TIME_WINDOW,
+      )
       .map((e) => e.text)
-      .join(" ");
+      .join(' ')
   },
 
-  detectWords: (wordsToDetect: string[], transcript?: string): WordDetectionResult => {
+  detectWords: (
+    wordsToDetect: string[],
+    transcript?: string,
+  ): WordDetectionResult => {
     // Use provided transcript if available, otherwise get from store
-    let textToSearch = transcript;
-    
+    let textToSearch = transcript
+
     if (typeof transcript !== 'string') {
       // Get the current transcript text (either live text or recent history)
-      const liveText = get().liveText;
-      textToSearch = liveText;
+      const liveText = get().liveText
+      textToSearch = liveText
     }
-    
+
     // Initialize result
     const result: WordDetectionResult = {
       matchCount: 0,
       matchedWords: [],
-    };
-    
+    }
+
     // Return early if no text to search or no words to detect
     if (!textToSearch || !wordsToDetect.length) {
-      return result;
+      return result
     }
-    
-    // Check each word in the array
-    wordsToDetect.forEach(word => {
-      // Create case-insensitive regex with word boundary
-      const regex = new RegExp(`\\b${word}\\b`, 'gi');
 
-      let match;
+    // Check each word in the array
+    wordsToDetect.forEach((word) => {
+      // Create case-insensitive regex with word boundary
+      const regex = new RegExp(`\\b${word}\\b`, 'gi')
+
+      let match
       while ((match = regex.exec(textToSearch as string)) !== null) {
-        result.matchCount++;
+        result.matchCount++
         result.matchedWords.push({
           word,
           index: match.index,
-        });
+        })
       }
-    });
-    
-    return result;
+    })
+
+    return result
   },
 
   uploadRecording: async (
-    uploadData: { user_id?: string; transcript: string; tags: string; duration: number },
-    blob: Blob
+    uploadData: {
+      user_id?: string
+      transcript: string
+      tags: string
+      duration: number
+    },
+    blob: Blob,
   ) => {
-    const supabase = createClient();
+    const supabase = createClient()
     try {
       // Step 1: Generate filename
       const now = new Date()
@@ -94,14 +104,14 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename, path, contentType }),
       })
-  
+
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error || 'Failed to get presigned URL')
       }
       // Step 3: Get presigned URL from backend
       const { url } = await response.json()
-  
+
       // Step 4: Upload file to Cloudflare R2 using PUT
       const uploadRes = await fetch(url, {
         method: 'PUT',
@@ -110,11 +120,11 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
         },
         body: blob,
       })
-  
+
       if (!uploadRes.ok) {
         throw new Error(`Upload failed with status ${uploadRes.status}`)
       }
-      
+
       // Step 5: insert into supabase
       const { error } = await supabase.from(DATABASE_TABLE.RECORDINGS).insert({
         ...uploadData,
@@ -124,11 +134,11 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
         recording_time: format(now, 'HH:mm:ss'),
         duration: uploadData.duration,
       })
-  
+
       if (error) {
         throw new Error(error.message)
       }
-  
+
       return {
         success: true,
         filename: filename,
@@ -142,4 +152,4 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
       }
     }
   },
-}));
+}))

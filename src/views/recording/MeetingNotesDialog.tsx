@@ -20,12 +20,8 @@ import {
 } from '@/components/ui/select'
 
 const MeetingNotesDialog = () => {
-  const {
-    models,
-    meetingNotesSelectedModel,
-    fetchModels,
-    setSelectedModel,
-  } = useRecordingStore()
+  const { models, meetingNotesSelectedModel, fetchModels, setSelectedModel } =
+    useRecordingStore()
   const [open, setOpen] = useState<boolean>(false)
 
   const [formState, setFormState] = useState({

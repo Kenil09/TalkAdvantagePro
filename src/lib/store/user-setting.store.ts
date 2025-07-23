@@ -1,163 +1,163 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-export type ThemeOption = "light" | "dark" | "system";
-export type AudioQualityOption = "low" | "medium" | "high";
-export type StorageLocationType = "local" | "cloud";
+export type ThemeOption = 'light' | 'dark' | 'system'
+export type AudioQualityOption = 'low' | 'medium' | 'high'
+export type StorageLocationType = 'local' | 'cloud'
 export type QuestionType =
-  | "YES_NO"
-  | "MULTIPLE_CHOICE"
-  | "MULTIPLE_CHOICE_FILL"
-  | "SPEAKER_IDENTIFICATION"
-  | "MEETING_TYPE"
-  | "OPEN_ENDED";
+  | 'YES_NO'
+  | 'MULTIPLE_CHOICE'
+  | 'MULTIPLE_CHOICE_FILL'
+  | 'SPEAKER_IDENTIFICATION'
+  | 'MEETING_TYPE'
+  | 'OPEN_ENDED'
 
 interface SettingsState {
   // General Settings
-  theme: ThemeOption;
-  autoSave: boolean;
-  audioQuality: AudioQualityOption;
-  volume: number;
+  theme: ThemeOption
+  autoSave: boolean
+  audioQuality: AudioQualityOption
+  volume: number
 
   // Recording Settings
   silenceDetection: {
-    enabled: boolean;
-    thresholdMinutes: number;
-    autoStopSeconds: number;
-  };
+    enabled: boolean
+    thresholdMinutes: number
+    autoStopSeconds: number
+  }
 
   // Widget Settings
-  enableDragDrop: boolean;
-  widgetPositions: Record<string, { x: number; y: number }>;
-  widgetSizes: Record<string, { width: number; height: number }>;
-  minimizedWidgets: string[];
-  maximizedWidget: string | null;
-  talkingPointsEnabled: boolean;
+  enableDragDrop: boolean
+  widgetPositions: Record<string, { x: number; y: number }>
+  widgetSizes: Record<string, { width: number; height: number }>
+  minimizedWidgets: string[]
+  maximizedWidget: string | null
+  talkingPointsEnabled: boolean
 
   // API Keys
-  assemblyAIKey: string;
-  openRouterKey: string;
+  assemblyAIKey: string
+  openRouterKey: string
 
   // AI Model Settings
-  aiBaseURL: string;
-  aiProvider: "openai" | "openrouter" | "custom";
-  aiModel: string;
-  aiRefererURL: string;
-  aiSiteName: string;
+  aiBaseURL: string
+  aiProvider: 'openai' | 'openrouter' | 'custom'
+  aiModel: string
+  aiRefererURL: string
+  aiSiteName: string
 
   // System Props
   systemProps: {
     curiosityEngine: {
-      enabled: boolean;
-      questionCount: number;
-      allowedQuestionTypes: QuestionType[];
-      customizableGuidelines: string;
-      autoGenerateOnAnalysis: boolean;
-    };
+      enabled: boolean
+      questionCount: number
+      allowedQuestionTypes: QuestionType[]
+      customizableGuidelines: string
+      autoGenerateOnAnalysis: boolean
+    }
     conversationCompass: {
-      enabled: boolean;
-      visualizationType: "tree" | "flow" | "network";
-      autoUpdateOnAnalysis: boolean;
+      enabled: boolean
+      visualizationType: 'tree' | 'flow' | 'network'
+      autoUpdateOnAnalysis: boolean
       // Guided Conversations settings
       guidedConversations: {
-        enabled: boolean;
-        predictionPrompt: string;
-        goalEvaluationPrompt: string;
-        defaultGoal: string;
-        maxPredictions: number;
-      };
+        enabled: boolean
+        predictionPrompt: string
+        goalEvaluationPrompt: string
+        defaultGoal: string
+        maxPredictions: number
+      }
       // Tracking Mode settings
       trackingMode: {
-        enabled: boolean;
-        expansionPrompt: string;
-        topicDriftThreshold: number;
-        silenceTimeoutSeconds: number;
-        maxThoughtsHistory: number;
-      };
-    };
-  };
+        enabled: boolean
+        expansionPrompt: string
+        topicDriftThreshold: number
+        silenceTimeoutSeconds: number
+        maxThoughtsHistory: number
+      }
+    }
+  }
 
   // Storage Settings
-  storageLocation: StorageLocationType;
+  storageLocation: StorageLocationType
 
   // Context Pack
-  contextPackEnabled: boolean;
+  contextPackEnabled: boolean
 
   // Methods
-  setTheme: (theme: ThemeOption) => void;
-  setAutoSave: (autoSave: boolean) => void;
-  setAudioQuality: (quality: AudioQualityOption) => void;
-  setVolume: (volume: number) => void;
-  setAssemblyAIKey: (key: string) => void;
-  setOpenRouterKey: (key: string) => void;
-  setAIBaseURL: (url: string) => void;
-  setAIProvider: (provider: "openai" | "openrouter" | "custom") => void;
-  setAIModel: (model: string) => void;
-  setAIRefererURL: (url: string) => void;
-  setAISiteName: (name: string) => void;
-  setStorageLocation: (location: StorageLocationType) => void;
-  setContextPackEnabled: (enabled: boolean) => void;
-  setTalkingPointsEnabled: (enabled: boolean) => void;
+  setTheme: (theme: ThemeOption) => void
+  setAutoSave: (autoSave: boolean) => void
+  setAudioQuality: (quality: AudioQualityOption) => void
+  setVolume: (volume: number) => void
+  setAssemblyAIKey: (key: string) => void
+  setOpenRouterKey: (key: string) => void
+  setAIBaseURL: (url: string) => void
+  setAIProvider: (provider: 'openai' | 'openrouter' | 'custom') => void
+  setAIModel: (model: string) => void
+  setAIRefererURL: (url: string) => void
+  setAISiteName: (name: string) => void
+  setStorageLocation: (location: StorageLocationType) => void
+  setContextPackEnabled: (enabled: boolean) => void
+  setTalkingPointsEnabled: (enabled: boolean) => void
 
   // System Props Methods
-  setCuriosityEngineEnabled: (enabled: boolean) => void;
-  setCuriosityEngineQuestionCount: (count: number) => void;
-  setCuriosityEngineAllowedQuestionTypes: (types: QuestionType[]) => void;
-  setCuriosityEngineCustomizableGuidelines: (guidelines: string) => void;
-  setCuriosityEngineAutoGenerateOnAnalysis: (auto: boolean) => void;
-  setConversationCompassEnabled: (enabled: boolean) => void;
+  setCuriosityEngineEnabled: (enabled: boolean) => void
+  setCuriosityEngineQuestionCount: (count: number) => void
+  setCuriosityEngineAllowedQuestionTypes: (types: QuestionType[]) => void
+  setCuriosityEngineCustomizableGuidelines: (guidelines: string) => void
+  setCuriosityEngineAutoGenerateOnAnalysis: (auto: boolean) => void
+  setConversationCompassEnabled: (enabled: boolean) => void
   setConversationCompassVisualizationType: (
-    type: "tree" | "flow" | "network"
-  ) => void;
-  setConversationCompassAutoUpdateOnAnalysis: (auto: boolean) => void;
+    type: 'tree' | 'flow' | 'network',
+  ) => void
+  setConversationCompassAutoUpdateOnAnalysis: (auto: boolean) => void
 
   // Guided Conversations methods
-  setGuidedConversationsEnabled: (enabled: boolean) => void;
-  setGuidedConversationsPredictionPrompt: (prompt: string) => void;
-  setGuidedConversationsGoalEvaluationPrompt: (prompt: string) => void;
-  setGuidedConversationsDefaultGoal: (goal: string) => void;
-  setGuidedConversationsMaxPredictions: (count: number) => void;
+  setGuidedConversationsEnabled: (enabled: boolean) => void
+  setGuidedConversationsPredictionPrompt: (prompt: string) => void
+  setGuidedConversationsGoalEvaluationPrompt: (prompt: string) => void
+  setGuidedConversationsDefaultGoal: (goal: string) => void
+  setGuidedConversationsMaxPredictions: (count: number) => void
 
   // Tracking Mode methods
-  setTrackingModeEnabled: (enabled: boolean) => void;
-  setTrackingModeExpansionPrompt: (prompt: string) => void;
-  setTrackingModeTopicDriftThreshold: (threshold: number) => void;
-  setTrackingModeSilenceTimeoutSeconds: (seconds: number) => void;
-  setTrackingModeMaxThoughtsHistory: (count: number) => void;
+  setTrackingModeEnabled: (enabled: boolean) => void
+  setTrackingModeExpansionPrompt: (prompt: string) => void
+  setTrackingModeTopicDriftThreshold: (threshold: number) => void
+  setTrackingModeSilenceTimeoutSeconds: (seconds: number) => void
+  setTrackingModeMaxThoughtsHistory: (count: number) => void
 
   // Silence Detection Methods
-  setSilenceDetectionEnabled: (enabled: boolean) => void;
-  setSilenceThresholdMinutes: (minutes: number) => void;
-  setSilenceAutoStopSeconds: (seconds: number) => void;
+  setSilenceDetectionEnabled: (enabled: boolean) => void
+  setSilenceThresholdMinutes: (minutes: number) => void
+  setSilenceAutoStopSeconds: (seconds: number) => void
 
   // Widget Methods
-  setEnableDragDrop: (enabled: boolean) => void;
+  setEnableDragDrop: (enabled: boolean) => void
   setWidgetPositions: (
-    positions: Record<string, { x: number; y: number }>
-  ) => void;
+    positions: Record<string, { x: number; y: number }>,
+  ) => void
   setWidgetPosition: (
     widgetId: string,
-    position: { x: number; y: number }
-  ) => void;
+    position: { x: number; y: number },
+  ) => void
   setWidgetSizes: (
-    sizes: Record<string, { width: number; height: number }>
-  ) => void;
+    sizes: Record<string, { width: number; height: number }>,
+  ) => void
   setWidgetSize: (
     widgetId: string,
-    size: { width: number; height: number }
-  ) => void;
-  setMinimizedWidgets: (widgets: string[]) => void;
-  setMaximizedWidget: (widget: string | null) => void;
-  resetWidgetPositions: () => void;
-  toggleMinimizeWidget: (widgetId: string) => void;
+    size: { width: number; height: number },
+  ) => void
+  setMinimizedWidgets: (widgets: string[]) => void
+  setMaximizedWidget: (widget: string | null) => void
+  resetWidgetPositions: () => void
+  toggleMinimizeWidget: (widgetId: string) => void
 
-  resetSettings: () => void;
+  resetSettings: () => void
 }
 
 const defaultSettings = {
-  theme: "system" as ThemeOption,
+  theme: 'system' as ThemeOption,
   autoSave: true,
-  audioQuality: "high" as AudioQualityOption,
+  audioQuality: 'high' as AudioQualityOption,
   volume: 80,
 
   // Widget Settings
@@ -165,13 +165,13 @@ const defaultSettings = {
   widgetPositions: {},
   widgetSizes: {},
   minimizedWidgets: [
-    "ai-insights",
-    "bookmarks",
-    "audio-controls",
-    "analysis-settings",
-    "tags",
-    "conversation-compass-widget",
-    "curiosity-engine-widget",
+    'ai-insights',
+    'bookmarks',
+    'audio-controls',
+    'analysis-settings',
+    'tags',
+    'conversation-compass-widget',
+    'curiosity-engine-widget',
   ],
   maximizedWidget: null,
   talkingPointsEnabled: true,
@@ -183,13 +183,13 @@ const defaultSettings = {
     autoStopSeconds: 30,
   },
 
-  assemblyAIKey: "",
-  openRouterKey: "",
-  aiBaseURL: "https://api.openai.com/v1",
-  aiProvider: "openai" as "openai" | "openrouter" | "custom",
-  aiModel: "mistralai/mistral-7b-instruct",
-  aiRefererURL: typeof window !== "undefined" ? window.location.origin : "",
-  aiSiteName: "TalkAdvantage",
+  assemblyAIKey: '',
+  openRouterKey: '',
+  aiBaseURL: 'https://api.openai.com/v1',
+  aiProvider: 'openai' as 'openai' | 'openrouter' | 'custom',
+  aiModel: 'mistralai/mistral-7b-instruct',
+  aiRefererURL: typeof window !== 'undefined' ? window.location.origin : '',
+  aiSiteName: 'TalkAdvantage',
 
   // Default System Props
   systemProps: {
@@ -197,12 +197,12 @@ const defaultSettings = {
       enabled: true,
       questionCount: 3,
       allowedQuestionTypes: [
-        "YES_NO",
-        "MULTIPLE_CHOICE",
-        "MULTIPLE_CHOICE_FILL",
-        "SPEAKER_IDENTIFICATION",
-        "MEETING_TYPE",
-        "OPEN_ENDED",
+        'YES_NO',
+        'MULTIPLE_CHOICE',
+        'MULTIPLE_CHOICE_FILL',
+        'SPEAKER_IDENTIFICATION',
+        'MEETING_TYPE',
+        'OPEN_ENDED',
       ] as QuestionType[],
       customizableGuidelines: `Generate questions that:
 - Are relevant to the transcript content
@@ -214,7 +214,7 @@ const defaultSettings = {
     },
     conversationCompass: {
       enabled: true,
-      visualizationType: "tree" as "tree" | "flow" | "network",
+      visualizationType: 'tree' as 'tree' | 'flow' | 'network',
       autoUpdateOnAnalysis: true,
       // Default values for guided conversations
       guidedConversations: {
@@ -254,7 +254,7 @@ Output Example:
 0.75
 
 Respond with ONLY a number between 0 and 1.`,
-        defaultGoal: "Schedule a follow-up meeting",
+        defaultGoal: 'Schedule a follow-up meeting',
         maxPredictions: 3,
       },
       // Default values for tracking mode
@@ -298,11 +298,11 @@ Respond with ONLY the JSON object.`,
     },
   },
 
-  storageLocation: "local" as StorageLocationType,
+  storageLocation: 'local' as StorageLocationType,
 
   // Context Pack
   contextPackEnabled: true,
-};
+}
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
@@ -588,13 +588,13 @@ export const useSettingsStore = create<SettingsState>()(
       toggleMinimizeWidget: (widgetId) =>
         set((state) => {
           // Never allow live-text widget to be minimized
-          if (widgetId === "live-text") {
+          if (widgetId === 'live-text') {
             // Remove it from minimized if it's somehow there
             return {
               minimizedWidgets: state.minimizedWidgets.filter(
-                (id) => id !== widgetId
+                (id) => id !== widgetId,
               ),
-            };
+            }
           }
 
           // Normal behavior for other widgets
@@ -602,34 +602,34 @@ export const useSettingsStore = create<SettingsState>()(
             minimizedWidgets: state.minimizedWidgets.includes(widgetId)
               ? state.minimizedWidgets.filter((id) => id !== widgetId)
               : [...state.minimizedWidgets, widgetId],
-          };
+          }
         }),
       setMaximizedWidget: (widget) => set({ maximizedWidget: widget }),
       resetWidgetPositions: () =>
         set({
           widgetPositions: {
             // Row 1
-            "live-text": { x: 10, y: 40 },
-            "ai-insights": { x: 330, y: 40 },
-            "conversation-compass-widget": { x: 640, y: 380 },
-            "curiosity-engine-widget": { x: 970, y: 380 },
+            'live-text': { x: 10, y: 40 },
+            'ai-insights': { x: 330, y: 40 },
+            'conversation-compass-widget': { x: 640, y: 380 },
+            'curiosity-engine-widget': { x: 970, y: 380 },
             // Row 2
-            "analysis-settings": { x: 20, y: 780 },
+            'analysis-settings': { x: 20, y: 780 },
             bookmarks: { x: 330, y: 780 },
-            "audio-controls": { x: 640, y: 780 },
+            'audio-controls': { x: 640, y: 780 },
             // Row 3
             tags: { x: 20, y: 700 },
           },
           widgetSizes: {
             // Row 1
-            "live-text": { width: 300, height: 320 },
-            "ai-insights": { width: 300, height: 320 },
-            "conversation-compass-widget": { width: 300, height: 320 },
-            "curiosity-engine-widget": { width: 300, height: 320 },
+            'live-text': { width: 300, height: 320 },
+            'ai-insights': { width: 300, height: 320 },
+            'conversation-compass-widget': { width: 300, height: 320 },
+            'curiosity-engine-widget': { width: 300, height: 320 },
             // Row 2
-            "analysis-settings": { width: 300, height: 260 },
+            'analysis-settings': { width: 300, height: 260 },
             bookmarks: { width: 300, height: 260 },
-            "audio-controls": { width: 300, height: 260 },
+            'audio-controls': { width: 300, height: 260 },
             // Row 3
             tags: { width: 300, height: 180 },
           },
@@ -640,7 +640,7 @@ export const useSettingsStore = create<SettingsState>()(
       resetSettings: () => set(defaultSettings),
     }),
     {
-      name: "talkadvantage-settings",
+      name: 'talkadvantage-settings',
       partialize: (state) => ({
         theme: state.theme,
         autoSave: state.autoSave,
@@ -664,6 +664,6 @@ export const useSettingsStore = create<SettingsState>()(
         contextPackEnabled: state.contextPackEnabled,
         talkingPointsEnabled: state.talkingPointsEnabled,
       }),
-    }
-  )
-);
+    },
+  ),
+)

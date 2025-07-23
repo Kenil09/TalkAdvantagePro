@@ -3,11 +3,21 @@ import { Search } from 'lucide-react'
 import debounce from 'lodash.debounce'
 import { createClient } from '@/lib/supabase/client'
 import { useLibraryStore } from '@/lib/store/library.store'
-import { DATABASE_TABLE } from "@/config"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DATABASE_TABLE } from '@/config'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Filter,
   CalendarIcon,
@@ -15,9 +25,9 @@ import {
   List,
   SortAsc,
   Activity,
-} from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { useAuthStore } from "@/lib/store/auth.store"
+} from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { useAuthStore } from '@/lib/store/auth.store'
 
 const LibrarySearchBar = () => {
   const {
@@ -61,7 +71,7 @@ const LibrarySearchBar = () => {
     // Filter by search
     if (searchQuery?.trim()) {
       query = query.or(
-        `filename.ilike.%${searchQuery}%,filepath.ilike.%${searchQuery}%,transcript.ilike.%${searchQuery}%`
+        `filename.ilike.%${searchQuery}%,filepath.ilike.%${searchQuery}%,transcript.ilike.%${searchQuery}%`,
       )
     }
 
@@ -86,7 +96,10 @@ const LibrarySearchBar = () => {
   }, [user?.id, searchQuery, dateRange, sortBy, sortOrder, setRecordings])
 
   // Debounce the search input changes
-  const debouncedFetch = useMemo(() => debounce(fetchRecordings, 400), [fetchRecordings])
+  const debouncedFetch = useMemo(
+    () => debounce(fetchRecordings, 400),
+    [fetchRecordings],
+  )
 
   // Run search on query change
   useEffect(() => {
@@ -172,8 +185,9 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className={`rounded-r-none cursor-pointer ${viewMode === 'list' ? '' : 'bg-white'
-                }`}
+              className={`rounded-r-none cursor-pointer ${
+                viewMode === 'list' ? '' : 'bg-white'
+              }`}
             >
               <List className="w-4 h-4" />
             </Button>
@@ -181,8 +195,9 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className={`rounded-none border-x cursor-pointer ${viewMode === 'grid' ? '' : 'bg-white'
-                }`}
+              className={`rounded-none border-x cursor-pointer ${
+                viewMode === 'grid' ? '' : 'bg-white'
+              }`}
             >
               <Grid3X3 className="w-4 h-4" />
             </Button>
@@ -190,8 +205,9 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'calendar' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('calendar')}
-              className={`rounded-none border-x  cursor-pointer ${viewMode === 'calendar' ? '' : 'bg-white'
-                }`}
+              className={`rounded-none border-x  cursor-pointer ${
+                viewMode === 'calendar' ? '' : 'bg-white'
+              }`}
             >
               <CalendarIcon className="w-4 h-4" />
             </Button>
@@ -199,8 +215,9 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'heatmap' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('heatmap')}
-              className={`rounded-l-none cursor-pointer ${viewMode === 'heatmap' ? '' : 'bg-white'
-                }`}
+              className={`rounded-l-none cursor-pointer ${
+                viewMode === 'heatmap' ? '' : 'bg-white'
+              }`}
             >
               <Activity className="w-4 h-4" />
             </Button>

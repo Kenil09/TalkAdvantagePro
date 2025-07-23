@@ -41,9 +41,9 @@ export interface IndexedDBRecording {
 }
 
 export interface Tag {
-  id: string;
-  name: string;
-  color: string;
+  id: string
+  name: string
+  color: string
 }
 
 export interface TagColor {

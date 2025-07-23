@@ -72,7 +72,9 @@ const ConversationCardsDialog = () => {
       >
         <DialogHeader>
           <DialogTitle>Conversation Cards settings</DialogTitle>
-          <DialogDescription>Customize the conversation cards settings</DialogDescription>
+          <DialogDescription>
+            Customize the conversation cards settings
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
           <div className="">

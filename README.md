@@ -19,6 +19,7 @@ npm run init:schema
 ## 3. Run the Development Server
 
 Now, run the development server:
+
 ```bash
 npm run dev
 ```

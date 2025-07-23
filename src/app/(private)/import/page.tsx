@@ -1,5 +1,5 @@
 const Import = () => {
-  return <h1>Import</h1>;
-};
+  return <h1>Import</h1>
+}
 
-export default Import;
+export default Import

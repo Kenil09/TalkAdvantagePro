@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { FormProvider, useForm } from "react-hook-form";
-import Link from "next/link";
-import { Mic } from "lucide-react";
-import { useAuthStore } from "@/lib/store/auth.store";
-import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "@/components/formInput";
+import { FormProvider, useForm } from 'react-hook-form'
+import Link from 'next/link'
+import { Mic } from 'lucide-react'
+import { useAuthStore } from '@/lib/store/auth.store'
+import { zodResolver } from '@hookform/resolvers/zod'
+import FormInput from '@/components/formInput'
 import {
   Card,
   CardContent,
@@ -13,39 +13,39 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation'
 import {
   ResetPasswordSchema,
   resetPasswordSchema,
-} from "@/utils/schema/resetpassword.schema";
+} from '@/utils/schema/resetpassword.schema'
 
 const defaultValues: ResetPasswordSchema = {
-  password: "",
-};
+  password: '',
+}
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const error = useAuthStore((state) => state.error);
-  const resetPassword = useAuthStore((state) => state.resetPassword);
+  const isLoading = useAuthStore((state) => state.isLoading)
+  const error = useAuthStore((state) => state.error)
+  const resetPassword = useAuthStore((state) => state.resetPassword)
 
   const form = useForm<ResetPasswordSchema>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues,
-  });
+  })
 
   const onSubmit = async (data: ResetPasswordSchema) => {
     try {
-      await resetPassword({ password: data.password });
-      router.push("/");
+      await resetPassword({ password: data.password })
+      router.push('/')
     } catch (e: unknown) {
-      console.log("Sign up error:", e);
+      console.log('Sign up error:', e)
     }
-  };
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -77,10 +77,10 @@ export default function ResetPasswordPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Resetting Password..." : "Reset Password"}
+              {isLoading ? 'Resetting Password...' : 'Reset Password'}
             </Button>
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="text-primary hover:underline">
                 Sign up
               </Link>
@@ -89,5 +89,5 @@ export default function ResetPasswordPage() {
         </form>
       </FormProvider>
     </Card>
-  );
+  )
 }

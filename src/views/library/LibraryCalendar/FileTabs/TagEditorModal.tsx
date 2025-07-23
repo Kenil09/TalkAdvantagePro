@@ -13,7 +13,13 @@ import { DATABASE_TABLE } from '@/config'
 import { createClient } from '@/lib/supabase/client'
 import { TAG_COLORS } from '@/utils/date'
 import { Tag, Recording } from '@/types/library.types'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const TagEditorModal = ({
   recording,
@@ -56,13 +62,16 @@ const TagEditorModal = ({
 
   // Group tags by color
   const groupedTags = useMemo(() => {
-    return tags.reduce((acc, tag) => {
-      const colorGroup = acc[tag.color] || []
-      return {
-        ...acc,
-        [tag.color]: [...colorGroup, tag],
-      }
-    }, {} as Record<string, Tag[]>)
+    return tags.reduce(
+      (acc, tag) => {
+        const colorGroup = acc[tag.color] || []
+        return {
+          ...acc,
+          [tag.color]: [...colorGroup, tag],
+        }
+      },
+      {} as Record<string, Tag[]>,
+    )
   }, [tags])
 
   const addTag = () => {

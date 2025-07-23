@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
+import { useState } from 'react'
+import { useFormContext } from 'react-hook-form'
+import { Eye, EyeOff } from 'lucide-react'
 
 import {
   FormControl,
@@ -9,21 +9,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { cn } from "@/utils/tailwind";
+} from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import Link from 'next/link'
+import { cn } from '@/utils/tailwind'
 
 type FormInputProps = {
-  type: string;
-  label: string;
-  name: string;
-  placeholder?: string;
-  description?: string;
-  resetPassword?: boolean;
-  className?: string;
-};
+  type: string
+  label: string
+  name: string
+  placeholder?: string
+  description?: string
+  resetPassword?: boolean
+  className?: string
+}
 
 const FormInput = ({
   type,
@@ -34,12 +34,12 @@ const FormInput = ({
   resetPassword,
   className,
 }: FormInputProps) => {
-  const { control } = useFormContext();
+  const { control } = useFormContext()
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
 
   switch (type) {
-    case "text":
+    case 'text':
       return (
         <FormField
           control={control}
@@ -51,7 +51,7 @@ const FormInput = ({
                 <Input
                   placeholder={placeholder}
                   {...field}
-                  className={cn("w-full", className)}
+                  className={cn('w-full', className)}
                 />
               </FormControl>
               {description && <FormDescription>{description}</FormDescription>}
@@ -59,9 +59,9 @@ const FormInput = ({
             </FormItem>
           )}
         />
-      );
+      )
 
-    case "password":
+    case 'password':
       return (
         <FormField
           control={control}
@@ -83,9 +83,9 @@ const FormInput = ({
                 <div className="flex items-center gap-2">
                   <Input
                     placeholder={placeholder}
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     {...field}
-                    className={cn("w-full", className)}
+                    className={cn('w-full', className)}
                   />
                   <Button
                     variant="outline"
@@ -102,10 +102,10 @@ const FormInput = ({
             </FormItem>
           )}
         />
-      );
+      )
     default:
-      return null;
+      return null
   }
-};
+}
 
-export default FormInput;
+export default FormInput
