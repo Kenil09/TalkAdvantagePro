@@ -11,5 +11,5 @@ export interface AudioRecordingStore {
   mediaRecorder: MediaRecorder | null;
   setMediaRecorder: (recorder: MediaRecorder | null) => void;
   audioChunks: Blob[];
-  setAudioChunks: (chunks: Blob[]) => void;
+  setAudioChunks: (chunks: Blob[] | ((prev: Blob[]) => Blob[])) => void;
 }

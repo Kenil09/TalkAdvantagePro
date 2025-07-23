@@ -1,10 +1,12 @@
 import { create } from "zustand";
+import { format } from 'date-fns'
 import {
   TranscriptionStore,
   TranscriptEntry,
   WordDetectionResult,
 } from "@/types/transcription.types";
-import { TRANSCRIPTION_TIME_WINDOW } from "@/config";
+import { DATABASE_TABLE, TRANSCRIPTION_TIME_WINDOW } from "@/config";
+import { createClient } from "../supabase/client";
 
 export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
   isConnecting: false,
@@ -72,5 +74,72 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
     });
     
     return result;
+  },
+
+  uploadRecording: async (
+    uploadData: { user_id?: string; transcript: string; tags: string; duration: number },
+    blob: Blob
+  ) => {
+    const supabase = createClient();
+    try {
+      // Step 1: Generate filename
+      const now = new Date()
+      const filename = format(now, 'yyMMdd__HHmm') + '.mp3'
+      const path = 'recordings'
+      const filepath = `${path}/${filename}`
+      const contentType = blob.type || 'audio/mpeg'
+      // Step 2: Get presigned URL from backend
+      const response = await fetch('/api/upload-files', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, path, contentType }),
+      })
+  
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to get presigned URL')
+      }
+      // Step 3: Get presigned URL from backend
+      const { url } = await response.json()
+  
+      // Step 4: Upload file to Cloudflare R2 using PUT
+      const uploadRes = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': contentType,
+        },
+        body: blob,
+      })
+  
+      if (!uploadRes.ok) {
+        throw new Error(`Upload failed with status ${uploadRes.status}`)
+      }
+      
+      // Step 5: insert into supabase
+      const { error } = await supabase.from(DATABASE_TABLE.RECORDINGS).insert({
+        ...uploadData,
+        filename: filename,
+        filepath: filepath,
+        recording_date: now,
+        recording_time: format(now, 'HH:mm:ss'),
+        duration: uploadData.duration,
+      })
+  
+      if (error) {
+        throw new Error(error.message)
+      }
+  
+      return {
+        success: true,
+        filename: filename,
+        path: filepath,
+      }
+    } catch (error) {
+      console.error('Recording upload failed:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
+    }
   },
 }));

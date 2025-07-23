@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import { generateConversationCards, generateCardUpdate } from '../llm/services/conversationcard.service'
 import { useContextPackStore } from "./context-pack.store"
 import { useTranscriptionStore } from "./transcription.store"
+import { Tag } from "@/types/library.types"
 
 export interface CardContent {
   paragraph: string
@@ -62,6 +63,7 @@ interface RecordingStore {
   chatbotSelectedModel: string
   conversationCardsSelectedModel: string
   meetingNotesSelectedModel: string
+  tags: Tag[]
 
   // Actions
   setIsLoading: (isLoading: boolean) => void
@@ -78,6 +80,7 @@ interface RecordingStore {
   fetchConversationCards: () => Promise<ConversationCard[] | undefined>
   updateConversationCards: (currentActiveCard: { id: string; state: string } | null) => void
   fetchModels: () => Promise<void>
+  setTags: (tags: Tag[]) => void
 }
 
 export const useRecordingStore = create<RecordingStore>()(
@@ -97,7 +100,7 @@ export const useRecordingStore = create<RecordingStore>()(
       chatbotSelectedModel: '',
       conversationCardsSelectedModel: '',
       meetingNotesSelectedModel: '',
-
+      tags: [],
       setIsLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       setConversationCards: (cards) => set({ conversationCards: cards }),
@@ -111,6 +114,7 @@ export const useRecordingStore = create<RecordingStore>()(
           ...state,
           [key]: model,
         })),
+      setTags: (tags: Tag[]) => set({ tags }),
 
       updateConversationCards: async (currentActiveCard: { id: string; state: string } | null) => {
         const { currentContextPack } = useContextPackStore.getState()
@@ -220,6 +224,7 @@ export const useRecordingStore = create<RecordingStore>()(
         chatbotSelectedModel: state.chatbotSelectedModel,
         conversationCardsSelectedModel: state.conversationCardsSelectedModel,
         meetingNotesSelectedModel: state.meetingNotesSelectedModel,
+        tags: state.tags,
       }),
     },
   ),

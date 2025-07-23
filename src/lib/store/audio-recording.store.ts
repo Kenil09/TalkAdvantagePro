@@ -15,5 +15,8 @@ export const useAudioRecordingStore = create<AudioRecordingStore>((set) => ({
   setMediaRecorder: (recorder: MediaRecorder | null) =>
     set({ mediaRecorder: recorder }),
   audioChunks: [],
-  setAudioChunks: (chunks: Blob[]) => set({ audioChunks: chunks }),
+  setAudioChunks: (chunks: Blob[] | ((prev: Blob[]) => Blob[])) => 
+    set((state) => ({ 
+      audioChunks: typeof chunks === 'function' ? chunks(state.audioChunks) : chunks 
+    })),
 }));
