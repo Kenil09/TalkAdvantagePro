@@ -127,15 +127,11 @@ export const initSchema = async () => {
           dataType: configure.dataType.OBJECT_ARRAY,
           nestedProperties: [
             {
+              name: 'id',
+              dataType: configure.dataType.TEXT,
+            },
+            {
               name: 'name',
-              dataType: configure.dataType.TEXT,
-            },
-            {
-              name: 'file',
-              dataType: configure.dataType.TEXT,
-            },
-            {
-              name: 'type',
               dataType: configure.dataType.TEXT,
             },
             {
