@@ -74,11 +74,8 @@ const HotLinkWidgetDisplay = () => {
         : ""
     }
     ${
-      contextPack.conflictMap ? `Conflict Map:\n${contextPack.conflictMap}` : "" // TODO: Update this
-    }
-    ${
-      contextPack.environmentalFactors
-        ? `Environmental Factors:\n${contextPack.environmentalFactors}` // TODO: Update this
+      contextPack.contextFactors
+        ? `Environmental Factors:\n${contextPack.contextFactors}`
         : ""
     }
 
