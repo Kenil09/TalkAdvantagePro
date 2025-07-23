@@ -16,8 +16,8 @@ import { Layout, Layouts, Responsive, WidthProvider } from "react-grid-layout";
 import dynamic from "next/dynamic";
 import HotLinkWidgetDisplay from "./HotLinkWidget";
 import AddAnalyticsModal from "./AnalyticsModal/AddAnalyticsModal";
-import { AnalyticsProfileFormData } from "@/types/contextPack";
 import TagAddModal from "@/views/recording/TagAddModal";
+import { useRecordingStore } from "@/lib/store/recording.store";
 
 // Dynamic import for pdf-dist to prevent server-side rendering
 const ContextPackModal = dynamic(() => import("./ContextPackModal"), {
@@ -29,15 +29,10 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 const STORAGE_KEY = "recording-layout";
 
 const Recording = () => {
-  const [editMode, setEditMode] = useState(false);
+  const { editMode, setEditMode } = useRecordingStore();
   const [isEditContextPack, setIsEditContextPack] = useState({ status: false, uuid: "" });
   const [isOpen, setIsOpen] = useState(false);
-  const [hotLinkModal, setHotLinkModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [addAnalyticsModal, setAddAnalyticsModal] = useState(false);
-  const [editProfile, setEditProfile] =
-    useState<AnalyticsProfileFormData | null>(null);
-  const [addTagModal, setAddTagModal] = useState(false)
 
   // Components mapped to layout keys
   const components = useMemo(
@@ -46,8 +41,6 @@ const Recording = () => {
       b: (
         <AnalyticsProfile
           key="b"
-          setAddAnalyticsModal={setAddAnalyticsModal}
-          setEditProfile={setEditProfile}
         />
       ),
       c: <ChatBot key="c" />,
@@ -137,8 +130,8 @@ const Recording = () => {
             <Button
               onClick={() => setEditMode(!editMode)}
               className={`rounded-4xl text-white flex items-center gap-2 cursor-pointer ${editMode
-                  ? "bg-primary-400"
-                  : "bg-primary-600 hover:bg-primary-500"
+                ? "bg-primary-400"
+                : "bg-primary-600 hover:bg-primary-500"
                 }`}
             >
               <Pencil />
@@ -192,26 +185,15 @@ const Recording = () => {
       {/* Sticky Footer */}
       <div className="sticky bottom-0 w-full bg-white shadow-md z-10">
         <ContextPackSelect setIsOpen={setIsOpen} setIsEditContextPack={setIsEditContextPack} />
-        <RecordingSpeech
-          editMode={editMode}
-          setHotLinkModal={setHotLinkModal}
-          setAddTagModal={setAddTagModal}
-        />
+        <RecordingSpeech />
       </div>
       <HotLinkWidgetDisplay />
 
       {/* Modals */}
       <ContextPackModal isOpen={isOpen} setIsOpen={setIsOpen} isEditContextPack={isEditContextPack} setIsEditContextPack={setIsEditContextPack} />
-      <HotLinkSettingsModal
-        isOpen={hotLinkModal}
-        onClose={() => setHotLinkModal(false)}
-      />
-      <AddAnalyticsModal
-        isOpen={addAnalyticsModal}
-        onClose={() => setAddAnalyticsModal(false)}
-        defaultValues={editProfile}
-      />
-      <TagAddModal isOpen={addTagModal} setAddTagModal={setAddTagModal} />
+      <HotLinkSettingsModal />
+      <AddAnalyticsModal />
+      <TagAddModal />
     </div>
   );
 };

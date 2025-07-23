@@ -17,47 +17,41 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { AnalyticsProfileFormData } from "@/types/contextPack";
+import { useRecordingStore } from "@/lib/store/recording.store";
 import { Model } from "@/types/widget.types";
+import {
+  analyticsProfileSchema,
+  AnalyticsProfileFormDataSchema,
+} from "@/utils/schema/analyticsmodel.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { X, Settings, Zap, BarChart3, Brain } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
-const AddAnalyticsModal = ({
-  isOpen,
-  onClose,
-  defaultValues,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  defaultValues: AnalyticsProfileFormData | null;
-}) => {
+const AddAnalyticsModal = () => {
   const [activeTab, setActiveTab] = useState("basic");
   const [models, setModels] = useState<Model[]>([]);
-
-  const { handleSubmit, reset, setValue, watch } =
-    useForm<AnalyticsProfileFormData>({
+  const { addAnalyticsModal, setAddAnalyticsModal, editProfile } = useRecordingStore();
+  const { handleSubmit, register, control, formState: { errors } } =
+    useForm<AnalyticsProfileFormDataSchema>({
+      resolver: zodResolver(analyticsProfileSchema),
       defaultValues: {
-        profileName: defaultValues?.profileName || "",
-        description: defaultValues?.description || "",
+        profileName: editProfile?.profileName || "",
+        description: editProfile?.description || "",
         aiModel:
-          defaultValues?.aiModel || "mistralai/mistral-small-3.2-24b-instruct",
+          editProfile?.aiModel || "mistralai/mistral-small-3.2-24b-instruct",
         conversationMode:
-          defaultValues?.conversationMode || "Tracking (Passive)",
-        userPrompt: defaultValues?.userPrompt || "",
-        systemPrompt: defaultValues?.systemPrompt || "",
-        templatePrompt: defaultValues?.templatePrompt || "",
-        curiosityEnginePrompt: defaultValues?.curiosityEnginePrompt || "",
-        defaultLayout: defaultValues?.defaultLayout || "radial",
-        colorScheme: defaultValues?.colorScheme || "Default",
-        maxTokens: defaultValues?.maxTokens || 1000,
-        temperature: defaultValues?.temperature || 0.7,
+          editProfile?.conversationMode || "Tracking (Passive)",
+        userPrompt: editProfile?.userPrompt || "",
+        systemPrompt: editProfile?.systemPrompt || "",
+        templatePrompt: editProfile?.templatePrompt || "",
+        curiosityEnginePrompt: editProfile?.curiosityEnginePrompt || "",
+        defaultLayout: editProfile?.defaultLayout || "radial",
+        colorScheme: editProfile?.colorScheme || "Default",
+        maxTokens: editProfile?.maxTokens || 1000,
+        temperature: editProfile?.temperature || 0.7,
       },
     });
-
-  useEffect(() => {
-    reset(defaultValues || {});
-  }, [defaultValues, isOpen, reset]);
 
   const fetchModels = async () => {
     try {
@@ -80,15 +74,16 @@ const AddAnalyticsModal = ({
     fetchModels();
   }, []);
 
-  const onSubmit = (data: AnalyticsProfileFormData) => {
+  const onSubmit = (data: AnalyticsProfileFormDataSchema) => {
     console.log("Submitted data:", data);
-    onClose();
+    setAddAnalyticsModal(false);
   };
 
-  const values = watch();
-
+  const handleClose = () => {
+    setAddAnalyticsModal(false)
+  }
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={addAnalyticsModal} onOpenChange={handleClose}>
       <DialogContent className="!max-w-[700px] max-h-[90vh] p-0 overflow-y-auto bg-white border-gray-200 [&>button]:hidden">
         {/* Header */}
         <DialogHeader className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
@@ -98,12 +93,12 @@ const AddAnalyticsModal = ({
             </div>
             <div>
               <DialogTitle className="text-2xl font-bold">
-                {defaultValues
+                {editProfile
                   ? "Edit Analytics Profile"
                   : "Create New Analytics Profile"}{" "}
               </DialogTitle>
               <p className="text-blue-100 text-sm">
-                {defaultValues
+                {editProfile
                   ? "Update existing profile settings."
                   : "Create a new analytics profile from scratch."}
               </p>
@@ -112,7 +107,7 @@ const AddAnalyticsModal = ({
               variant="ghost"
               size="sm"
               type="button"
-              onClick={() => onClose()}
+              onClick={handleClose}
               className="absolute top-4 right-4 text-white hover:bg-white/20 cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -157,11 +152,13 @@ const AddAnalyticsModal = ({
                   </Label>
                   <Input
                     id="profileName"
-                    value={values.profileName}
+                    {...register("profileName")}
                     placeholder="Enter profile name"
-                    onChange={(e) => setValue("profileName", e.target.value)}
                     className="h-12 text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500"
                   />
+                  {errors.profileName && (
+                    <p className="text-red-500 text-sm mt-1">{errors.profileName.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -173,12 +170,14 @@ const AddAnalyticsModal = ({
                   </Label>
                   <Textarea
                     id="description"
-                    value={values.description}
-                    onChange={(e) => setValue("description", e.target.value)}
+                    {...register("description")}
                     rows={4}
                     placeholder="Enter description"
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
+                  {errors.description && (
+                    <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -188,27 +187,40 @@ const AddAnalyticsModal = ({
                   >
                     AI Model
                   </Label>
-                  <Select
-                    value={values.aiModel}
-                    onValueChange={(value: string) =>
-                      setValue("aiModel", value)
-                    }
-                  >
-                    <SelectTrigger className="h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 cursor-pointer">
-                      <SelectValue placeholder="Select an AI model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {models?.map((model) => {
-                        const uniqueKey = `${model.slug}-${model.name}-${model.context_length}`;
-
-                        return (
-                          <SelectItem key={uniqueKey} value={model.slug}>
-                            {model.name}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="aiModel"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                      >
+                        <SelectTrigger
+                          className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.aiModel ? "border-red-500" : ""
+                            }`}
+                        >
+                          <SelectValue placeholder="Select an AI model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {models?.map((model) => {
+                            const uniqueKey = `${model.slug}-${model.name}-${model.context_length}`;
+                            return (
+                              <SelectItem key={uniqueKey} value={model.slug}>
+                                {model.name}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.aiModel && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.aiModel.message}
+                    </p>
+                  )}
                   <p className="text-sm text-gray-500 mt-2">
                     Select the AI model to use for this profile&apos;s analysis.
                   </p>
@@ -221,27 +233,34 @@ const AddAnalyticsModal = ({
                   >
                     Conversation Mode
                   </Label>
-                  <Select
-                    value={values.conversationMode}
-                    onValueChange={(value: string) =>
-                      setValue("conversationMode", value)
-                    }
-                  >
-                    <SelectTrigger className="h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 cursor-pointer">
-                      <SelectValue placeholder="Select a conversation mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Tracking (Passive)">
-                        Tracking (Passive)
-                      </SelectItem>
-                      <SelectItem value="Guided (Active)">
-                        Guided (Active)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="conversationMode"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.conversationMode ? "border-red-500" : ""
+                            }`}
+                        >
+                          <SelectValue placeholder="Select a conversation mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Tracking (Passive)">Tracking (Passive)</SelectItem>
+                          <SelectItem value="Guided (Active)">Guided (Active)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.conversationMode && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.conversationMode.message}
+                    </p>
+                  )}
                   <p className="text-sm text-gray-500 mt-2">
-                    Tracking mode passively analyzes conversations. Guided mode
-                    provides real-time suggestions.
+                    Tracking mode passively analyzes conversations. Guided mode provides real-time suggestions.
                   </p>
                 </div>
               </div>
@@ -261,12 +280,14 @@ const AddAnalyticsModal = ({
                   </Label>
                   <Textarea
                     id="userPrompt"
-                    value={values.userPrompt}
+                    {...register("userPrompt")}
                     placeholder="Enter user prompt"
-                    onChange={(e) => setValue("userPrompt", e.target.value)}
                     rows={3}
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
+                  {errors.userPrompt && (
+                    <p className="text-red-500 text-sm mt-1">{errors.userPrompt.message}</p>
+                  )}
                   <p className="text-sm text-gray-500 mt-2">
                     The initial instruction to the AI. Keep it concise and
                     clear.
@@ -282,12 +303,14 @@ const AddAnalyticsModal = ({
                   </Label>
                   <Textarea
                     id="systemPrompt"
-                    value={values.systemPrompt}
+                    {...register("systemPrompt")}
                     placeholder="Enter system prompt"
-                    onChange={(e) => setValue("systemPrompt", e.target.value)}
                     rows={8}
                     className="text-base border-gray-300  bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
+                  {errors.systemPrompt && (
+                    <p className="text-red-500 text-sm mt-1">{errors.systemPrompt.message}</p>
+                  )}
                   <p className="text-sm text-gray-500 mt-2">
                     Instructions that define the AI&apos;s role and behavior.
                     This sets the tone and approach.
@@ -303,12 +326,14 @@ const AddAnalyticsModal = ({
                   </Label>
                   <Textarea
                     id="templatePrompt"
-                    value={values.templatePrompt}
+                    {...register("templatePrompt")}
                     placeholder="Enter template prompt"
-                    onChange={(e) => setValue("templatePrompt", e.target.value)}
                     rows={8}
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none"
                   />
+                  {errors.templatePrompt && (
+                    <p className="text-red-500 text-sm mt-1">{errors.templatePrompt.message}</p>
+                  )}
                   <p className="text-sm text-gray-500 mt-2">
                     The structured format for the AI&apos;s response. Use
                     numbered lists and sections for better organization.
@@ -331,14 +356,14 @@ const AddAnalyticsModal = ({
                   </Label>
                   <Textarea
                     id="curiosityEnginePrompt"
-                    value={values.curiosityEnginePrompt}
+                    {...register("curiosityEnginePrompt")}
                     placeholder="Enter curiosity engine prompt"
-                    onChange={(e) =>
-                      setValue("curiosityEnginePrompt", e.target.value)
-                    }
                     rows={12}
                     className="text-base border-gray-300 bg-white focus:border-blue-500 focus:ring-blue-500 resize-none font-mono "
                   />
+                  {errors.curiosityEnginePrompt && (
+                    <p className="text-red-500 text-sm mt-1">{errors.curiosityEnginePrompt.message}</p>
+                  )}
                   <p className="text-sm text-black mt-3">
                     Instructions for generating questions about the
                     conversation. This powers the Curiosity Engine.
@@ -357,21 +382,33 @@ const AddAnalyticsModal = ({
                       >
                         Default Layout
                       </Label>
-                      <Select
-                        value={values.defaultLayout}
-                        onValueChange={(value: string) =>
-                          setValue("defaultLayout", value)
-                        }
-                      >
-                        <SelectTrigger className="h-11 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                          <SelectValue placeholder="Select default layout" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="radial">Radial</SelectItem>
-                          <SelectItem value="flowchart">Flow Chart</SelectItem>
-                          <SelectItem value="network">Network</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="defaultLayout"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger
+                              className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.defaultLayout ? "border-red-500" : ""
+                                }`}
+                            >
+                              <SelectValue placeholder="Select default layout" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="radial">Radial</SelectItem>
+                              <SelectItem value="flowchart">Flow Chart</SelectItem>
+                              <SelectItem value="network">Network</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.defaultLayout && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.defaultLayout.message}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -381,24 +418,34 @@ const AddAnalyticsModal = ({
                       >
                         Color Scheme
                       </Label>
-                      <Select
-                        value={values.colorScheme}
-                        onValueChange={(value: string) =>
-                          setValue("colorScheme", value)
-                        }
-                      >
-                        <SelectTrigger className="h-11 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                          <SelectValue placeholder="Select color scheme" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Default">Default</SelectItem>
-                          <SelectItem value="business">Business</SelectItem>
-                          <SelectItem value="professional">
-                            Professional
-                          </SelectItem>
-                          <SelectItem value="creative">Creative</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="colorScheme"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger
+                              className={`h-12 w-full bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${errors.colorScheme ? "border-red-500" : ""
+                                }`}
+                            >
+                              <SelectValue placeholder="Select color scheme" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Default">Default</SelectItem>
+                              <SelectItem value="business">Business</SelectItem>
+                              <SelectItem value="professional">Professional</SelectItem>
+                              <SelectItem value="creative">Creative</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.colorScheme && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.colorScheme.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -416,35 +463,35 @@ const AddAnalyticsModal = ({
           </Tabs>
 
           {/* Footer */}
-        </form>
-        <DialogFooter className="sticky bottom-0">
-          <div className=" bg-white w-full px-6 py-4">
-            <div className="w-full flex items-center justify-between">
-              <div className="text-sm text-gray-500">
-                {activeTab === "basic" && "Basic settings"}
-                {activeTab === "prompts" && "AI behavior settings"}
-                {activeTab === "advanced" && "Advanced model settings"}
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onClose()}
-                  className="px-6 text-sm font-medium cursor-pointer"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 text-sm font-medium cursor-pointer"
-                  onClick={() => handleSubmit(onSubmit)}
-                >
-                  <Settings className="w-4 h-4 " />
-                  Save Profile
-                </Button>
+          <DialogFooter className="sticky bottom-0">
+            <div className=" bg-white w-full px-6 py-4">
+              <div className="w-full flex items-center justify-between">
+                <div className="text-sm text-gray-500">
+                  {activeTab === "basic" && "Basic settings"}
+                  {activeTab === "prompts" && "AI behavior settings"}
+                  {activeTab === "advanced" && "Advanced model settings"}
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleClose}
+                    className="px-6 text-sm font-medium cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 text-sm font-medium cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4 " />
+                    Save Profile
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </DialogFooter>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

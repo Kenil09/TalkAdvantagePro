@@ -4,6 +4,7 @@ import { generateConversationCards, generateCardUpdate } from '../llm/services/c
 import { useContextPackStore } from "./context-pack.store"
 import { useTranscriptionStore } from "./transcription.store"
 import { Tag } from "@/types/library.types"
+import { AnalyticsProfileFormData } from "@/types/contextPack"
 
 export interface CardContent {
   paragraph: string
@@ -64,10 +65,19 @@ interface RecordingStore {
   conversationCardsSelectedModel: string
   meetingNotesSelectedModel: string
   tags: Tag[]
-
+  editMode: boolean
+  hotLinkModal: boolean
+  addTagModal: boolean
+  addAnalyticsModal: boolean
+  editProfile: AnalyticsProfileFormData | null
   // Actions
   setIsLoading: (isLoading: boolean) => void
   setError: (error: string | null) => void
+  setEditMode: (editMode: boolean) => void
+  setHotLinkModal: (hotLinkModal: boolean) => void
+  setAddTagModal: (addTagModal: boolean) => void
+  setAddAnalyticsModal: (addAnalyticsModal: boolean) => void
+  setEditProfile: (editProfile: AnalyticsProfileFormData | null) => void
   setConversationCards: (cards: ConversationCard[]) => void
   setModels: (models: string[]) => void
   setSelectedModel: (key: ModelKey, model: string) => void
@@ -101,6 +111,16 @@ export const useRecordingStore = create<RecordingStore>()(
       conversationCardsSelectedModel: '',
       meetingNotesSelectedModel: '',
       tags: [],
+      editMode: false,
+      hotLinkModal: false,
+      addTagModal: false,
+      addAnalyticsModal: false,
+      editProfile: null,
+      setEditProfile: (editProfile) => set({ editProfile }),
+      setHotLinkModal: (hotLinkModal) => set({ hotLinkModal }),
+      setEditMode: (editMode) => set({ editMode }),
+      setAddTagModal: (addTagModal) => set({ addTagModal }),
+      setAddAnalyticsModal: (addAnalyticsModal) => set({ addAnalyticsModal }),
       setIsLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       setConversationCards: (cards) => set({ conversationCards: cards }),

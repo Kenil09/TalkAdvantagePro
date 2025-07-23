@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { Mic, SquareLibrary, Upload, ChartBar, ChevronUp } from "lucide-react";
+import { ChevronUp } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -11,35 +11,34 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "./components/ui/sidebar";
-import { usePathname } from "next/navigation";
-import { cn } from "./utils/tailwind";
+} from './components/ui/sidebar'
+import { usePathname } from 'next/navigation'
+import { cn } from './utils/tailwind'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "./components/ui/dropdown-menu";
-import { Avatar, AvatarImage } from "./components/ui/avatar";
-import { redirect } from "next/navigation";
-import { useAuthStore } from "@/lib/store/auth.store";
-
-const projects = [
-  { name: "Recording", url: "/", icon: <Mic /> },
-  { name: "Library", url: "/library", icon: <SquareLibrary /> },
-  { name: "Import", url: "/import", icon: <Upload /> },
-  { name: "Analysis", url: "/analysis", icon: <ChartBar /> },
-];
+} from './components/ui/dropdown-menu'
+import { Avatar, AvatarImage } from './components/ui/avatar'
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/store/auth.store'
+import { mainNavigation } from './config/navigation'
 
 const SidebarPage = () => {
-  const pathname = usePathname();
-  const { signOut } = useAuthStore()
+  const pathname = usePathname()
+  const { signOut, user, isLoading } = useAuthStore()
+  const router = useRouter()
 
   const handleLogout = async () => {
-    await signOut();
-    redirect("/login");
-  };
+    try {
+      await signOut()
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
 
   return (
     <Sidebar>
@@ -50,12 +49,12 @@ const SidebarPage = () => {
           </SidebarGroupLabel>
           <SidebarGroupContent className="p-2">
             <SidebarMenu>
-              {projects.map((project) => (
+              {mainNavigation.map((project) => (
                 <SidebarMenuItem
                   key={project.name}
                   className={cn(
-                    "rounded-2xl ",
-                    pathname === project.url && "bg-primary-100"
+                    'rounded-2xl ',
+                    pathname === project.url && 'bg-primary-100',
                   )}
                 >
                   <SidebarMenuButton asChild className="active:bg-primary-200">
@@ -85,7 +84,7 @@ const SidebarPage = () => {
                       alt="@shadcn"
                     />
                   </Avatar>
-                  John Doe
+                  {user?.email || 'User'}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -94,7 +93,7 @@ const SidebarPage = () => {
                   className="cursor-pointer"
                   onClick={handleLogout}
                 >
-                  Log out
+                  {isLoading ? 'Logging out...' : 'Log out'}
                   <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -103,7 +102,7 @@ const SidebarPage = () => {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  );
-};
+  )
+}
 
-export default SidebarPage;
+export default SidebarPage

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Search } from 'lucide-react'
-import debounce from 'lodash/debounce'
+import debounce from 'lodash.debounce'
 import { createClient } from '@/lib/supabase/client'
 import { useLibraryStore } from '@/lib/store/library.store'
 import { DATABASE_TABLE } from "@/config"

@@ -9,21 +9,28 @@ import { Input } from '@/components/ui/input'
 import { TAG_COLORS } from '@/utils/date'
 import { TagIcon, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Tag } from '@/types/library.types'
 import { Dialog } from '@radix-ui/react-dialog'
 import { useRecordingStore } from '@/lib/store/recording.store'
+import { tagFormSchema } from "@/utils/schema/tagaddmodel.schema"
 
-const TagAddModal = ({
-  isOpen,
-  setAddTagModal,
-}: {
-  isOpen: boolean
-  setAddTagModal: (value: boolean) => void
-}) => {
+type TagFormValues = z.infer<typeof tagFormSchema>
+
+const TagAddModal = () => {
+  const { addTagModal, setAddTagModal } = useRecordingStore()
   const { tags, setTags } = useRecordingStore()
 
-  const [newTagName, setNewTagName] = useState('')
-  const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].value)
+  const form = useForm<TagFormValues>({
+    resolver: zodResolver(tagFormSchema),
+    defaultValues: {
+      name: '',
+      color: TAG_COLORS[0].value
+    }
+  })
+
   const [isSaving, setIsSaving] = useState(false)
 
   // Group tags by color for better organization
@@ -37,18 +44,16 @@ const TagAddModal = ({
     }, {} as Record<string, Tag[]>)
   }, [tags])
 
-  const addTag = () => {
-    if (newTagName.trim()) {
-      setTags([
-        ...(tags || []),
-        {
-          id: crypto.randomUUID(),
-          name: newTagName.trim(),
-          color: selectedColor,
-        },
-      ])
-      setNewTagName('')
-    }
+  const addTag = (data: TagFormValues) => {
+    setTags([
+      ...(tags || []),
+      {
+        id: crypto.randomUUID(),
+        name: data.name,
+        color: data.color,
+      },
+    ])
+    form.reset()
   }
 
   const removeTag = (tagId: string) => {
@@ -58,7 +63,7 @@ const TagAddModal = ({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      addTag()
+      form.handleSubmit(addTag)()
     }
   }
 
@@ -81,7 +86,7 @@ const TagAddModal = ({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={addTagModal} onOpenChange={handleClose}>
       <DialogContent className="!max-w-[500px] max-h-[90vh] p-0 overflow-y-auto bg-white border-gray-200 [&>button]:hidden">
         <DialogHeader className="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
           <DialogTitle className="!text-2xl font-bold text-white flex items-center gap-2">
@@ -155,38 +160,47 @@ const TagAddModal = ({
           {/* Add New Tag */}
           <div className="space-y-2 pt-2 border-t">
             <label className="text-sm font-medium">Add New Tag</label>
-            <div className="flex gap-2">
-              <Input
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter tag name"
-                className="flex-1 mt-1"
-              />
-              <select
-                value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-                className="px-3 py-2 bg-white dark:bg-slate-900 border border-input rounded-md text-sm"
-              >
-                {TAG_COLORS.map((color) => (
-                  <option key={color.value} value={color.value}>
-                    {color.name}
-                  </option>
-                ))}
-              </select>
-              <Button
-                onClick={addTag}
-                disabled={!newTagName.trim()}
-                className="shrink-0 cursor-pointer text-sm font-medium bg-primary-600 text-white hover:bg-primary-500 "
-              >
-                Add Tag
-              </Button>
-            </div>
+            <form onSubmit={form.handleSubmit(addTag)} className="w-full">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    {...form.register('name')}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter tag name"
+                    className={`flex-1 mt-1 ${form.formState.errors.name ? 'border-red-500' : ''}`}
+                  />
+                  {form.formState.errors.name && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {form.formState.errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <select
+                    {...form.register('color')}
+                    className="px-3 py-2 bg-white dark:bg-slate-900 border border-input rounded-md text-sm h-10"
+                  >
+                    {TAG_COLORS.map((color) => (
+                      <option key={color.value} value={color.value}>
+                        {color.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={!form.formState.isDirty || !form.formState.isValid}
+                  className="shrink-0 cursor-pointer text-sm font-medium bg-primary-600 text-white hover:bg-primary-500"
+                >
+                  Add Tag
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
 
         <DialogFooter>
-          <div className=" bg-white w-full flex justify-between px-6 py-4">
+          <div className="bg-white w-full flex justify-between px-6 py-4">
             <Button
               type="button"
               variant="outline"
