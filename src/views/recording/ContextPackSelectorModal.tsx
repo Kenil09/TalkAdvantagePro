@@ -25,7 +25,7 @@ import { Input } from '@/components/ui/input'
 import { ContextPackQueryResult } from '@/lib/weaviate-v3/collections/contextpack'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { useContextPackStore } from '@/lib/store/context-pack.store'
-
+import * as contextPackService from '@/lib/weaviate-v3/collections/contextpack/contextpack.service'
 interface Props {
   isOpen: boolean
   onClose: () => void
@@ -62,9 +62,7 @@ export default function ContextPackSelectorModal({
 
   const handleDeleteContextPack = async (id: string) => {
     try {
-      // We still use the service directly for deletion
-      // Then refresh the list from the store
-      await useContextPackStore.getState().fetchContextPackById(id)
+      await contextPackService.deleteById(id)
       if (user && user.id) {
         fetchContextPacks(user.id)
       }

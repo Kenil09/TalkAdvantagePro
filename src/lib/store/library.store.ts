@@ -55,7 +55,7 @@ interface LibraryStore {
   currentTranscript: string | null
   isLoadingTranscript: boolean
   currentTranscriptTitle: string
-  sortBy: 'date' | 'filename' | 'duration'
+  sortBy: 'date' | 'filename' | 'duration' | 'name'
   sortOrder: 'asc' | 'desc'
   expandedRecordings: Record<string, boolean>
   transcriptSearchModel: boolean
@@ -119,7 +119,7 @@ interface LibraryStore {
   setCurrentTranscript: (currentTranscript: string | null) => void
   setIsLoadingTranscript: (isLoadingTranscript: boolean) => void
   setCurrentTranscriptTitle: (currentTranscriptTitle: string) => void
-  setSortBy: (sortBy: 'filename' | 'date' | 'duration') => void
+  setSortBy: (sortBy: 'filename' | 'date' | 'duration' | 'name') => void
   setSortOrder: (sortOrder: 'asc' | 'desc') => void
   setExpandedRecordings: (expandedRecordings: Record<string, boolean>) => void
 
@@ -268,7 +268,7 @@ export const useLibraryStore = create<LibraryStore>()(
         set({ isLoadingTranscript }),
       setCurrentTranscriptTitle: (currentTranscriptTitle: string) =>
         set({ currentTranscriptTitle }),
-      setSortBy: (sortBy: 'date' | 'filename' | 'duration') => set({ sortBy }),
+      setSortBy: (sortBy: 'date' | 'filename' | 'duration' | 'name') => set({ sortBy }),
       setSortOrder: (sortOrder: 'asc' | 'desc') => set({ sortOrder }),
 
       // helper function
