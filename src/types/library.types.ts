@@ -13,7 +13,7 @@ export interface Recording {
   tags: string | null
   updated_at: string
   status: string
-  size: number
+  filesize: number
   participants: number
 }
 

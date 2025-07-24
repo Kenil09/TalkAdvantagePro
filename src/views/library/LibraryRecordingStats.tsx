@@ -48,7 +48,7 @@ const LibraryRecordingStats = () => {
 
   return (
     <div className="p-4 bg-white border-b border-gray-200">
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {/* Total Recordings */}
         <Tooltip>
           <TooltipTrigger asChild>

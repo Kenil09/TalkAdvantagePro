@@ -114,8 +114,8 @@ const LibrarySearchBar = () => {
 
   return (
     <div>
-      <div className="flex items-center gap-2 p-4">
-        <div className="relative flex-1">
+      <div className="flex flex-col xl:flex-row items-start xl:items-center gap-2 p-4">
+        <div className="w-full relative flex-1">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <Input
             placeholder="Search recordings, tags, or participants..."
@@ -135,7 +135,7 @@ const LibrarySearchBar = () => {
           />
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="gap-2 cursor-pointer">
@@ -152,6 +152,16 @@ const LibrarySearchBar = () => {
                 onSelect={setDateRange}
                 numberOfMonths={2}
               />
+              <div className="flex justify-end px-2 pb-1">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setDateRange(undefined)}
+                  className="text-xs text-gray-500 hover:text-black dark:hover:text-white"
+                >
+                  Clear
+                </Button>
+              </div>
             </PopoverContent>
           </Popover>
 
@@ -185,9 +195,8 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className={`rounded-r-none cursor-pointer ${
-                viewMode === 'list' ? '' : 'bg-white'
-              }`}
+              className={`rounded-r-none cursor-pointer ${viewMode === 'list' ? '' : 'bg-white'
+                }`}
             >
               <List className="w-4 h-4" />
             </Button>
@@ -195,9 +204,8 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className={`rounded-none border-x cursor-pointer ${
-                viewMode === 'grid' ? '' : 'bg-white'
-              }`}
+              className={`rounded-none border-x cursor-pointer ${viewMode === 'grid' ? '' : 'bg-white'
+                }`}
             >
               <Grid3X3 className="w-4 h-4" />
             </Button>
@@ -205,9 +213,8 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'calendar' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('calendar')}
-              className={`rounded-none border-x  cursor-pointer ${
-                viewMode === 'calendar' ? '' : 'bg-white'
-              }`}
+              className={`rounded-none border-x  cursor-pointer ${viewMode === 'calendar' ? '' : 'bg-white'
+                }`}
             >
               <CalendarIcon className="w-4 h-4" />
             </Button>
@@ -215,9 +222,8 @@ const LibrarySearchBar = () => {
               variant={viewMode === 'heatmap' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('heatmap')}
-              className={`rounded-l-none cursor-pointer ${
-                viewMode === 'heatmap' ? '' : 'bg-white'
-              }`}
+              className={`rounded-l-none cursor-pointer ${viewMode === 'heatmap' ? '' : 'bg-white'
+                }`}
             >
               <Activity className="w-4 h-4" />
             </Button>

@@ -38,7 +38,7 @@ export interface TranscriptionStore {
     },
     blob: Blob,
   ) => Promise<
-    | { success: true; filename: string; path: string }
+    | { success: true; filename: string; path: string; filesize: number }
     | { success: false; error: string }
   >
 }
