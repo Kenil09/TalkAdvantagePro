@@ -7,7 +7,7 @@ class LLM {
   constructor(model: string) {
     this.llmModel = new ChatOpenAI({
       apiKey: process.env.OPENROUTER_API_KEY,
-      model: model || 'deepseek/deepseek-r1-0528:free',
+      model: model || 'openai/gpt-4o-mini',
       configuration: {
         baseURL: 'https://openrouter.ai/api/v1',
       },
