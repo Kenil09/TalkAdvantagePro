@@ -6,22 +6,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useLibraryStore } from "@/lib/store/library.store"
 import { Recording } from '@/types/library.types'
 import { X } from 'lucide-react'
 
 function TranscriptTextModel({
   isOpen,
   setTranscriptSearchModel,
-  expandedTranscriptIds,
   filteredRecordings,
-  setExpandedTranscriptIds,
 }: {
   isOpen: boolean
   setTranscriptSearchModel: (value: boolean) => void
-  expandedTranscriptIds: string[]
   filteredRecordings: Recording[]
-  setExpandedTranscriptIds: (value: string[]) => void
 }) {
+  const { setExpandedTranscriptIds, expandedTranscriptIds } = useLibraryStore()
   const handleClose = () => {
     setTranscriptSearchModel(false)
     setExpandedTranscriptIds([])

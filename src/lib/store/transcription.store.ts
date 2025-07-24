@@ -98,11 +98,12 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
       const path = 'recordings'
       const filepath = `${path}/${filename}`
       const contentType = blob.type || 'audio/mpeg'
+      const fileSize = blob.size || 0;
       // Step 2: Get presigned URL from backend
       const response = await fetch('/api/upload-files', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filename, path, contentType }),
+        body: JSON.stringify({ filename, path, contentType, fileSize }),
       })
 
       if (!response.ok) {
@@ -130,6 +131,7 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
         ...uploadData,
         filename: filename,
         filepath: filepath,
+        filesize: fileSize,
         recording_date: now,
         recording_time: format(now, 'HH:mm:ss'),
         duration: uploadData.duration,
@@ -143,6 +145,7 @@ export const useTranscriptionStore = create<TranscriptionStore>((set, get) => ({
         success: true,
         filename: filename,
         path: filepath,
+        filesize: fileSize,
       }
     } catch (error) {
       console.error('Recording upload failed:', error)

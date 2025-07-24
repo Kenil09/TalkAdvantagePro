@@ -15,6 +15,7 @@ const fileUploadSchema = z.object({
   filename: z.string(),
   path: z.string().default(''),
   contentType: z.string().default('audio/mpeg'),
+  filesize: z.number().optional(),
 })
 
 export async function POST(request: Request) {
@@ -22,15 +23,14 @@ export async function POST(request: Request) {
     const bucketName = process.env.S3_BUCKET_NAME
     const body = await request.json()
     const validation = fileUploadSchema.safeParse(body)
-
+    
     if (!validation.success) {
       return NextResponse.json(
         { error: 'Invalid request format', details: validation.error.format() },
         { status: 400 },
       )
     }
-
-    const { filename, path: folder, contentType } = validation.data
+    const { filename, path: folder, contentType, filesize } = validation.data
     const key = `${folder}/${filename}`
 
     if (!bucketName) {
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
     const url = await getSignedUrl(s3Client, command, { expiresIn: 300 })
 
-    return NextResponse.json({ url, path: key })
+    return NextResponse.json({ url, path: key, filesize })
   } catch (error) {
     console.error('Error handling upload:', error)
     return NextResponse.json(

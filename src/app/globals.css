@@ -277,3 +277,75 @@ td {
 .tiptap-editor li {
   line-height: 1.2;
 }
+
+
+.react-calendar-heatmap-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  display: flex;
+}
+
+.react-calendar-heatmap-wrapper .calendar-week-labels {
+  display: flex;
+  flex-direction: column;
+  margin-right: 8px;
+  justify-content: space-around;
+  padding-top: 28px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.react-calendar-heatmap-wrapper .calendar-week-labels div {
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap {
+  width: 100%;
+  height: 100%;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .react-calendar-heatmap-small-text {
+  font-size: 8px;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap rect:hover {
+  stroke: #333;
+  stroke-width: 1px;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .color-empty {
+  fill: #f3f4f6;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .color-scale-1 {
+  fill: #bbf7d0;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .color-scale-2 {
+  fill: #4ade80;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .color-scale-3 {
+  fill: #16a34a;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .react-calendar-heatmap-month-labels {
+  font-size: 10px;
+  font-weight: 500;
+  fill: #6b7280;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
+  font-size: 7px;
+  font-weight: 500;
+  fill: #6b7280;
+}
+
+.react-calendar-heatmap-wrapper .react-calendar-heatmap .react-calendar-heatmap-month-labels {
+  font-size: 7px;
+  font-weight: 500;
+  fill: #6b7280;
+}

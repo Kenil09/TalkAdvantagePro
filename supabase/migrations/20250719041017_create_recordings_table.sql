@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS recordings (
   title TEXT,
   filepath TEXT,
   filename TEXT,
+  filesize BIGINT,
   recording_date DATE,
   recording_time TIME,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

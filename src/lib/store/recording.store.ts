@@ -202,7 +202,7 @@ export const useRecordingStore = create<RecordingStore>()(
             context,
             conversationCardsSelectedModel,
           )
-          const cards = rawResponse.cards.map(
+          const cards = rawResponse?.cards?.map(
             (card: ConversationCard, index: number) => ({
               ...card,
               id: index.toString(),

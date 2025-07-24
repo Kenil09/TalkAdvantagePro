@@ -59,8 +59,13 @@ interface LibraryStore {
   sortOrder: 'asc' | 'desc'
   expandedRecordings: Record<string, boolean>
   transcriptSearchModel: boolean
-
+  selectedHeatmapDate: Date | null
+  expandedTranscriptIds: string[]
   // Actions
+  setExpandedTranscriptIds: (
+    updater: string[] | ((prev: string[]) => string[]),
+  ) => void
+  setSelectedHeatmapDate: (date: Date | null) => void
   setTranscriptSearchModel: (transcriptSearchModel: boolean) => void
   setShowRenameDialog: (showRenameDialog: boolean) => void
   setRecordingToRename: (recordingToRename: Recording | null) => void
@@ -171,7 +176,15 @@ export const useLibraryStore = create<LibraryStore>()(
       sortOrder: 'desc',
       expandedRecordings: {},
       transcriptSearchModel: false,
+      selectedHeatmapDate: null,
+      expandedTranscriptIds: [],
       // Actions
+      setExpandedTranscriptIds: (updater) =>
+        set((state) => ({
+          expandedTranscriptIds:
+            typeof updater === 'function' ? updater(state.expandedTranscriptIds) : updater,
+        })),
+      setSelectedHeatmapDate: (date: Date | null) => set({ selectedHeatmapDate: date }),
       setTranscriptSearchModel: (transcriptSearchModel: boolean) =>
         set({ transcriptSearchModel }),
       setShowRenameDialog: (showRenameDialog: boolean) =>
