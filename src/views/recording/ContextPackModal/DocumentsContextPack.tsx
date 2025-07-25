@@ -2,16 +2,13 @@ import FormInput from '@/components/formInput'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth.store'
 import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
-import { documentProcessorService } from '@/lib/weaviate/document-service'
-import { CheckCircle, FileText, Plus, Trash2, Upload } from 'lucide-react'
-import { useState } from 'react'
+import { documentProcessorService } from '@/lib/document/document.service'
+import { FileText, Plus, Trash2, Upload } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
+import { v4 as uuid } from 'uuid'
 
 const DocumentsContextPack = () => {
   const user = useAuthStore((state) => state.user)
-
-  const [uploading, setUploading] = useState(false)
-  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   const { control, register, setValue, watch, getValues } =
     useFormContext<ContextPackForm>()
@@ -23,10 +20,10 @@ const DocumentsContextPack = () => {
 
   const addDocument = () => {
     const newDoc = {
+      id: uuid(),
       name: '',
-      file: '',
-      type: 'pdf',
       tags: [],
+      content: [],
     }
     const currentDocuments = getValues('documents')
     if (!currentDocuments) return
@@ -41,7 +38,7 @@ const DocumentsContextPack = () => {
     setValue(
       'documents',
       currentDocuments.filter((doc) => {
-        const docId = doc.name.toString()
+        const docId = doc.id.toString()
         const fieldId = id.toString()
         return docId !== fieldId
       }),
@@ -55,40 +52,37 @@ const DocumentsContextPack = () => {
     index: number,
   ) => {
     const file = e.target.files?.[0]
-    if (!file) {
-      return
-    }
+    if (!file) return
+
+    // Reset file input to allow re-uploading the same file
+    e.target.value = ''
+
     if (!user) {
       alert('You must be logged in to upload files.')
       return
     }
 
-    const document = documents[index]
+    const document = documents?.[index]
+    if (!document) return
 
-    if (!document.name) {
+    if (!document.name?.trim()) {
       alert('Please enter a document name before uploading.')
       return
     }
-    setUploading(true)
-    setUploadSuccess(false)
+
     try {
-      // Process and store document chunks
-      const chunks = await documentProcessorService.processDocument(file, {
-        name: document.name,
-        tags: document.tags.map((tag) => tag.trim()),
-      })
+      const processedText = await documentProcessorService.processDocument(file)
+      setValue(`documents.${index}.content`, processedText)
 
-      // Store chunks in Weaviate
-      await documentProcessorService.storeDocumentChunks(user.id, chunks)
-
-      // Store document reference in context pack
-      setValue(`documents.${index}.file`, file.name)
-      setUploadSuccess(true)
+      // Update the document with the file name
+      setValue(`documents.${index}.name`, file.name, { shouldDirty: true })
     } catch (err) {
       console.error('Upload failed:', err)
-      alert('Upload failed')
-    } finally {
-      setUploading(false)
+      alert(
+        `Upload failed: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`,
+      )
     }
   }
 
@@ -134,7 +128,7 @@ const DocumentsContextPack = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => removeDocument(field.name)}
+                  onClick={() => removeDocument(field.id)}
                   className="text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                   type="button"
                 >
@@ -163,13 +157,11 @@ const DocumentsContextPack = () => {
                   />
                 </div>
 
-                {!field.file && !uploadSuccess ? (
-                  <div>
+                <div>
                     <Button
                       type="button"
                       variant="outline"
                       className="h-11 border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
-                      disabled={uploading}
                       onClick={() =>
                         document
                           .getElementById(`document-upload-${index}`)
@@ -177,20 +169,16 @@ const DocumentsContextPack = () => {
                       }
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      {uploading ? 'Uploading...' : 'Upload'}
+                      Upload
                       <input
                         id={`document-upload-${index}`}
                         type="file"
-                        disabled={uploading}
                         className="hidden"
                         accept=".pdf,.doc,.docx,.txt"
                         onChange={(e) => handleFileUpload(e, index)}
                       />
                     </Button>
                   </div>
-                ) : (
-                  <CheckCircle className="h-5 w-5 mb-2.5 text-green-500" />
-                )}
               </div>
             </div>
           )

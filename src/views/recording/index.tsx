@@ -29,7 +29,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive)
 const STORAGE_KEY = 'recording-layout'
 
 const Recording = () => {
-  const { editMode, setEditMode } = useRecordingStore()
+  const { editMode, setEditMode, hotLinkModal, addAnalyticsModal } = useRecordingStore()
   const [isEditContextPack, setIsEditContextPack] = useState({
     status: false,
     uuid: '',
@@ -165,7 +165,9 @@ const Recording = () => {
               margin={[24, 24]}
               useCSSTransforms={false}
               autoSize={true}
-              draggableCancel="button, input, textarea, select, option, [role='button'], .editor-content, .no-drag-handle, ul, ol, li, .ProseMirror ul, .ProseMirror ol, .ProseMirror li"
+              draggableCancel="button, input, textarea, select, option, [role='button'], .editor-content, .no-drag-handle, ul, ol, li, .ProseMirror ul, .ProseMirror ol, .ProseMirror li, [data-no-drag]"
+              preventCollision={!editMode}
+              style={{ pointerEvents: isOpen || hotLinkModal || addAnalyticsModal ? 'none' : 'auto' }}
             >
               {Object.entries(components).map(([key, component]) => {
                 return (

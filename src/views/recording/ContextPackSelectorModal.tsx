@@ -145,7 +145,7 @@ export default function ContextPackSelectorModal({
 
           {/* Context Pack List */}
           <div className="p-6">
-            {contextPacks.length === 0 ? (
+            {contextPacks?.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Briefcase className="w-8 h-8 text-gray-400" />
@@ -171,7 +171,7 @@ export default function ContextPackSelectorModal({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {contextPacks.map((pack) => (
+                {contextPacks?.map((pack) => (
                   <div
                     key={pack.uuid}
                     className={`cursor-pointer transition-all duration-200 rounded-3xl hover:shadow-lg hover:scale-[1.02] border border-gray-200 shadow-sm ${
