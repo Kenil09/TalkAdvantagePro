@@ -23,7 +23,6 @@ const ContextPackSelect = ({
   const [isSelectorOpen, setIsSelectorOpen] = useState(false)
   const { currentContextPack, fetchContextPacks } = useContextPackStore()
   const user = useAuthStore((state) => state.user)
-
   // Fetch context packs when component mounts
   useEffect(() => {
     if (user && user.id) {
@@ -76,18 +75,19 @@ const ContextPackSelect = ({
                 <div className="flex items-center space-x-1">
                   <Users className="w-2.5 h-2.5" />
                   <span>
-                    {currentContextPack?.properties.participants?.length + 1}
+                    {(currentContextPack?.properties?.participants?.length ||
+                      0) + 1}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <FileText className="w-2.5 h-2.5" />
                   <span>
-                    {currentContextPack?.properties.documents?.length}
+                    {currentContextPack?.properties?.documents?.length || 0}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="w-2.5 h-2.5" />
-                  <span>{currentContextPack?.properties.timeline}</span>
+                  <span>{currentContextPack?.properties.timeline || 0}</span>
                 </div>
               </div>
             )}
@@ -98,13 +98,14 @@ const ContextPackSelect = ({
                 <div className="flex items-center space-x-1">
                   <Users className="w-3 h-3 text-blue-600" />
                   <div className="text-xs text-gray-600">
-                    {currentContextPack?.properties.participants
+                    {currentContextPack?.properties?.participants
                       ?.slice(0, 2)
                       .map((p) => p.name.split(' ')[0])
                       .join(', ')}
-                    {currentContextPack?.properties.participants?.length > 2 &&
+                    {(currentContextPack?.properties?.participants?.length ||
+                      0) > 2 &&
                       ` +${
-                        (currentContextPack.properties.participants?.length ||
+                        (currentContextPack?.properties?.participants?.length ||
                           0) - 2
                       }`}
                   </div>
@@ -115,7 +116,8 @@ const ContextPackSelect = ({
                 <div className="flex items-center space-x-1">
                   <FileText className="w-3 h-3 text-green-600" />
                   <div className="text-xs text-gray-600">
-                    {currentContextPack?.properties.documents?.length} docs
+                    {currentContextPack?.properties?.documents?.length || 0}{' '}
+                    docs
                   </div>
                 </div>
               </div>

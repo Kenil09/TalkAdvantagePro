@@ -1,5 +1,5 @@
 'use server'
-import { WeaviateField } from 'weaviate-client'
+import { ErrorObject, WeaviateField } from 'weaviate-client'
 import { getDocumentCollection } from './document.schema'
 import { Document, DocumentQueryResult } from './document.types'
 
@@ -58,17 +58,15 @@ export const getByContextPackId = async (
  * @returns The id of the created document
  */
 export const create = async (
-  properties: Partial<Document>,
-): Promise<string | null> => {
+  documents: Partial<Document>[],
+): Promise<(string | ErrorObject<undefined>)[] | null> => {
   try {
     const collection = await getDocumentCollection()
     if (!collection) {
       throw new Error('Document collection not found')
     }
-    const result = await collection.data.insert({
-      properties: properties as unknown as Record<string, WeaviateField>,
-    })
-    return result
+    const result = await collection.data.insertMany(documents as unknown as Record<string, WeaviateField>[])
+    return result.allResponses
   } catch (error) {
     console.error('Error creating document:', error)
     return null

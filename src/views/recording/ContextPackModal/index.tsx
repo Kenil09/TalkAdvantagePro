@@ -16,9 +16,10 @@ import DocumentsContextPack from './DocumentsContextPack'
 import TimelineContextPack from './TimelineContextPack'
 import { useAuthStore } from '@/lib/store/auth.store'
 import useFormSubmit from '@/hooks/useFormSubmit'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { ContextPackForm } from '@/lib/weaviate-v3/collections/contextpack'
 import * as contextPackService from '@/lib/weaviate-v3/collections/contextpack/contextpack.service'
+import * as documentService from '@/lib/weaviate-v3/collections/documents/document.service'
 import { useContextPackStore } from '@/lib/store/context-pack.store'
 
 const formDefaultValues = {
@@ -59,7 +60,8 @@ const ContextPackModal = ({
   setIsEditContextPack,
 }: Props) => {
   const user = useAuthStore((state) => state.user)
-  const { fetchContextPacks } = useContextPackStore()
+  const { fetchContextPacks } =
+    useContextPackStore()
   const methods = useForm<ContextPackForm>({
     mode: 'onChange',
     defaultValues: formDefaultValues,
@@ -67,30 +69,68 @@ const ContextPackModal = ({
 
   const { setValue } = methods
 
-  useEffect(() => {
-    const getData = async () => {
-      const data = await contextPackService.getById(isEditContextPack.uuid)
-      if (data) {
-        Object.keys(formDefaultValues).forEach((key) => {
-          setValue(
-            key as keyof ContextPackForm,
-            data.properties[key as keyof ContextPackForm],
-          )
-        })
+  const getData = useCallback(async () => {
+    if (isEditContextPack.status && isEditContextPack.uuid) {
+      try {
+        const data = await contextPackService.getById(isEditContextPack.uuid)
+
+        if (data && data.properties) {
+          Object.keys(formDefaultValues).forEach((key) => {
+            const formKey = key as keyof ContextPackForm
+            const value = data.properties[formKey]
+            if (value !== undefined) {
+              setValue(formKey, value)
+            }
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching context pack data:', error)
       }
     }
-    if (isEditContextPack.uuid) {
-      getData()
-    }
-  }, [isEditContextPack.uuid, setValue])
+  }, [isEditContextPack, setValue])
+
+  useEffect(() => {
+    getData()
+  }, [getData])
 
   const createContextPack = async (data: ContextPackForm, userId: string) => {
     try {
-      await contextPackService.create({ ...data, userId })
-      // Fetch context packs again to update the list
-      fetchContextPacks(userId)
-    } catch (error) {
-      alert(error)
+      if (data.documents.length) {
+        data.documents = data.documents.map((doc) => {
+          return {
+            ...doc,
+            tags: typeof doc.tags === 'string' ? doc.tags.split(',') : doc.tags,
+          }
+        })
+      }
+      const createdPack = await contextPackService.create({
+        ...data,
+        documents: data.documents.map((doc) => {
+          const newDoc = {...doc}
+          delete newDoc.content
+          return newDoc
+        }),
+        userId,
+      })
+
+      if (data.documents?.length > 0 && createdPack) {
+        for await (const doc of data.documents) {
+          await documentService.create(
+            doc.content?.map((content) => ({
+              documentId: doc.id,
+              contextPackId: createdPack,
+              content,
+              name: doc.name
+            })) || []
+          )
+        }
+      }
+
+      await fetchContextPacks(userId)
+      return createdPack
+    } catch (err) {
+      console.error('Error processing context pack:', err)
+      throw err
     }
   }
 
@@ -132,7 +172,7 @@ const ContextPackModal = ({
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
-                  <DialogTitle className="text-2xl font-bold">
+                  <DialogTitle className="!text-2xl font-bold">
                     Create Context Pack
                   </DialogTitle>
                   <p className="text-blue-100 text-sm">

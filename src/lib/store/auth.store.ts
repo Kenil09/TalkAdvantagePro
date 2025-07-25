@@ -93,7 +93,6 @@ export const useAuthStore = create<AuthStore>()(
             }
 
             // Set up auth state change listener
-            // Set up auth state change listener
             supabase.auth.onAuthStateChange(async (event, session) => {
               try {
                 if (

@@ -2,9 +2,9 @@ import { Metadata, Vectors } from 'weaviate-client'
 
 export interface Document {
   contextPackId: string
+  documentId: string
   name: string
   content: string
-  tags: string[]
 }
 
 export type DocumentForm = Omit<Document, 'id'>

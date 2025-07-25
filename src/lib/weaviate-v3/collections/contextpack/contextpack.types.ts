@@ -17,7 +17,9 @@ export interface ContextPack {
   contextFactors: string
 }
 
-export type ContextPackForm = Omit<ContextPack, 'id'>
+export interface ContextPackForm extends Omit<ContextPack, 'documents'> {
+  documents: DocumentForm[]
+}
 export interface ContextPackDetails {
   name: string
   duration: string
@@ -45,10 +47,13 @@ export interface ApexProfile {
 }
 
 export interface Document {
+  id: string
   name: string
-  file: string
-  type: string
-  tags: string[]
+  tags: string[] | string
+}
+
+export interface DocumentForm extends Document {
+  content?: string[]
 }
 
 export interface ContextPackQueryResult {

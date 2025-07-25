@@ -183,8 +183,8 @@ export const useRecordingStore = create<RecordingStore>()(
           user_name: currentContextPack?.properties?.name ?? '',
           person: currentContextPack?.properties?.nonUserName ?? '',
           person_relationship:
-            currentContextPack?.properties?.participants[0]
-              .relationship_to_user ?? '',
+            currentContextPack?.properties?.participants?.[0]
+              ?.relationship_to_user ?? '',
           goal: currentContextPack?.properties?.goal ?? '',
           goal_secondary:
             currentContextPack?.properties?.subGoals.join(',') ?? '',

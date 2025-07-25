@@ -5,10 +5,10 @@ import { HOTLINK_WIDGETS } from '@/constants/hotlink-widget.constants'
 import { useContextPackStore } from '@/lib/store/context-pack.store'
 import useHotLinkDetection from '@/hooks/useHotLinkDetection'
 import { useTranscriptionStore } from '@/lib/store/transcription.store'
-import { Participant } from '@/types/knowledge-graph.types'
 import { Copy, Loader2, X } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Participant } from '@/lib/weaviate-v3/collections/contextpack'
 
 const HotLinkWidgetDisplay = () => {
   const { activeWidget, clearActiveWidget } =
@@ -81,7 +81,7 @@ const HotLinkWidgetDisplay = () => {
 
     Documents:
     ${contextPack.documents
-      .map((d) => `- ${d.name}${d.tags ? ` (Tags: ${d.tags.join(', ')})` : ''}`)
+      .map((d) => `- ${d.name}${d.tags ? ` (Tags: ${Array.isArray(d.tags) ? d.tags.join(', ') : d.tags})` : ''}`)
       .join('\n')}
     `
         : ''
